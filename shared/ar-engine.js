@@ -144,14 +144,6 @@ async function start() {
   }
   $("loading").style.display = "none";
 
-  // Pedir mayor resolución de cámara para que el fondo se vea nítido (best-effort)
-  try {
-    const track = mindar.video?.srcObject?.getVideoTracks?.()[0];
-    if (track && track.applyConstraints) {
-      await track.applyConstraints({ width: { ideal: 1920 }, height: { ideal: 1080 } }).catch(() => {});
-    }
-  } catch (e) { /* si el dispositivo no lo permite, seguimos igual */ }
-
   // --- Bucle de render ---
   const clock = new THREE.Clock();
   renderer.setAnimationLoop(() => {
