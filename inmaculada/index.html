@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>RA · La Inmaculada — Museo Ayacucho</title>
+  <link rel="stylesheet" href="../shared/styles.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+      "mindar-image-three": "https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="ar"></div>
+
+  <div id="topbar">
+    <div id="titulo">…</div>
+    <div id="subtitulo"></div>
+  </div>
+
+  <div id="scan">
+    <div class="frame"></div>
+    <p>Apunta la cámara a <b>la pintura completa</b> para revelar el análisis.</p>
+  </div>
+
+  <div id="card">
+    <button id="card-close">×</button>
+    <div class="head">
+      <div id="card-color"></div>
+      <div>
+        <div id="card-titulo"></div>
+        <div id="card-pigmento"></div>
+        <div id="card-formula"></div>
+      </div>
+    </div>
+    <div id="card-nota"></div>
+  </div>
+
+  <div id="panel">
+    <div class="row">
+      <input id="reveal" type="range" min="0" max="100" value="0" />
+      <button id="btn-toggle">Revelar</button>
+    </div>
+    <div class="hint">Desliza para revelar los pigmentos · toca cada círculo ● para ver el detalle</div>
+    <div id="ficha-txt"></div>
+  </div>
+
+  <div id="loading">Cargando experiencia…</div>
+  <div id="error"></div>
+
+  <!-- config de la pieza (define window.MUSEO_CONFIG) -->
+  <script src="config.js"></script>
+  <!-- motor reutilizable -->
+  <script type="module" src="../shared/ar-engine.js"></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+:root{
+  --bg:#0d0b12; --gold:#c9a24b; --ink:#f4efe6; --card:#171320e6;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hidden;}
+#ar{position:fixed;inset:0;}
+
+/* Barra superior (ficha / respaldo) */
+#topbar{position:fixed;top:0;left:0;right:0;padding:12px 16px calc(12px + env(safe-area-inset-top));
+  background:linear-gradient(#000c 0%, #0000 100%);z-index:5;pointer-events:none;}
+#titulo{font-size:17px;font-weight:700;letter-spacing:.2px;}
+#subtitulo{font-size:12px;opacity:.8;margin-top:2px;}
+
+/* Estado de escaneo */
+#scan{position:fixed;inset:0;z-index:4;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;pointer-events:none;}
+#scan .frame{width:64vw;max-width:280px;aspect-ratio:.72;border:2px dashed #ffffff88;border-radius:14px;}
+#scan p{font-size:14px;opacity:.9;max-width:280px;}
+
+/* Panel de controles inferior */
+#panel{position:fixed;left:0;right:0;bottom:0;z-index:6;
+  padding:14px 16px calc(16px + env(safe-area-inset-bottom));
+  background:linear-gradient(#0000 0%, #000d 55%);
+  transform:translateY(120%);transition:transform .35s ease;}
+#panel.on{transform:translateY(0);}
+.row{display:flex;align-items:center;gap:12px;}
+#reveal{flex:1;accent-color:var(--gold);height:26px;}
+#btn-toggle{background:var(--gold);color:#1a1206;border:0;border-radius:10px;
+  padding:10px 14px;font-weight:700;font-size:13px;}
+.hint{font-size:11px;opacity:.7;margin:8px 2px 0;}
+#ficha-txt{font-size:11px;opacity:.65;margin-top:6px;}
+
+/* Tarjeta de pigmento */
+#card{position:fixed;left:16px;right:16px;bottom:110px;z-index:8;
+  background:var(--card);border:1px solid #ffffff22;border-radius:16px;
+  padding:16px;backdrop-filter:blur(8px);
+  transform:translateY(20px);opacity:0;pointer-events:none;transition:.25s;}
+#card.on{transform:translateY(0);opacity:1;pointer-events:auto;}
+#card .head{display:flex;align-items:center;gap:12px;}
+#card-color{width:34px;height:34px;border-radius:50%;border:2px solid #fff6;flex:0 0 auto;}
+#card-titulo{font-size:18px;font-weight:700;}
+#card-pigmento{font-size:13px;opacity:.85;}
+#card-formula{font-size:13px;color:var(--gold);margin-top:2px;font-variant-numeric:tabular-nums;}
+#card-nota{font-size:13px;line-height:1.4;margin-top:10px;opacity:.9;}
+#card-close{position:absolute;top:10px;right:12px;background:none;border:0;color:#fff9;font-size:20px;}
+
+/* Carga / error */
+#loading{position:fixed;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;
+  background:var(--bg);font-size:14px;opacity:.9;}
+#error{display:none;position:fixed;left:16px;right:16px;top:50%;z-index:10;
+  background:#3a0d0d;border:1px solid #ff6b6b;border-radius:12px;padding:16px;font-size:13px;line-height:1.5;}
