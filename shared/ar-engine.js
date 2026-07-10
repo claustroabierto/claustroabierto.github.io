@@ -43,6 +43,7 @@ async function start() {
 
   const { renderer, scene, camera } = mindar;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); // nitidez en pantallas retina
   scene.add(new THREE.AmbientLight(0xffffff, 1.4));
 
   const anchor = mindar.addAnchor(0);
@@ -57,9 +58,11 @@ async function start() {
   overlay.position.set(ov.offsetX, ov.offsetY, 0.001);
   anchor.group.add(overlay);
 
-  // --- Hotspots (anillos pulsantes, táctiles) ---
-  const hotMeshes = [];
-  const ringGeo = new THREE.RingGeometry(0.045, 0.06, 32);
+  // --- Hotspots (anillo visual + disco invisible de toque, más grande) ---
+  const hotMeshes = [];  // aros visuales (pulsan)
+  const hitMeshes = [];  // discos invisibles para el raycast (área de toque amplia)
+  const ringGeo = new THREE.RingGeometry(0.05, 0.07, 40);
+  const hitGeo = new THREE.CircleGeometry(0.11, 24);
   (CFG.hotspots || []).forEach((h, i) => {
     const lx = ov.offsetX + (h.x - 0.5) * ov.width;
     const ly = ov.offsetY + (0.5 - h.y) * ov.height; // y invertida
@@ -69,6 +72,12 @@ async function start() {
     ring.userData = { idx: i, base: 1 };
     anchor.group.add(ring);
     hotMeshes.push(ring);
+
+    const hit = new THREE.Mesh(hitGeo, new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide }));
+    hit.position.set(lx, ly, 0.007);
+    hit.userData = { idx: i };
+    anchor.group.add(hit);
+    hitMeshes.push(hit);
   });
 
   // --- Estado de detección + UI ---
@@ -94,7 +103,7 @@ async function start() {
     ptr.x = ((ev.clientX - r.left) / r.width) * 2 - 1;
     ptr.y = -((ev.clientY - r.top) / r.height) * 2 + 1;
     ray.setFromCamera(ptr, camera);
-    const hit = ray.intersectObjects(hotMeshes, false)[0];
+    const hit = ray.intersectObjects(hitMeshes, false)[0];
     if (hit) openCard(hit.object.userData.idx);
   });
 
@@ -122,6 +131,14 @@ async function start() {
     return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")");
   }
   $("loading").style.display = "none";
+
+  // Pedir mayor resolución de cámara para que el fondo se vea nítido (best-effort)
+  try {
+    const track = mindar.video?.srcObject?.getVideoTracks?.()[0];
+    if (track && track.applyConstraints) {
+      await track.applyConstraints({ width: { ideal: 1920 }, height: { ideal: 1080 } }).catch(() => {});
+    }
+  } catch (e) { /* si el dispositivo no lo permite, seguimos igual */ }
 
   // --- Bucle de render ---
   const clock = new THREE.Clock();
