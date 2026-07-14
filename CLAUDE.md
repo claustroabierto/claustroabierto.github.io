@@ -124,11 +124,50 @@ Capacidades que el motor **todavía no tiene** y que estas decisiones exigen:
 
 1. ~~**Animación por capa**~~ — ✅ hecho, ver `anim` arriba. Falta probarlo en
    celular real y, sobre todo, **faltan los assets de MALTA** para armar la pieza.
-2. **Audio** — no existe. Lo piden borja y wawapampay. Ojo: **iOS exige un gesto
-   del usuario** para arrancar audio; hace falta botón de "toca para escuchar",
-   no autoplay.
+2. ~~**Audio**~~ — ✅ hecho, ver `audio` abajo. ⚠️ **Falta resolver el
+   interruptor de silencio de iOS** (ver abajo): correr `pruebas/audio.html` en
+   un iPhone real.
 3. **Modo pantalla** — contenido sin anclar a target (ver Transversal arriba).
 4. **Letras sincronizadas** — wawapampay; necesita timings por línea.
+
+### `audio` — narración por pieza (opcional)
+
+Se activa solo desde `config.js`; el motor crea el botón, ningún `index.html` se
+toca.
+
+```js
+audio: {
+  src: "assets/narracion.m4a",
+  loop: false,
+  boton: "Escuchar",       // texto del botón (default "Escuchar")
+  pausarAlPerder: false    // default false — ver abajo
+}
+```
+
+- **Nunca hay autoplay**: iOS exige un gesto del usuario, así que siempre hay
+  botón. El botón *es* el gesto.
+- **`pausarAlPerder` es `false` a propósito.** El tracking parpadea (peor en
+  piezas con luz variable, como borja); si el audio se cortara con cada pérdida
+  de target, tartamudearía. Una vez que arranca, sigue hasta que el visitante lo
+  pare.
+
+#### ⚠️ Sin resolver: el interruptor de silencio de iOS
+
+Mucha gente llega al museo con el teléfono en silencio, y en iOS eso puede dejar
+el audio web mudo. **No está confirmado** si afecta a nuestro caso ni cuál es la
+salida — depende de la versión de iOS.
+
+`pruebas/audio.html` lo resuelve en un teléfono real: compara `<audio>` contra un
+`<video>` oculto con el mismo archivo y da el veredicto. Los tres desenlaces:
+
+| resultado | qué hacer |
+|---|---|
+| `<audio>` suena en silencio | nada, el motor está bien |
+| solo suena el `<video>` | migrar el motor a un `<video>` oculto |
+| ninguno suena | no hay arreglo por código: avisar al visitante (cartel junto al QR + aviso en pantalla) |
+
+Hasta correr esa prueba, **el audio de borja y wawapampay no se puede dar por
+cerrado**.
 
 Assets:
 

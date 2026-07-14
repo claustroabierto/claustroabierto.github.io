@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Diagnóstico de audio — Museo Ayacucho</title>
+  <style>
+    :root{ --bg:#0d0b12; --gold:#c9a24b; --ink:#f4efe6; --card:#171320; }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    body{margin:0;background:var(--bg);color:var(--ink);
+      font-family:system-ui,-apple-system,sans-serif;line-height:1.5;
+      padding:24px 18px calc(24px + env(safe-area-inset-bottom));}
+    h1{font-size:19px;margin:0 0 4px;}
+    .sub{font-size:13px;opacity:.7;margin-bottom:22px;}
+    .paso{background:var(--card);border:1px solid #ffffff1a;border-radius:14px;
+      padding:16px;margin-bottom:14px;}
+    .paso h2{font-size:15px;margin:0 0 6px;color:var(--gold);}
+    .paso p{font-size:13px;margin:0 0 12px;opacity:.85;}
+    button{width:100%;background:var(--gold);color:#1a1206;border:0;border-radius:10px;
+      padding:14px;font-size:15px;font-weight:700;font-family:inherit;}
+    button:disabled{opacity:.4;}
+    .aviso{background:#3a2d0d;border:1px solid var(--gold);border-radius:12px;
+      padding:14px;font-size:13px;margin-bottom:18px;}
+    .aviso b{color:var(--gold);}
+    .estado{font-size:12px;margin-top:10px;opacity:.75;font-variant-numeric:tabular-nums;}
+    .ok{color:#7ddc7d;} .mal{color:#ff8b8b;}
+    .resp{display:flex;gap:8px;margin-top:12px;}
+    .resp button{font-size:13px;padding:10px;}
+    .resp .no{background:#2a2333;color:var(--ink);border:1px solid #ffffff33;}
+    #veredicto{background:var(--card);border:1px solid var(--gold);border-radius:14px;
+      padding:16px;font-size:13px;display:none;}
+    #veredicto h2{color:var(--gold);font-size:15px;margin:0 0 8px;}
+    code{background:#0006;padding:2px 6px;border-radius:5px;font-size:12px;}
+    .info{font-size:11px;opacity:.5;margin-top:22px;word-break:break-all;}
+  </style>
+</head>
+<body>
+  <h1>Diagnóstico de audio</h1>
+  <div class="sub">Resuelve si el audio de la RA sobrevive al interruptor de silencio.</div>
+
+  <div class="aviso">
+    <b>⚠ Antes de empezar:</b> pon el teléfono en <b>modo silencio</b>
+    (el interruptor físico del costado, en naranja) y <b>sube el volumen</b>.
+    Así se prueba el caso real: mucha gente llega al museo con el teléfono en silencio.
+  </div>
+
+  <div class="paso">
+    <h2>Prueba 1 · elemento &lt;audio&gt;</h2>
+    <p>Es la forma estándar y la que usa el motor hoy.</p>
+    <button id="b1">▶ Reproducir con &lt;audio&gt;</button>
+    <div class="estado" id="e1">sin probar</div>
+    <div class="resp" id="r1" style="display:none">
+      <button data-t="audio" data-v="1">Sí escuché 🔊</button>
+      <button class="no" data-t="audio" data-v="0">No escuché 🔇</button>
+    </div>
+  </div>
+
+  <div class="paso">
+    <h2>Prueba 2 · elemento &lt;video&gt;</h2>
+    <p>Mismo archivo, servido como video sin imagen. En iOS esto a veces sale por
+       el canal de multimedia y se salta el silencio.</p>
+    <button id="b2">▶ Reproducir con &lt;video&gt;</button>
+    <div class="estado" id="e2">sin probar</div>
+    <div class="resp" id="r2" style="display:none">
+      <button data-t="video" data-v="1">Sí escuché 🔊</button>
+      <button class="no" data-t="video" data-v="0">No escuché 🔇</button>
+    </div>
+  </div>
+
+  <div id="veredicto"><h2>Veredicto</h2><div id="vtxt"></div></div>
+
+  <div class="info" id="ua"></div>
+
+  <audio id="a" src="assets/narracion-prueba.m4a" preload="auto" playsinline></audio>
+  <video id="v" src="assets/narracion-prueba.m4a" preload="auto" playsinline
+         style="width:0;height:0;position:absolute;opacity:0"></video>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const res = {};
+
+    $("ua").textContent = navigator.userAgent;
+
+    function armar(btnId, el, estadoId, respId) {
+      const btn = $(btnId), est = $(estadoId);
+      btn.addEventListener("click", async () => {
+        try {
+          el.currentTime = 0;
+          await el.play();                     // el gesto que iOS exige
+          est.innerHTML = '<span class="ok">reproduciendo…</span>';
+          $(respId).style.display = "flex";
+        } catch (err) {
+          est.innerHTML = '<span class="mal">bloqueado: ' + err.name + " — " + err.message + "</span>";
+          res[respId === "r1" ? "audio" : "video"] = "bloqueado";
+          veredicto();
+        }
+      });
+      el.addEventListener("ended", () => { est.innerHTML = "terminó · ¿lo escuchaste?"; });
+    }
+    armar("b1", $("a"), "e1", "r1");
+    armar("b2", $("v"), "e2", "r2");
+
+    document.querySelectorAll(".resp button").forEach((b) => {
+      b.addEventListener("click", () => {
+        res[b.dataset.t] = b.dataset.v === "1" ? "suena" : "mudo";
+        const cont = b.parentElement;
+        cont.querySelectorAll("button").forEach((x) => x.style.opacity = .35);
+        b.style.opacity = 1;
+        veredicto();
+      });
+    });
+
+    function veredicto() {
+      if (!res.audio || !res.video) return;
+      const v = $("veredicto"), t = $("vtxt");
+      v.style.display = "block";
+      const A = res.audio, V = res.video;
+      let msg;
+      if (A === "suena") {
+        msg = "✅ <b>El &lt;audio&gt; suena aun en silencio.</b> El motor está bien como está: " +
+              "no hay que cambiar nada.";
+      } else if (A !== "suena" && V === "suena") {
+        msg = "⚠️ <b>El &lt;audio&gt; queda mudo en silencio, pero el &lt;video&gt; suena.</b> " +
+              "Hay que cambiar el motor para servir el audio desde un elemento " +
+              "<code>&lt;video&gt;</code> oculto. Si no, la mitad de los visitantes " +
+              "no va a escuchar nada y va a creer que la pieza está rota.";
+      } else if (A !== "suena" && V !== "suena") {
+        msg = "🔇 <b>Ninguno suena en silencio.</b> Ningún truco de código lo arregla: " +
+              "hay que <b>avisarle al visitante</b> que quite el silencio. " +
+              "Conviene un cartel junto al QR y un aviso en pantalla antes de la pieza.";
+      } else {
+        msg = "El &lt;audio&gt; suena y el &lt;video&gt; no: raro. Repetí la prueba.";
+      }
+      t.innerHTML = msg + "<br><br><span style='opacity:.6'>audio: <b>" + A +
+                    "</b> · video: <b>" + V + "</b></span>";
+    }
+  </script>
+</body>
+</html>
