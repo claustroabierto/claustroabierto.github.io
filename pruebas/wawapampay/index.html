@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>RA · Wawapampay (demo) — Museo Ayacucho</title>
+  <link rel="stylesheet" href="../../shared/styles.css?v=2" />
+  <!-- Sin importmap: el modo pantalla NO usa three.js ni MindAR. Nada que
+       rastrear = nada que descargar. ~1MB menos que una pieza anclada. -->
+</head>
+<body>
+  <div id="ar"></div>
+
+  <div id="topbar">
+    <div id="titulo">…</div>
+    <div id="subtitulo"></div>
+  </div>
+
+  <div id="panel" class="on">
+    <div class="hint">Demo de mecánica · voz sintetizada, letra inventada y bailarín de placeholder</div>
+    <div id="ficha-txt"></div>
+  </div>
+
+  <div id="loading">Cargando experiencia…</div>
+  <div id="error"></div>
+
+  <script src="config.js?v=1"></script>
+  <script type="module" src="../../shared/pantalla-engine.js?v=1"></script>
+</body>
+</html>

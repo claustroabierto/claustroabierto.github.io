@@ -127,8 +127,74 @@ Capacidades que el motor **todavía no tiene** y que estas decisiones exigen:
 2. ~~**Audio**~~ — ✅ hecho, ver `audio` abajo. ⚠️ **Falta resolver el
    interruptor de silencio de iOS** (ver abajo): correr `pruebas/audio.html` en
    un iPhone real.
-3. **Modo pantalla** — contenido sin anclar a target (ver Transversal arriba).
-4. **Letras sincronizadas** — wawapampay; necesita timings por línea.
+3. ~~**Modo pantalla**~~ — ✅ hecho, `shared/pantalla-engine.js`. Ver abajo.
+4. ~~**Letras sincronizadas**~~ — ✅ hecho. Falta lo que **no** se puede
+   automatizar: los timings de la canción real, línea por línea.
+
+## Modo pantalla (`shared/pantalla-engine.js`)
+
+Para piezas que **no** se anclan a un target: el contenido va en espacio de
+pantalla sobre el video de la cámara. Es la respuesta al pedido de que "se
+presente siempre, independientemente del target".
+
+Se elige por config, y la pieza carga **otro motor** (no `ar-engine.js`):
+
+```html
+<!-- sin importmap: el modo pantalla no usa three.js ni MindAR -->
+<script src="config.js"></script>
+<script type="module" src="../shared/pantalla-engine.js"></script>
+```
+
+```js
+window.MUSEO_CONFIG = {
+  modo: "pantalla",
+  audio: { src: "assets/cancion.m4a", loop: true, boton: "Tocar música" },
+  personajes: [                       // sprite sheet: tira horizontal de cuadros
+    { src: "assets/baile.png", frames: 8, fps: 11,
+      width: "42vw", aspect: "200/260", x: "27%", y: "68%", delay: "-0.4s" }
+  ],
+  letras: [                           // `t` en segundos del audio
+    { t: 0.00, txt: "..." },
+    { t: 2.35, txt: "..." }
+  ]
+};
+```
+
+Por qué es un motor aparte y no una rama de `ar-engine.js`:
+
+- Sin anclaje no hay nada que rastrear → **no descarga MindAR ni three.js**
+  (~1MB menos en datos móviles). Verificado en `tools/mind-compiler/test-pantalla.mjs`.
+- Sin target no hay `.mind` que compilar ni foto que elegir.
+- **La cámara es decorativa**: si el visitante niega el permiso, la pieza igual
+  funciona (fondo oscuro + audio). El motor anclado no puede.
+
+Ambos motores comparten `shared/audio.js`, así que el arreglo del silencio de
+iOS —si hace falta— se hace una sola vez.
+
+### Sacar los timings de la letra
+
+**No hay forma automática.** Para la canción real hay que marcarlos a mano línea
+por línea. En el demo (`pruebas/wawapampay/`) se sintetizó cada línea aparte y se
+midió su duración, pero eso solo sirve con voz generada.
+
+La letra sigue a `audio.currentTime` por `requestAnimationFrame`, **no** por el
+evento `timeupdate`: timeupdate dispara ~4 veces por segundo y la letra saltaría
+a destiempo.
+
+### Probarlo sin celular
+
+```bash
+cd tools/mind-compiler && node test-pantalla.mjs
+```
+
+Levanta el demo en Chrome headless con cámara falsa y verifica que no se
+descargue three/MindAR, que los sprites animen, y que la letra caiga en la línea
+correcta 150ms antes y después de cada cambio.
+
+⚠️ El servidor del test **soporta Range** a propósito: sin eso el `<audio>` no
+puede hacer seek, todas las muestras caen en t=0 y el test da un **falso
+positivo** (pasó exactamente eso durante el desarrollo). GitHub Pages sí soporta
+Range.
 
 ### `audio` — narración por pieza (opcional)
 

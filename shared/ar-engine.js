@@ -7,6 +7,7 @@
  */
 import * as THREE from "three";
 import { MindARThree } from "mindar-image-three";
+import { crearAudio } from "./audio.js";
 
 const CFG = window.MUSEO_CONFIG;
 const $ = (id) => document.getElementById(id);
@@ -114,48 +115,7 @@ async function start() {
   });
 
   // --- Audio (opcional: solo si la pieza lo declara en su config) ---
-  //
-  //  iOS NO deja arrancar audio sin un gesto del usuario, así que nunca hay
-  //  autoplay: siempre hay un botón. El botón ES el gesto.
-  //
-  //  Por defecto el audio NO se pausa al perder el target: el tracking puede
-  //  parpadear (peor aún en piezas con luz variable) y el audio tartamudearía.
-  //  Una vez que arranca, sigue hasta que el usuario lo pare.
-  //
-  //  audio: { src, loop, boton: "Escuchar", pausarAlPerder: false }
-  let audioEl = null, btnAudio = null;
-  if (CFG.audio && CFG.audio.src) {
-    audioEl = new Audio(CFG.audio.src);
-    audioEl.loop = !!CFG.audio.loop;
-    audioEl.preload = "auto";
-    // OJO: no seteamos playsInline acá — es propiedad de <video>, en <audio> no
-    // hace nada. Importaría solo si hubiera que migrar a un <video> oculto.
-    // SIN RESOLVER: el interruptor de silencio de iOS puede dejar esto mudo.
-    // Correr pruebas/audio.html en un iPhone real con el silencio puesto.
-
-    btnAudio = document.createElement("button");
-    btnAudio.id = "btn-audio";
-    btnAudio.innerHTML = `<span class="ico">▶</span><span class="txt"></span>`;
-    btnAudio.querySelector(".txt").textContent = CFG.audio.boton || "Escuchar";
-    document.body.appendChild(btnAudio);
-
-    const syncBtn = () => {
-      const son = !audioEl.paused && !audioEl.ended;
-      btnAudio.classList.toggle("playing", son);
-      btnAudio.querySelector(".ico").textContent = son ? "❚❚" : "▶";
-    };
-    btnAudio.addEventListener("click", async (e) => {
-      e.stopPropagation();
-      try {
-        if (audioEl.paused) await audioEl.play(); // el gesto que iOS exige
-        else audioEl.pause();
-      } catch (err) {
-        fatal("No se pudo reproducir el audio. (" + err.message + ")");
-      }
-      syncBtn();
-    });
-    ["play", "pause", "ended"].forEach((ev) => audioEl.addEventListener(ev, syncBtn));
-  }
+  const audio = crearAudio(CFG.audio, fatal);
 
   // --- Estado de detección + UI ---
   let visible = false;
@@ -163,18 +123,14 @@ async function start() {
     visible = true;
     $("scan").style.display = "none";
     $("panel").classList.add("on");
-    if (btnAudio) btnAudio.classList.add("on");
+    audio?.mostrar();
   };
   anchor.onTargetLost = () => {
     visible = false;
     $("scan").style.display = "flex";
     $("panel").classList.remove("on");
     closeCard();
-    if (audioEl) {
-      if (CFG.audio.pausarAlPerder) audioEl.pause();
-      // El botón sigue a la vista mientras suene, para poder pararlo.
-      if (audioEl.paused) btnAudio.classList.remove("on");
-    }
+    audio?.alPerderTarget();
   };
 
   // Slider de revelado (interactivo): 0 = pintura limpia, 1 = análisis completo

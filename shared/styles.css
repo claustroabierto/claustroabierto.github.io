@@ -45,6 +45,35 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
 #card-nota{font-size:13px;line-height:1.4;margin-top:10px;opacity:.9;}
 #card-close{position:absolute;top:10px;right:12px;background:none;border:0;color:#fff9;font-size:20px;}
 
+/* ---- MODO PANTALLA (pantalla-engine.js): sin anclaje a target ---- */
+/* Fondo de cámara: decorativo. Si el visitante niega el permiso, queda el fondo
+   oscuro y la pieza igual funciona. */
+#camara{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
+body.sin-camara #ar{background:radial-gradient(120% 90% at 50% 0%, #241d33 0%, var(--bg) 70%);}
+
+/* Personaje animado por sprite sheet (tira horizontal de `--frames` cuadros) */
+.personaje{position:fixed;transform:translate(-50%,-50%);z-index:2;
+  background-repeat:no-repeat;background-size:calc(100% * var(--frames)) 100%;
+  animation:sprite var(--dur) steps(var(--frames)) infinite;}
+@keyframes sprite{from{background-position:0 0;}
+  to{background-position:calc(-100% * var(--frames)) 0;}}
+
+/* Letra corriendo, sincronizada al audio (estilo historias de Instagram) */
+#letras{position:fixed;left:0;right:0;top:50%;transform:translateY(-50%);
+  height:46vh;z-index:3;overflow:hidden;pointer-events:none;
+  opacity:0;transition:opacity .4s;
+  -webkit-mask-image:linear-gradient(#0000 0%,#000 26%,#000 74%,#0000 100%);
+          mask-image:linear-gradient(#0000 0%,#000 26%,#000 74%,#0000 100%);}
+#letras.on{opacity:1;}
+#letras .tira{transition:transform .45s cubic-bezier(.4,0,.2,1);padding:0 10vw;}
+#letras .linea{font-size:24px;font-weight:800;line-height:1.32;margin:14px 0;
+  text-align:center;color:#ffffff5c;letter-spacing:.2px;
+  text-shadow:0 2px 14px #000a;
+  transition:color .3s, transform .3s, opacity .3s;}
+#letras .linea.pasada{color:#ffffff38;}
+#letras .linea.activa{color:var(--ink);transform:scale(1.1);
+  text-shadow:0 2px 18px #000c, 0 0 30px #c9a24b55;}
+
 /* Botón de audio (lo crea el motor solo si la pieza declara `audio` en su config).
    iOS exige un gesto del usuario para arrancar audio: este botón ES ese gesto. */
 #btn-audio{position:fixed;right:16px;bottom:calc(120px + env(safe-area-inset-bottom));z-index:7;
