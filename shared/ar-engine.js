@@ -50,7 +50,20 @@ async function start() {
   const loader = new THREE.TextureLoader();
 
   // --- Capas de overlay (la principal + extras opcionales) ---
-  const fadeMats = []; // todos los materiales que aparecen con el revelado
+  //
+  //  Sin `anim`, la capa se comporta como siempre: opacidad = revelado global.
+  //  Con `anim`, la capa recorre su PROPIA ventana dentro del revelado y además
+  //  se mueve/escala desde un origen hasta su posición final. Eso permite que
+  //  cada análisis "salga de la obra original" y se acomode en su lugar,
+  //  escalonando varias capas con distintos `delay`.
+  //
+  //  anim: {
+  //    delay:     0.0,   // en unidades de revelado (0..1), no en segundos
+  //    duration:  1.0,   // cuánto del revelado ocupa esta capa
+  //    fromX/fromY: 0,   // origen; por defecto el centro de la obra original
+  //    fromScale: 1      // 1 = ya a tamaño final; <1 = crece al salir
+  //  }
+  const layers = [];
   function addLayer(cfg, z) {
     const tex = loader.load(cfg.src);
     tex.colorSpace = THREE.SRGBColorSpace;
@@ -58,7 +71,20 @@ async function start() {
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(cfg.width, cfg.height), mat);
     mesh.position.set(cfg.offsetX, cfg.offsetY, z);
     anchor.group.add(mesh);
-    fadeMats.push(mat);
+
+    const a = cfg.anim;
+    layers.push({
+      mat, mesh, z,
+      anim: a && {
+        delay: a.delay ?? 0,
+        duration: Math.max(1e-6, a.duration ?? 1), // evita división por cero
+        fromX: a.fromX ?? 0,                       // 0,0 = centro de la obra original
+        fromY: a.fromY ?? 0,
+        fromScale: a.fromScale ?? 1,
+        toX: cfg.offsetX,
+        toY: cfg.offsetY
+      }
+    });
     return mesh;
   }
   const ov = CFG.overlay;
@@ -153,10 +179,29 @@ async function start() {
 
   // --- Bucle de render ---
   const clock = new THREE.Clock();
+  let revealSmooth = 0; // sigue al revelado con suavizado (histórico: lerp 0.15)
   renderer.setAnimationLoop(() => {
     const t = clock.getElapsedTime();
-    // fade de todas las capas según revelado
-    fadeMats.forEach((m) => { m.opacity += (reveal - m.opacity) * 0.15; });
+    revealSmooth += (reveal - revealSmooth) * 0.15;
+
+    layers.forEach((L) => {
+      if (!L.anim) {
+        // Comportamiento histórico exacto: la capa sigue al revelado global.
+        L.mat.opacity = revealSmooth;
+        return;
+      }
+      // Progreso dentro de la ventana propia de la capa, con suavizado.
+      const p = clamp((revealSmooth - L.anim.delay) / L.anim.duration, 0, 1);
+      const e = p * p * (3 - 2 * p); // smoothstep: arranca y frena suave
+      L.mat.opacity = e;
+      L.mesh.position.set(
+        L.anim.fromX + (L.anim.toX - L.anim.fromX) * e,
+        L.anim.fromY + (L.anim.toY - L.anim.fromY) * e,
+        L.z
+      );
+      const s = L.anim.fromScale + (1 - L.anim.fromScale) * e;
+      L.mesh.scale.set(s, s, 1);
+    });
     // pulso de los anillos, escalado por revelado
     hotMeshes.forEach((m) => {
       const pulse = 1 + Math.sin(t * 3 + m.userData.idx) * 0.12;

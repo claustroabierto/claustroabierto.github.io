@@ -51,6 +51,34 @@ museo-ar/
 - **Panel al costado** (escapulario): el overlay trae la pieza + rayos X posicionados para calzar SOBRE la obra real, y paneles extra (microscopía, tablas) quedan al costado, fuera del área rastreada.
 - **Toggle antes/después** (candelabros): overlay principal alineado sobre la pieza (ej. fluorescencia UV) + `extras[]` con comparativas sin/con efecto.
 - **Crossfade** (piezas sin asset transparente, solo ORIGINAL+ANALISIS compuestos): mezclar con shader/opacidad en vez de superponer capas.
+- **Capas que salen de la obra** (MALTA): cada capa lleva `anim` y recorre su
+  propia ventana dentro del revelado, saliendo de la obra original hacia su
+  posición final. Escalonando los `delay` salen una tras otra.
+
+### `anim` — animación por capa (opcional)
+
+Cualquier capa (`overlay` o un `extras[]`) acepta `anim`. **Sin `anim` la capa se
+comporta como siempre** (opacidad = revelado global), así que las piezas viejas
+no se tocan.
+
+```js
+extras: [
+  { src: "assets/analisis1.png", width: 0.5, height: 0.5,
+    offsetX: -1.1, offsetY: 0.6,        // destino
+    anim: {
+      delay: 0.10,      // en unidades de REVELADO (0..1), no en segundos
+      duration: 0.40,   // cuánto del revelado ocupa esta capa
+      fromX: 0,         // origen; 0,0 = centro de la obra original (default)
+      fromY: 0,
+      fromScale: 0.25   // 1 = ya a tamaño final; <1 = crece al salir
+    } }
+]
+```
+
+Los tiempos van en unidades de revelado, no en segundos: así el slider **scrubea**
+la animación (la arrastrás y ves salir las capas) y el botón toggle la reproduce
+entera. Escalonar = repartir los `delay` (0.10 / 0.30 / 0.50 con `duration` 0.40
+da una cascada de tres).
 
 Regla aprendida: si el proveedor de assets ya entrega una capa transparente
 recortada, usarla tal cual — no reconstruir manualmente desde la radiografía
@@ -94,9 +122,8 @@ compilador vía Chrome headless. Ver `tools/mind-compiler/README.md`.
 
 Capacidades que el motor **todavía no tiene** y que estas decisiones exigen:
 
-1. **Animación por capa** — hoy todas las capas comparten un solo `reveal`
-   (`ar-engine.js`, bucle de render). MALTA necesita que cada capa tenga su
-   propio `from → to`, delay y duración.
+1. ~~**Animación por capa**~~ — ✅ hecho, ver `anim` arriba. Falta probarlo en
+   celular real y, sobre todo, **faltan los assets de MALTA** para armar la pieza.
 2. **Audio** — no existe. Lo piden borja y wawapampay. Ojo: **iOS exige un gesto
    del usuario** para arrancar audio; hace falta botón de "toca para escuchar",
    no autoplay.
