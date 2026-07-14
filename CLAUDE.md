@@ -63,7 +63,47 @@ MindAR necesita un `.mind` compilado por imagen. Ya NO se hace a mano en la
 web oficial — hay un script en `tools/mind-compiler/` que corre el mismo
 compilador vía Chrome headless. Ver `tools/mind-compiler/README.md`.
 
+## Decisiones por pieza (respuestas del equipo, ronda de dudas)
+
+- **cerámica**: el target será **las letras sobre un cubo** (Calibri), archivo
+  pendiente de entrega. ⚠️ Medido: texto liso da `tracking 29` vs 92 de
+  Inmaculada al mismo tamaño — no alcanza solo. La cara necesita gráfica de alto
+  contraste acompañando al texto (sube a 62, supera a candelabros). Ver
+  `tools/mind-compiler/README.md`. Re-medir sobre el archivo real cuando llegue.
+- **MALTA**: el Cristo del museo es **oscuro** de verdad (no es la foto). Por eso
+  no se anima Cristo → Virgen sobre la obra: cada análisis **sale de la original**
+  y se posiciona en el lugar de los 3 análisis entregados. Los rayos X **sí**
+  tienen que calzar sobre el cuadro original.
+- **san francisco de borja**: el equipo propone la **cara** (foto sin fondo) como
+  target, para que la gente se pare enfrente a verlo y **escucharlo**. Avisan que
+  la luz no es constante ahí y hay que probarlo. ⚠️ Riesgo: MindAR rastrea
+  imágenes planas; una cara esculpida es 3D y con luz variable es el peor caso.
+  Alternativa recomendada: usar como target el **panel plano impreso** que ya va
+  junto a la pieza (el del QR) — plano, contraste constante, y cumple igual el
+  objetivo (la experiencia es audio, no calce milimétrico).
+- **wawapampay**: presentar **movimiento**: animar los personajes (desde el 3D o
+  desde las fotos) simulando el baile, y al costado la música sonando con **la
+  letra corriendo**, estilo efecto de música de historias de Instagram.
+- **Transversal**: piden que algunas piezas "se presenten siempre,
+  independientemente del target". Eso choca con el tracking de imagen (sin target
+  no hay anclaje) y WebXR markerless no existe en iOS Safari. Salida: **modo
+  pantalla** — cámara de fondo, contenido en espacio de pantalla, sin anclar.
+  Aplica a wawapampay y borja; MALTA queda mixto (rayos X anclado, resto libre).
+
 ## Pendiente / próximos pasos
+
+Capacidades que el motor **todavía no tiene** y que estas decisiones exigen:
+
+1. **Animación por capa** — hoy todas las capas comparten un solo `reveal`
+   (`ar-engine.js`, bucle de render). MALTA necesita que cada capa tenga su
+   propio `from → to`, delay y duración.
+2. **Audio** — no existe. Lo piden borja y wawapampay. Ojo: **iOS exige un gesto
+   del usuario** para arrancar audio; hace falta botón de "toca para escuchar",
+   no autoplay.
+3. **Modo pantalla** — contenido sin anclar a target (ver Transversal arriba).
+4. **Letras sincronizadas** — wawapampay; necesita timings por línea.
+
+Assets:
 
 - **Sin meshes 3D todavía**: san francisco de borja y Wawapampay solo tienen
   fotos de fotogrametría sin procesar (proyectos Agisoft vacíos). Flujo previsto:
