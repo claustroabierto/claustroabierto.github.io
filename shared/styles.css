@@ -45,8 +45,53 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
 #card-nota{font-size:13px;line-height:1.4;margin-top:10px;opacity:.9;}
 #card-close{position:absolute;top:10px;right:12px;background:none;border:0;color:#fff9;font-size:20px;}
 
-/* Carga / error */
-#loading{position:fixed;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;
-  background:var(--bg);font-size:14px;opacity:.9;}
+/* ---- Pantalla de carga (portada institucional) ----
+   Se ve mientras bajan three.js + MindAR (~1MB): es la primera impresión de la
+   pieza, así que lleva la portada de la muestra y los créditos, no un "Cargando".
+   Los dos motores (ar-engine y pantalla-engine) la ocultan con `display:none`,
+   así que esto es solo CSS + markup: no se toca JS. */
+#loading{position:fixed;inset:0;z-index:9;
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  gap:20px;padding:calc(30px + env(safe-area-inset-top)) 20px calc(22px + env(safe-area-inset-bottom));
+  background:radial-gradient(115% 80% at 50% 32%, #241d33 0%, var(--bg) 72%);
+  text-align:center;}
+
+#loading .centro{margin:auto;display:flex;flex-direction:column;align-items:center;gap:12px;
+  max-width:330px;}
+#loading .sello{width:54px;height:54px;border-radius:50%;
+  border:1px solid #c9a24b55;display:flex;align-items:center;justify-content:center;
+  color:var(--gold);font-size:15px;font-weight:700;letter-spacing:.5px;
+  animation:sello-late 2.8s ease-in-out infinite;}
+@keyframes sello-late{0%,100%{box-shadow:0 0 0 0 #c9a24b30;}50%{box-shadow:0 0 0 12px #c9a24b00;}}
+#loading .expo{font-size:19px;line-height:1.35;font-weight:700;margin:2px 0 0;
+  letter-spacing:.2px;text-wrap:balance;}
+#loading .sede{font-size:12px;line-height:1.45;opacity:.62;}
+
+/* Barra indeterminada: no sabemos el progreso real de la descarga, así que no
+   fingimos un porcentaje. */
+#loading .barra{width:132px;height:2px;border-radius:2px;background:#ffffff1f;overflow:hidden;
+  margin-top:4px;}
+#loading .barra i{display:block;width:42%;height:100%;border-radius:2px;background:var(--gold);
+  animation:barra-corre 1.25s ease-in-out infinite;}
+@keyframes barra-corre{0%{transform:translateX(-105%);}100%{transform:translateX(245%);}}
+#loading .estado{font-size:11px;opacity:.5;letter-spacing:.3px;}
+
+/* Créditos: los logos son oscuros y van sobre placa clara, si no desaparecen
+   contra el fondo (UTEC y la Embajada son casi negros). */
+#loading .creditos{display:flex;align-items:center;justify-content:center;
+  gap:clamp(10px, 4vw, 18px);
+  background:#f4efe6;border-radius:13px;padding:11px clamp(12px, 4.5vw, 18px);
+  box-shadow:0 6px 22px #0008;max-width:100%;}
+#loading .creditos img{display:block;width:auto;flex:0 0 auto;}
+#loading .creditos .l-carmelitas{height:clamp(36px, 11vw, 44px);}
+#loading .creditos .l-utec{height:clamp(20px, 6.2vw, 25px);}
+#loading .creditos .l-embajada{height:clamp(19px, 5.8vw, 23px);}
+
+@media (max-height:560px){
+  #loading .expo{font-size:16px;}
+  #loading .sello{display:none;}
+}
+
+/* Error */
 #error{display:none;position:fixed;left:16px;right:16px;top:50%;z-index:10;
   background:#3a0d0d;border:1px solid #ff6b6b;border-radius:12px;padding:16px;font-size:13px;line-height:1.5;}
