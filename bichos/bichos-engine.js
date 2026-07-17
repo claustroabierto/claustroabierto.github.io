@@ -56,25 +56,40 @@ async function start() {
     uvMesh.position.set(u.x, u.y, 0.005); uvMesh.renderOrder = 1; anchor.group.add(uvMesh);
   }
 
-  let mode = "revolotea", visible = false, lastTap = -1;
+  let mode = "revolotea", visible = false, lastTap = -1, startT = 0;
   const clock = new THREE.Clock();
   const setCaption = (t) => { $("caption").textContent = t || ""; };
   const updateBtn = () => { $("btn-modo").textContent = mode === "revolotea" ? "Que vuelen más" : "Que se calmen"; };
 
-  function trans(b, i, now) {
-    let fly = 1, ampMul = mode === "enjambre" ? 1.0 : 0.42;
-    const amp = b.spread * ampMul;
-    const ox = Math.sin(now * b.fx + b.ph) * amp * fly;
-    const oy = Math.sin(now * b.fy + b.ph * 1.3) * amp * 0.55 * fly + Math.sin(now * 1.1 + b.ph) * 0.012 * fly;
-    const flapv = Math.sin(now * b.flap + b.ph);
-    const sy = b.size * (1 + flapv * 0.14);
-    const sx = b.size * b.aspect;
-    const rot = Math.sin(now * 0.6 + b.ph) * 0.18 + flapv * 0.025;
-    const z = 0.02 + fly * (0.05 + 0.03 * Math.sin(now * b.fx + b.ph));
+  // Al detectar la obra, los bordados EMERGEN: nacen diminutos en su sitio,
+  // crecen escalonados y recién ahí se mueven. Aves (perfil) se mecen; insectos
+  // revolotean y aletean. mt = tiempo desde que se detectó.
+  function trans(b, i, now, mt) {
+    const grow = smooth(i * 0.28, i * 0.28 + 1.3, mt);
+    const move = smooth(i * 0.28 + 1.3, i * 0.28 + 2.3, mt);
+    const baseScale = b.size * (0.03 + 0.97 * grow);
+    const sx = baseScale * b.aspect;
+    let ox = 0, oy = 0, rot = 0, sy = baseScale, z = 0.02;
+    if (b.tipo === "ave") {
+      ox = Math.sin(now * 0.5 + b.ph) * 0.015 * move;
+      oy = Math.sin(now * 0.7 + b.ph) * 0.028 * move;
+      rot = Math.sin(now * 0.55 + b.ph) * 0.05 * move;
+      sy = baseScale * (1 + Math.sin(now * 1.6 + b.ph) * 0.015 * move);
+      z = 0.02 + move * 0.03;
+    } else {
+      const ampMul = mode === "enjambre" ? 1.0 : 0.42;
+      const amp = b.spread * ampMul;
+      ox = Math.sin(now * b.fx + b.ph) * amp * move;
+      oy = (Math.sin(now * b.fy + b.ph * 1.3) * amp * 0.55 + Math.sin(now * 1.1 + b.ph) * 0.012) * move;
+      const flapv = Math.sin(now * b.flap + b.ph);
+      sy = baseScale * (1 + flapv * 0.14 * (0.35 + 0.65 * move));
+      rot = Math.sin(now * 0.6 + b.ph) * 0.18 * move + flapv * 0.025;
+      z = 0.02 + move * (0.05 + 0.03 * Math.sin(now * b.fx + b.ph));
+    }
     return { x: b.x + ox, y: b.y + oy, z, sx, sy, rot };
   }
 
-  anchor.onTargetFound = () => { visible = true; $("scan").style.display = "none"; $("panel").classList.add("on"); };
+  anchor.onTargetFound = () => { visible = true; startT = clock.getElapsedTime(); bichos.forEach(b => b.cur = null); $("scan").style.display = "none"; $("panel").classList.add("on"); };
   anchor.onTargetLost = () => { visible = false; $("scan").style.display = "flex"; $("panel").classList.remove("on"); };
 
   const toggle = () => { mode = mode === "revolotea" ? "enjambre" : "revolotea"; updateBtn();
@@ -103,8 +118,9 @@ async function start() {
   renderer.setAnimationLoop(() => {
     const now = clock.getElapsedTime();
     if (uvMesh) { uvMix = lerp(uvMix, uvOn ? 1 : 0, 0.08); uvMesh.material.opacity = uvMix; }
+    const mt = now - startT;
     for (let i = 0; i < bichos.length; i++) {
-      const b = bichos[i], t = trans(b, i, now);
+      const b = bichos[i], t = trans(b, i, now, mt);
       if (!b.cur) b.cur = { ...t };
       for (const k of ["x", "y", "z", "sx", "sy", "rot"]) b.cur[k] = lerp(b.cur[k], t[k], 0.14);
       b.mesh.position.set(b.cur.x, b.cur.y, b.cur.z);

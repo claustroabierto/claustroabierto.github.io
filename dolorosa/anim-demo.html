@@ -108,7 +108,7 @@ function virgen(L,now,mt){
  // La oscilación usa mt (tiempo desde que se eligió el modo), así cada modo
  // arranca desde el REPOSO (out=0) y no brinca al seleccionarlo.
  const osc=0.5-0.5*Math.cos(mt*0.7);           // 0..1 ida y vuelta (loop)
- if(mode==="diagonal"){const out=osc*A; py=out*0.10; pz=L.z+out; s=baseS*(1+out*0.9);}
+ if(mode==="diagonal"){const out=osc*A; py=out*0.65; pz=L.z+out; s=baseS*(1+out*0.9);}  // sube notablemente al adelantarse
  else if(mode==="recta"){const out=osc*A; pz=L.z+out; s=baseS*(1+out*0.9);}
  else if(mode==="recta_queda"){const p=smooth(0,2.2,mt); const out=p*A; pz=L.z+out; s=baseS*(1+out*0.9);
    const br=0.5-0.5*Math.cos(mt*1.1); s*=1+br*0.012;}                  // respiración mínima
