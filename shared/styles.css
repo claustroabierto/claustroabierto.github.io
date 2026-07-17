@@ -45,6 +45,17 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
 #card-nota{font-size:13px;line-height:1.4;margin-top:10px;opacity:.9;}
 #card-close{position:absolute;top:10px;right:12px;background:none;border:0;color:#fff9;font-size:20px;}
 
+/* Microscopía dentro de la tarjeta (solo piezas con hotspot.img) */
+#card-img{display:none;width:100%;max-height:32vh;object-fit:cover;
+  border-radius:12px;margin-top:12px;border:1px solid #ffffff22;cursor:zoom-in;}
+#card-imghint{display:none;text-align:center;}
+/* Lightbox: la microscopía "crece" a pantalla completa (pedido del museo:
+   ver los craquelados de cerca). Se cierra tocando en cualquier lado. */
+#zoom{position:fixed;inset:0;z-index:20;background:#000000ee;
+  display:none;align-items:center;justify-content:center;padding:14px;cursor:zoom-out;}
+#zoom.on{display:flex;}
+#zoom img{max-width:100%;max-height:100%;border-radius:12px;box-shadow:0 10px 40px #000c;}
+
 /* ---- Pantalla de carga (portada institucional) ----
    Se ve mientras bajan three.js + MindAR (~1MB): es la primera impresión de la
    pieza, así que lleva la portada de la muestra y los créditos, no un "Cargando".

@@ -106,7 +106,7 @@ async function start() {
   function handleTap(clientX, clientY, target) {
     if (!visible) return;
     // ignorar toques sobre la UI (panel, tarjeta, barra)
-    if (target && target.closest && target.closest("#panel, #card, #topbar")) return;
+    if (target && target.closest && target.closest("#panel, #card, #topbar, #zoom")) return;
     let best = -1, bestD = Infinity;
     hitMeshes.forEach((m) => {
       m.getWorldPosition(_wp);
@@ -133,15 +133,34 @@ async function start() {
     $("card-pigmento").textContent = h.pigmento;
     $("card-formula").textContent = h.formula;
     $("card-nota").textContent = h.nota || "";
+    // Microscopía opcional (hotspot.img): se muestra en la tarjeta y se puede
+    // agrandar. Sin img, la tarjeta queda como antes (solo texto).
+    const cardImg = $("card-img"), imgHint = $("card-imghint");
+    if (cardImg) {
+      if (h.img) { cardImg.src = h.img; cardImg.style.display = "block"; if (imgHint) imgHint.style.display = "block"; }
+      else { cardImg.removeAttribute("src"); cardImg.style.display = "none"; if (imgHint) imgHint.style.display = "none"; }
+    }
     $("card").classList.add("on");
     // resaltar el anillo elegido
     hotMeshes.forEach((m, k) => m.userData.base = k === i ? 1.6 : 1);
   }
   function closeCard() {
     $("card").classList.remove("on");
+    const zoom = $("zoom"); if (zoom) zoom.classList.remove("on");
     hotMeshes.forEach((m) => m.userData.base = 1);
   }
   $("card-close").addEventListener("click", closeCard);
+
+  // Tocar la microscopía la agranda a pantalla completa; tocar el fondo cierra.
+  const cardImg = $("card-img"), zoom = $("zoom"), zoomImg = $("zoom-img");
+  if (cardImg && zoom && zoomImg) {
+    cardImg.addEventListener("click", () => {
+      if (!cardImg.getAttribute("src")) return;
+      zoomImg.src = cardImg.src;
+      zoom.classList.add("on");
+    });
+    zoom.addEventListener("click", () => zoom.classList.remove("on"));
+  }
 
   // --- Arranque de cámara ---
   try {
