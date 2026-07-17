@@ -31,10 +31,10 @@ window.MUSEO_CONFIG = {
   intervaloReveal: 0.8,   // segundos entre cada aparición
   reveals: [
     "assets/reveal/0titulo.webp",
-    "assets/reveal/1carnacion.webp",
-    "assets/reveal/2verde.webp",
-    "assets/reveal/3rojo1.webp",
-    "assets/reveal/4rojo2.webp",
+    "assets/reveal/1carnacion.webp?v=2",
+    "assets/reveal/2verde.webp?v=2",
+    "assets/reveal/3rojo1.webp?v=2",
+    "assets/reveal/4rojo2.webp?v=2",
     "assets/reveal/5azul.webp",
     "assets/reveal/6amarillo.webp",
     "assets/reveal/7morado.webp",
