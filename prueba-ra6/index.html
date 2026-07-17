@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>Prueba · ¿RA6 solo detecta?</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+    *{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%;background:#0d0b12;color:#f4efe6;overflow:hidden}
+    #ar{position:fixed;inset:0}
+    #hud{position:fixed;left:0;right:0;top:0;z-index:6;padding:16px calc(16px + env(safe-area-inset-top));
+      display:flex;flex-direction:column;align-items:center;gap:10px;pointer-events:none;text-align:center}
+    #estado{font-size:26px;font-weight:800;padding:12px 22px;border-radius:14px;background:#3a1c1c;color:#ff9b9b;
+      box-shadow:0 6px 24px #0008;transition:.2s}
+    #estado.on{background:#1c3a1c;color:#8fe38f}
+    #sub{font-size:13px;opacity:.85;max-width:320px}
+    #stats{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:14px calc(16px + env(safe-area-inset-bottom));
+      background:linear-gradient(#0000,#000d);font-size:13px;text-align:center;line-height:1.7}
+    #stats b{color:#c9a24b;font-variant-numeric:tabular-nums}
+    #loading{position:fixed;inset:0;z-index:9;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:14px;background:#0d0b12;text-align:center;padding:24px}
+    #loading .k{font-size:12px;letter-spacing:2px;color:#c9a24b;text-transform:uppercase}
+    #loading h1{font-size:20px;max-width:340px}
+    #loading p{font-size:13px;opacity:.75;max-width:340px}
+    #err{display:none;position:fixed;left:16px;right:16px;top:50%;z-index:10;background:#3a0d0d;border:1px solid #ff6b6b;
+      border-radius:12px;padding:16px;font-size:13px}
+  </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+      "mindar-image-three": "https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="ar"></div>
+  <div id="hud">
+    <div id="estado">Buscando el marcador…</div>
+    <div id="sub">Apunta la cámara al <b>RA6</b> proyectado en la pantalla</div>
+  </div>
+  <div id="stats">
+    Detectado ahora: <b id="s-now">no</b> · Enganchó <b id="s-found">0</b> veces · Se perdió <b id="s-lost">0</b> veces · Tiempo estable máx: <b id="s-max">0.0</b>s
+  </div>
+  <div id="loading">
+    <div class="k">Prueba de detección</div>
+    <h1>¿Alcanza el RA6 solo como marcador?</h1>
+    <p>Proyecta el archivo <b>target.jpg</b> en la compu y apunta con el celular. Vas a ver si engancha y qué tan estable es.</p>
+    <p style="opacity:.5">Cargando cámara…</p>
+  </div>
+  <div id="err"></div>
+
+  <script type="module">
+    import * as THREE from "three";
+    import { MindARThree } from "mindar-image-three";
+    const $ = (id) => document.getElementById(id);
+    function fatal(m){ $("err").textContent="⚠ "+m; $("err").style.display="block"; $("loading").style.display="none"; console.error(m); }
+
+    let mindar;
+    try {
+      mindar = new MindARThree({ container: $("ar"), imageTargetSrc: "assets/targets.mind",
+        uiScanning: "no", uiLoading: "no", filterMinCF: 0.0001, filterBeta: 0.001 });
+    } catch(e){ fatal("No se pudo iniciar MindAR: "+e.message); }
+
+    const { renderer, scene, camera } = mindar;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    const anchor = mindar.addAnchor(0);
+    // objeto anclado: un plano verde translúcido con un aro, para VER si tiembla
+    const g = new THREE.Group();
+    g.add(new THREE.Mesh(new THREE.PlaneGeometry(1,1), new THREE.MeshBasicMaterial({ color:0x39ff62, transparent:true, opacity:0.18, side:THREE.DoubleSide })));
+    const ring = new THREE.Mesh(new THREE.RingGeometry(0.42,0.5,48), new THREE.MeshBasicMaterial({ color:0x39ff62, side:THREE.DoubleSide }));
+    g.add(ring);
+    anchor.group.add(g);
+
+    let found=false, foundCount=0, lostCount=0, foundAt=0, maxStable=0;
+    const clock = new THREE.Clock();
+    anchor.onTargetFound = () => { found=true; foundCount++; foundAt=clock.getElapsedTime();
+      $("estado").textContent="✓ DETECTADO"; $("estado").classList.add("on"); $("s-now").textContent="sí"; $("s-found").textContent=foundCount; };
+    anchor.onTargetLost = () => { found=false; lostCount++;
+      const dur=clock.getElapsedTime()-foundAt; if(dur>maxStable){maxStable=dur; $("s-max").textContent=maxStable.toFixed(1);}
+      $("estado").textContent="Buscando el marcador…"; $("estado").classList.remove("on"); $("s-now").textContent="no"; $("s-lost").textContent=lostCount; };
+
+    try { await mindar.start(); }
+    catch(e){ return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. ("+e.message+")"); }
+    $("loading").style.display="none";
+
+    renderer.setAnimationLoop(()=>{
+      if(found){ const dur=clock.getElapsedTime()-foundAt; if(dur>maxStable){maxStable=dur; $("s-max").textContent=maxStable.toFixed(1);} }
+      const t=clock.getElapsedTime(); ring.rotation.z=t*0.6;
+      renderer.render(scene, camera);
+    });
+  </script>
+</body>
+</html>
