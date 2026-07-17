@@ -8,7 +8,7 @@
  *  Coordenadas en el espacio del mantón: ancho = 1, alto = 1/aspect, centro 0.
  */
 window.MUSEO_CONFIG = {
-  id: "bichos",
+  id: "Palio_procesional",
   titulo: "Mantón de Manila",
   subtitulo: "Los bordados cobran vida",
   ficha: "Mantón de seda bordado · insectos · fluorescencia bajo luz UV y microscopía 10x",
