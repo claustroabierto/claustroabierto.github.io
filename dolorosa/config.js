@@ -30,7 +30,12 @@ window.MUSEO_CONFIG = {
   layers: [
     { key: "fondo",  src: "assets/fondo.webp",  z: 0.00 },
     { key: "virgen", src: "assets/virgen.webp", z: 0.22, salida: 0.10 },
-    { key: "velas",  src: "assets/velas.webp",  z: 0.42 }
+    // La capa velas tiene DOS texturas:
+    //  - src (sin llama pintada): estado ENCENDIDO → solo se ve la llama
+    //    procedural animada, sin la doble llama estática que se veía feo.
+    //  - srcApagada (pintura original con su llama): estado APAGADO → el cuadro
+    //    tal cual. El motor hace crossfade entre las dos según se prende/apaga.
+    { key: "velas",  src: "assets/velas-sin-llama.webp", srcApagada: "assets/velas.webp", z: 0.42 }
   ],
 
   // Llamas procedurales sobre la punta de cada cirio. Coordenadas LOCALES del
@@ -38,7 +43,7 @@ window.MUSEO_CONFIG = {
   // escala y profundidad en toda la animación y quedan siempre pegadas a la
   // mecha. Detectadas automáticamente (punta de la barra de cera de cada cirio).
   flames: [
-    { x: -0.438, y: 0.042 },
-    { x:  0.378, y: 0.049 }
+    { x: -0.430, y: 0.042 },
+    { x:  0.386, y: 0.049 }
   ]
 };

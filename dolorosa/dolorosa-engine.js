@@ -111,7 +111,20 @@ async function start() {
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, H), mat);
     mesh.renderOrder = i;
     anchor.group.add(mesh);
-    return { key: cfg.key, mesh, mat, z: cfg.z || 0, salida: cfg.salida || 0, col: new THREE.Color() };
+    const layer = { key: cfg.key, mesh, mat, z: cfg.z || 0, salida: cfg.salida || 0, col: new THREE.Color() };
+
+    // Textura alterna (velas apagadas = pintura original con su llama). Se
+    // dibuja como mesh hijo → hereda el parallax; el loop cruza su opacidad.
+    if (cfg.srcApagada) {
+      const texAlt = loader.load(cfg.srcApagada);
+      texAlt.colorSpace = THREE.SRGBColorSpace;
+      const matAlt = new THREE.MeshBasicMaterial({ map: texAlt, transparent: true, opacity: 0, depthTest: false, depthWrite: false });
+      const meshAlt = new THREE.Mesh(new THREE.PlaneGeometry(1, H), matAlt);
+      meshAlt.renderOrder = i;
+      mesh.add(meshAlt);          // hijo: hereda posición/escala/z de la capa
+      layer.matAlt = matAlt;
+    }
+    return layer;
   });
   const velasLayer = layers.find((l) => l.key === "velas");
   const velasMesh = velasLayer ? velasLayer.mesh : anchor.group;
@@ -224,7 +237,14 @@ async function start() {
       0.03 * (Math.sin(now * 29.1 + 2.7) + 1) / 2;
 
     for (const L of layers) {
-      L.mat.opacity = appear;
+      // La capa con textura alterna (velas) hace crossfade: encendido muestra
+      // la versión sin llama (+ procedural); apagado, la pintura original.
+      if (L.matAlt) {
+        L.mat.opacity = appear * litMix;            // sin llama (encendido)
+        L.matAlt.opacity = appear * (1 - litMix);   // con llama pintada (apagado)
+      } else {
+        L.mat.opacity = appear;
+      }
       // separación compensada (calza de frente) + salida autónoma SIN compensar
       const baseS = lerp(1, (D0 - L.z) / D0, sep);
       const out = L.salida ? (0.5 - 0.5 * Math.cos(now * 0.7)) * L.salida * sep : 0; // 0..salida, lento
@@ -235,6 +255,7 @@ async function start() {
       L.col.copy(UNLIT).lerp(LIT, litMix);
       const warm = 1 - flick * litMix * 0.6;
       L.mat.color.setRGB(L.col.r * warm, L.col.g * warm, L.col.b * warm);
+      if (L.matAlt) L.matAlt.color.setRGB(L.col.r * warm, L.col.g * warm, L.col.b * warm);
     }
 
     // Llamas + glow: viven mientras las velas están encendidas.
