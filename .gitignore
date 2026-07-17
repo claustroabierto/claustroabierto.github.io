@@ -4,6 +4,3 @@ node_modules/
 *.log
 .DS_Store
 Thumbs.db
-
-# carpeta vieja con tilde (reemplazada por Inmaculada_Concepcion) — leftover local, no trackear
-/Inmaculada_Concepción/

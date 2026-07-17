@@ -11,7 +11,7 @@
  *  `z` = cuánto se adelanta cada capa (unidades MindAR, ancho de la obra = 1).
  */
 window.MUSEO_CONFIG = {
-  id: "dolorosa",
+  id: "Virgen_de_la_Soledad_de_Madrid",
   titulo: "Virgen Dolorosa",
   subtitulo: "El cuadro cobra vida · la Virgen se adelanta entre los cirios",
   ficha: "Óleo colonial sobre lienzo · Hornacina con mandorla de rayos y cirios",
