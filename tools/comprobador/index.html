@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>¿Por qué las letras RA no detectan? — Comprobador de targets</title>
+<style>
+  :root{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  *{box-sizing:border-box;margin:0}
+  body{background:#0d0b12;color:#f4efe6;padding:24px 16px 60px;line-height:1.5}
+  h1{font-size:22px;max-width:820px;margin:0 auto 6px}
+  .lead{max-width:820px;margin:0 auto 24px;opacity:.8;font-size:14px}
+  .lead b{color:#c9a24b}
+  .grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+  .card{background:#171320;border:1px solid #ffffff1a;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+  .card h2{font-size:15px}
+  .canvaswrap{position:relative;background:#000;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;min-height:200px}
+  canvas{max-width:100%;height:auto;display:block}
+  .score{display:flex;align-items:baseline;gap:8px}
+  .score .n{font-size:30px;font-weight:800}
+  .score .u{font-size:12px;opacity:.65}
+  .verdict{font-size:13px;font-weight:700;padding:6px 10px;border-radius:8px;display:inline-block;width:fit-content}
+  .ok{background:#1c3a1c;color:#8fe38f}
+  .bad{background:#3a1c1c;color:#ff9b9b}
+  .note{font-size:12px;opacity:.7}
+  .loading{opacity:.6;font-size:13px}
+  .concl{max-width:820px;margin:28px auto 0;background:#171320;border:1px solid #c9a24b55;border-radius:14px;padding:16px;font-size:14px}
+  .concl b{color:#c9a24b}
+  .piso{max-width:820px;margin:14px auto 0;font-size:12px;opacity:.6}
+</style>
+</head>
+<body>
+<h1>¿Por qué las letras "RA" no bastan para el marcador?</h1>
+<p class="lead">La cámara no "lee" el dibujo: busca <b>puntos de anclaje</b> (esquinas y detalles con contraste). Cada punto verde abajo es uno que el motor encontró. <b>Más puntos = más fácil de reconocer.</b> El piso para que enganche bien es ~1800.</p>
+<div class="grid" id="grid"></div>
+<div class="concl" id="concl" style="display:none"></div>
+<p class="piso">Medición con el compilador real de MindAR (el mismo que usa la app). "Detección" = puntos de reconocimiento sumando todas las escalas.</p>
+
+<script type="module">
+// El compilador de MindAR es un módulo ES (importa three); se carga con import()
+// dinámico y expone window.MINDAR. Mismo método que analyze.mjs.
+await import("https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image.prod.js");
+await new Promise((res)=>{const t=setInterval(()=>{if(window.MINDAR?.IMAGE?.Compiler){clearInterval(t);res();}},50);});
+
+const TARGETS=[
+  {file:"img/letras-ra.png", titulo:"Letras RA solas", desc:"como las entregó el equipo · lo que NO alcanza"},
+  {file:"img/candelabros.jpg", titulo:"Foto de candelabros", desc:"su foto SÍ mide bien… pero ojo (ver abajo)"},
+  {file:"img/marcador-denso.jpg", titulo:"Marcador denso (foto + RA)", desc:"la solución propuesta"},
+];
+const PISO=1800;
+const grid=document.getElementById("grid");
+
+function loadImg(src){return new Promise((res,rej)=>{const i=new Image();i.crossOrigin="anonymous";i.onload=()=>res(i);i.onerror=rej;i.src=src;});}
+
+async function analizar(t){
+  const card=document.createElement("div");card.className="card";
+  card.innerHTML=`<h2>${t.titulo}</h2><div class="note">${t.desc}</div><div class="canvaswrap"><span class="loading">compilando…</span></div><div class="score"><span class="n">…</span></div>`;
+  grid.appendChild(card);
+  const img0=await loadImg(t.file);
+  // aplanar sobre BLANCO (los PNG vienen transparentes; medir el transparente
+  // crudo da 0, un artefacto — impreso el fondo es blanco). Así el número es real.
+  const flat=document.createElement("canvas");flat.width=img0.width;flat.height=img0.height;
+  const fg=flat.getContext("2d");fg.fillStyle="#ffffff";fg.fillRect(0,0,flat.width,flat.height);fg.drawImage(img0,0,0);
+  const img=await loadImg(flat.toDataURL("image/jpeg",0.95));
+  // compilar con MindAR
+  const compiler=new window.MINDAR.IMAGE.Compiler();
+  await compiler.compileImageTargets([img],()=>{});
+  const data=compiler.data[0];
+  // contar detección total y juntar puntos del keyframe de mayor resolución
+  let deteccion=0, best=null;
+  const mData=data.matchingData||[];
+  for(const kf of mData){
+    deteccion += (kf.maximaPoints?.length||0)+(kf.minimaPoints?.length||0);
+    const w=kf.width||kf.image?.width||0;
+    if(!best || w>(best.width||best.image?.width||0)) best=kf;
+  }
+  // extraer puntos del mejor keyframe, normalizados
+  const pts=[];
+  if(best){
+    const bw=best.width||best.image?.width||img.width, bh=best.height||best.image?.height||img.height;
+    for(const p of [...(best.maximaPoints||[]),...(best.minimaPoints||[])]){
+      const x=(p.x??p.mx??p[0]), y=(p.y??p.my??p[1]);
+      if(x!=null&&y!=null) pts.push({x:x/bw, y:y/bh});
+    }
+    window.__dbg=window.__dbg||[];window.__dbg.push({titulo:t.titulo,ptSample:(best.maximaPoints||[])[0],kfKeys:Object.keys(best)});
+  }
+  // dibujar
+  const W=380, H=Math.round(W*img.height/img.width);
+  const cv=document.createElement("canvas");cv.width=W;cv.height=H;
+  const g=cv.getContext("2d");
+  g.drawImage(img,0,0,W,H);
+  g.fillStyle="rgba(0,0,0,0.28)";g.fillRect(0,0,W,H); // atenuar imagen para ver puntos
+  for(const p of pts){g.beginPath();g.arc(p.x*W,p.y*H,2.2,0,7);g.fillStyle="#39ff62";g.fill();}
+  const wrap=card.querySelector(".canvaswrap");wrap.innerHTML="";wrap.appendChild(cv);
+  const enough=deteccion>=PISO;
+  card.querySelector(".score").innerHTML=`<span class="n">${deteccion}</span><span class="u">puntos de detección</span>`;
+  const v=document.createElement("div");v.className="verdict "+(enough?"ok":"bad");
+  v.textContent=enough?"✓ Engancha bien":"✗ No alcanza (bajo el piso ~1800)";
+  card.appendChild(v);
+  return {titulo:t.titulo, deteccion, enough};
+}
+
+(async()=>{
+  const res=[];
+  for(const t of TARGETS){ try{ res.push(await analizar(t)); }catch(e){ console.error(t.titulo,e); } }
+  const letras=res.find(r=>/letras/i.test(r.titulo)), marc=res.find(r=>/marcador/i.test(r.titulo));
+  const c=document.getElementById("concl");c.style.display="block";
+  c.innerHTML=`<b>Comprobado:</b> las letras RA solas dan <b>${letras?letras.deteccion:"?"}</b> puntos — muy por debajo del piso (~1800), por eso no enganchan. El marcador con la foto de la pieza da <b>${marc?marc.deteccion:"?"}</b> — más que suficiente.<br><br><b>El matiz de candelabros:</b> su FOTO mide bien como imagen plana, pero el objeto real es de vidrio con volumen y reflejos — la cámara no ve la foto, ve el objeto 3D, que no coincide. Por eso "no agarra" aunque su foto puntúe alto. Justamente por eso los objetos (candelabros, relicario, etc.) necesitan un <b>marcador impreso plano</b> al lado: un plano sí coincide consigo mismo.`;
+  window.__done=true;
+})();
+</script>
+</body>
+</html>
