@@ -245,11 +245,15 @@ async function start() {
       } else {
         L.mat.opacity = appear;
       }
-      // separación compensada (calza de frente) + salida autónoma SIN compensar
+      // separación compensada (calza de frente). La Virgen (capa con salida)
+      // FLOTA: se adelanta una vez tras separarse y se mece con bob vertical
+      // (animación elegida por el equipo; avance un pelín veloz).
       const baseS = lerp(1, (D0 - L.z) / D0, sep);
-      const out = L.salida ? (0.5 - 0.5 * Math.cos(now * 0.7)) * L.salida * sep : 0; // 0..salida, lento
-      const s = baseS * (1 + out * 0.9);   // crece de verdad al adelantarse
-      L.mesh.position.set(0, out * 0.10, L.z * sep + out);
+      const fp = L.salida ? step(SEP[1] - 0.6, SEP[1] + 0.9, t) : 0;   // 0→1: se adelanta
+      const out = L.salida ? fp * L.salida : 0;
+      const bobV = L.salida ? Math.sin(now * 0.9) * 0.025 * fp : 0;    // flota
+      const s = baseS * (1 + out * 0.9);
+      L.mesh.position.set(0, bobV, L.z * sep + out);
       L.mesh.scale.set(s, s, 1);
       // luz cálida: más cálida cuanto más cerca de la base de las velas
       L.col.copy(UNLIT).lerp(LIT, litMix);

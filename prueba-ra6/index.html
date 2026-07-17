@@ -58,6 +58,9 @@
     import { MindARThree } from "mindar-image-three";
     const $ = (id) => document.getElementById(id);
     function fatal(m){ $("err").textContent="⚠ "+m; $("err").style.display="block"; $("loading").style.display="none"; console.error(m); }
+    // envuelto en función: los `return fatal(...)` son ilegales en el top-level de
+    // un módulo (SyntaxError) y romperían todo el script → nunca pediría cámara.
+    (async () => {
 
     let mindar;
     try {
@@ -92,6 +95,7 @@
       const t=clock.getElapsedTime(); ring.rotation.z=t*0.6;
       renderer.render(scene, camera);
     });
+  })();
   </script>
 </body>
 </html>
