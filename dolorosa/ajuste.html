@@ -22,8 +22,9 @@ html,body{height:100%;background:#0d0b12;color:#f4efe6;overflow:hidden;touch-act
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 </head><body>
 <canvas id="c"></canvas>
-<div id="hint">Arrastra la pintura para <b>girarla</b> (mira los ángulos extremos) · ajusta los sliders · toca <b>Copiar</b></div>
+<div id="hint">Toca <b>Auto-girar</b> para ver la profundidad de lado · o arrastra para girar tú mismo</div>
 <div id="top">
+  <button id="tauto" class="on">🔄 Auto-girar</button>
   <button id="tvelas" class="on">Velas encendidas</button>
   <button id="tbob">Animar salida</button>
   <button id="tfront">Ver de frente</button>
@@ -96,13 +97,16 @@ const flames=CFG.flames.map((f,i)=>{
   return{uniforms,fmat,gmat,glow,fmesh,baseY:f.y};});
 const _bq=new THREE.Quaternion();
 
-// --- órbita de cámara (arrastrar) ---
-let az=0, el=0, front=false;
+// --- órbita de cámara ---
+// auto = mece la vista de lado a lado sola (para ver la profundidad sin arrastrar).
+// arrastrar toma el control manual (apaga el auto).
+let az=0, el=0.12, front=false, auto=true;
 const pts=new Map();
-canvas.addEventListener("pointerdown",e=>{canvas.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});});
+function stopAuto(){auto=false;document.getElementById("tauto").classList.remove("on");}
+canvas.addEventListener("pointerdown",e=>{canvas.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});stopAuto();front=false;document.getElementById("tfront").classList.remove("on");});
 canvas.addEventListener("pointermove",e=>{if(!pts.has(e.pointerId))return;const p=pts.get(e.pointerId);
-  az=clamp(az+(e.clientX-p.x)*0.006,-1.2,1.2);el=clamp(el-(e.clientY-p.y)*0.006,-0.9,0.9);front=false;
-  document.getElementById("tfront").classList.remove("on");pts.set(e.pointerId,{x:e.clientX,y:e.clientY});});
+  az=clamp(az+(e.clientX-p.x)*0.007,-1.35,1.35);el=clamp(el-(e.clientY-p.y)*0.006,-0.9,0.9);
+  pts.set(e.pointerId,{x:e.clientX,y:e.clientY});});
 const up=e=>pts.delete(e.pointerId);canvas.addEventListener("pointerup",up);canvas.addEventListener("pointercancel",up);
 
 let lit=true,litMix=1,bob=false;
@@ -110,7 +114,8 @@ const clock=new THREE.Clock();
 renderer.setAnimationLoop(()=>{
   const now=clock.getElapsedTime();
   litMix=lerp(litMix,lit?1:0,0.08);
-  if(front){az=lerp(az,0,0.1);el=lerp(el,0,0.1);}
+  if(auto){az=Math.sin(now*0.35)*1.15;el=lerp(el,0.12,0.05);}   // mece de lado a lado (±66°)
+  else if(front){az=lerp(az,0,0.12);el=lerp(el,0.05,0.12);}
   const flick=0.06*(Math.sin(now*11.3)+1)/2+0.04*(Math.sin(now*17.7+1.3)+1)/2+0.03*(Math.sin(now*29.1+2.7)+1)/2;
   // salida (animada opcional para ver a la Virgen adelantarse)
   const outMul=bob?(0.5-0.5*Math.cos(now*0.7)):1;
@@ -148,9 +153,10 @@ function refresh(){for(const[k,sid,vid,d]of S){document.getElementById(sid).valu
 for(const[k,sid,vid,d]of S){document.getElementById(sid).addEventListener("input",e=>{P[k]=+e.target.value;document.getElementById(vid).textContent=P[k].toFixed(d);});}
 refresh();
 
+document.getElementById("tauto").addEventListener("click",e=>{auto=!auto;e.target.classList.toggle("on",auto);if(auto){front=false;document.getElementById("tfront").classList.remove("on");}});
 document.getElementById("tvelas").addEventListener("click",e=>{lit=!lit;e.target.textContent=lit?"Velas encendidas":"Velas apagadas";e.target.classList.toggle("on",lit);});
 document.getElementById("tbob").addEventListener("click",e=>{bob=!bob;e.target.classList.toggle("on",bob);});
-document.getElementById("tfront").addEventListener("click",e=>{front=!front;e.target.classList.toggle("on",front);});
+document.getElementById("tfront").addEventListener("click",e=>{front=!front;e.target.classList.toggle("on",front);if(front){auto=false;document.getElementById("tauto").classList.remove("on");}});
 document.getElementById("reset").addEventListener("click",()=>{Object.assign(P,DEF);refresh();});
 const copyBtn=document.getElementById("copy");let ct=0;
 copyBtn.addEventListener("click",async()=>{
