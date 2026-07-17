@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-<title>Palio · centrar el UV a mano</title>
+<title>Palio · registrar el mantón a mano</title>
 <style>:root{font-family:system-ui,sans-serif}*{box-sizing:border-box;margin:0}
 html,body{height:100%;background:#0d0b12;color:#f4efe6;overflow:hidden;touch-action:none}
 #c{position:fixed;inset:0;width:100%;height:100%;display:block}
@@ -11,6 +11,9 @@ html,body{height:100%;background:#0d0b12;color:#f4efe6;overflow:hidden;touch-act
 #pill .v{color:#c9a24b;font-weight:700}
 #op{position:fixed;right:8px;top:40px;z-index:6;background:#171320ee;border:1px solid #ffffff22;border-radius:12px;padding:8px 10px;font-size:11px;text-align:center}
 #op input{width:96px;display:block;margin-top:6px}
+#layers{position:fixed;right:8px;top:118px;z-index:6;display:flex;gap:4px;flex-direction:column}
+#layers button{background:#171320ee;color:#f4efe6;border:1px solid #ffffff22;border-radius:8px;padding:6px 9px;font-size:11px}
+#layers button.on{background:#7c5cff;color:#fff;border-color:#7c5cff}
 .bar{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:8px;background:#0b0910ee;border-top:1px solid #ffffff22}
 .bar button{pointer-events:auto;background:#221c30;color:#f4efe6;border:1px solid #ffffff33;border-radius:8px;padding:9px 11px;font-size:13px;min-width:44px}
 .bar button:active{background:#3a2f52}
@@ -21,9 +24,10 @@ html,body{height:100%;background:#0d0b12;color:#f4efe6;overflow:hidden;touch-act
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 </head><body>
 <canvas id="c"></canvas>
-<div id="hint">Arrastra el <b>UV</b> para moverlo · pellizca/rueda para <b>escalar</b> · céntralo sobre el medallón y toca <b>Copiar</b></div>
+<div id="hint">Arrastra el overlay para <b>moverlo</b> · pellizca/rueda para <b>escalar</b> hasta que calce con el mantón real · <b>Copiar</b></div>
 <div id="pill">x <span class="v" id="px">–</span><br>y <span class="v" id="py">–</span><br>size <span class="v" id="ps">–</span></div>
-<div id="op">opacidad UV<input id="opac" type="range" min="0" max="100" value="72"/></div>
+<div id="op">opacidad<input id="opac" type="range" min="0" max="100" value="60"/></div>
+<div id="layers"></div>
 <div class="bar">
   <div class="grp"><small>X</small><button data-k="x" data-d="-1">◀</button><button data-k="x" data-d="1">▶</button></div>
   <div class="grp"><small>Y</small><button data-k="y" data-d="1">▲</button><button data-k="y" data-d="-1">▼</button></div>
@@ -34,29 +38,32 @@ html,body{height:100%;background:#0d0b12;color:#f4efe6;overflow:hidden;touch-act
 <script src="config.js"></script>
 <script type="module">
 import * as THREE from "three";
-const CFG=window.MUSEO_CONFIG, U=CFG.medallonUV;
+const CFG=window.MUSEO_CONFIG, R=CFG.mantonReg;
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
-let X=U.x, Y=U.y, S=U.size; const START={X,Y,S};
-const UA=U.aspect||1;                       // aspecto del recorte UV
-const MW=1, MH=1/CFG.aspect;                // mantón: ancho 1, alto 1/aspect
+let X=R.x, Y=R.y, S=R.size; const START={X,Y,S};
+const MH=1/CFG.aspect;                     // mantón real: ancho 1, alto 1/aspect
 const NUDGE={x:0.004,y:0.004,s:0.006};
+// capas que comparten registro (se previsualiza una a la vez)
+const LAYERS=[["fondo",CFG.fondoVacio],["UV",CFG.uvManton],["micro",CFG.microManton]].filter(l=>l[1]);
+let li=0;
 const canvas=document.getElementById("c");
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.outputColorSpace=THREE.SRGBColorSpace;
 const scene=new THREE.Scene();
 const camera=new THREE.PerspectiveCamera(40,1,0.01,100);
 function resize(){renderer.setSize(innerWidth,innerHeight);const a=innerWidth/innerHeight;camera.aspect=a;camera.updateProjectionMatrix();
-  const need=1.15;const halfV=Math.tan(THREE.MathUtils.degToRad(40)/2);
+  const need=1.18;const halfV=Math.tan(THREE.MathUtils.degToRad(40)/2);
   const dz=(a>=1? need/2/(halfV*a) : need/2/halfV);camera.position.set(0,0,Math.max(1.4,dz));camera.lookAt(0,0,0);}
 addEventListener("resize",resize);resize();
 const loader=new THREE.TextureLoader();const tx=s=>{const t=loader.load(s);t.colorSpace=THREE.SRGBColorSpace;return t;};
-// mantón de fondo (la obra real)
-const manton=new THREE.Mesh(new THREE.PlaneGeometry(MW,MH),new THREE.MeshBasicMaterial({map:tx(CFG.targetPreview),depthTest:false,depthWrite:false}));
+// mantón real de fondo (target)
+const manton=new THREE.Mesh(new THREE.PlaneGeometry(1,MH),new THREE.MeshBasicMaterial({map:tx(CFG.targetPreview),depthTest:false,depthWrite:false}));
 manton.renderOrder=0;scene.add(manton);
-// overlay UV
-const uvMat=new THREE.MeshBasicMaterial({map:tx(U.src),transparent:true,opacity:0.72,depthTest:false,depthWrite:false});
-const uv=new THREE.Mesh(new THREE.PlaneGeometry(1,1),uvMat);uv.renderOrder=1;scene.add(uv);
-function apply(){uv.scale.set(S*UA,S,1);uv.position.set(X,Y,0.01);
+// overlay editable
+const ovMat=new THREE.MeshBasicMaterial({map:tx(LAYERS[0][1].src),transparent:true,opacity:0.6,depthTest:false,depthWrite:false});
+const ov=new THREE.Mesh(new THREE.PlaneGeometry(1,1),ovMat);ov.renderOrder=1;scene.add(ov);
+function curAspect(){return LAYERS[li][1].aspect||1;}
+function apply(){ov.scale.set(S,S/curAspect(),1);ov.position.set(X,Y,0.01);
   document.getElementById("px").textContent=X.toFixed(3);
   document.getElementById("py").textContent=Y.toFixed(3);
   document.getElementById("ps").textContent=S.toFixed(3);}
@@ -69,20 +76,25 @@ canvas.addEventListener("pointerdown",e=>{canvas.setPointerCapture(e.pointerId);
 canvas.addEventListener("pointermove",e=>{if(!pts.has(e.pointerId))return;const p=pts.get(e.pointerId);
   if(pts.size===1){const w=worldPerPx();X+=(e.clientX-p.x)*w;Y-=(e.clientY-p.y)*w;apply();}
   pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(pts.size===2){const[a,b]=[...pts.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);if(pinch>0){S=Math.max(0.05,Sstart*(d/pinch));apply();}}});
+  if(pts.size===2){const[a,b]=[...pts.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);if(pinch>0){S=Math.max(0.2,Sstart*(d/pinch));apply();}}});
 const up=e=>{pts.delete(e.pointerId);if(pts.size<2)pinch=0;};
 canvas.addEventListener("pointerup",up);canvas.addEventListener("pointercancel",up);
-canvas.addEventListener("wheel",e=>{e.preventDefault();S=Math.max(0.05,S*(1-e.deltaY*0.0012));apply();},{passive:false});
+canvas.addEventListener("wheel",e=>{e.preventDefault();S=Math.max(0.2,S*(1-e.deltaY*0.0012));apply();},{passive:false});
 document.querySelectorAll(".bar button[data-k]").forEach(b=>b.addEventListener("click",()=>{
   const k=b.dataset.k,d=+b.dataset.d;if(k==="x")X+=d*NUDGE.x;if(k==="y")Y+=d*NUDGE.y;if(k==="s")S+=d*NUDGE.s;apply();}));
 addEventListener("keydown",e=>{const m={ArrowLeft:["x",-1],ArrowRight:["x",1],ArrowUp:["y",1],ArrowDown:["y",-1],"+":["s",1],"-":["s",-1],"=":["s",1]}[e.key];
   if(!m)return;e.preventDefault();const[k,d]=m;if(k==="x")X+=d*NUDGE.x;if(k==="y")Y+=d*NUDGE.y;if(k==="s")S+=d*NUDGE.s;apply();});
-document.getElementById("opac").addEventListener("input",e=>{uvMat.opacity=e.target.value/100;});
+document.getElementById("opac").addEventListener("input",e=>{ovMat.opacity=e.target.value/100;});
+// selector de capa a previsualizar
+const lc=document.getElementById("layers");
+LAYERS.forEach(([name],i)=>{const b=document.createElement("button");b.textContent=name;b.className=i===0?"on":"";
+  b.addEventListener("click",()=>{li=i;ovMat.map=tx(LAYERS[i][1].src);ovMat.needsUpdate=true;
+    [...lc.children].forEach((x,k)=>x.classList.toggle("on",k===i));apply();});lc.appendChild(b);});
 document.getElementById("reset").addEventListener("click",()=>{X=START.X;Y=START.Y;S=START.S;apply();});
 const copyBtn=document.getElementById("copy");let ct=0;
 copyBtn.addEventListener("click",async()=>{
   const f=v=>+v.toFixed(3);
-  const txt=`medallonUV: { src: "${U.src}", aspect: ${UA}, x: ${f(X)}, y: ${f(Y)}, size: ${f(S)} },`;
+  const txt=`mantonReg: { x: ${f(X)}, y: ${f(Y)}, size: ${f(S)} },`;
   try{await navigator.clipboard.writeText(txt);}catch{const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();}
   copyBtn.textContent="✓ copiado";clearTimeout(ct);ct=setTimeout(()=>copyBtn.textContent="⧉ Copiar",1500);
 });

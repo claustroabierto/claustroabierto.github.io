@@ -1,10 +1,16 @@
-/*  MOTOR RA — bichos (mantón de Manila, insectos que cobran vida)
- *  MindAR (image tracking) + three.js. Los insectos y aves bordados vuelan
- *  sobre el mantón real que ve la cámara. NO dibuja el mantón (lo pone la
- *  cámara): solo ancla los sprites que vuelan sobre él.
+/*  MOTOR RA — Palio_procesional / mantón de Manila (insectos que cobran vida)
+ *  MindAR (image tracking) + three.js.
  *
- *  Misma lógica de vuelo que la demo (anim-demo.html). Dos modos por botón:
- *  revolotean (contenido) / enjambre (vuelo amplio). Tocar la obra alterna.
+ *  Experiencia:
+ *   - Al detectar el mantón se superpone el FONDO LIMPIO (mantón sin los bichos
+ *     sueltos) sobre la obra real, y los insectos EMERGEN desde el CENTRO: nacen
+ *     diminutos en (0,0), crecen y vuelan hacia su sitio, y revolotean en bucle.
+ *   - Botón "Luz UV": fluorescencia del medallón.
+ *   - Botón "Microscopía": los 4 círculos de hilo 10x.
+ *   - Tocar el mantón: los insectos vuelan más amplio (enjambre).
+ *
+ *  Los 3 overlays de mantón completo comparten `mantonReg` (mismo registro, se
+ *  ajusta con uv.html). El mantón real lo pone la cámara.
  */
 import * as THREE from "three";
 import { MindARThree } from "mindar-image-three";
@@ -40,6 +46,22 @@ async function start() {
   const loader = new THREE.TextureLoader();
   const tex = (s) => { const t = loader.load(s); t.colorSpace = THREE.SRGBColorSpace; return t; };
 
+  // --- Overlays de mantón completo (fondo limpio, UV, microscopía) ---
+  // Los tres comparten registro (misma foto). `size` = ancho en unidades del mantón.
+  const R = CFG.mantonReg || { x: 0, y: 0, size: 1 };
+  function makeOverlay(cfg, z, ro) {
+    if (!cfg) return null;
+    const mat = new THREE.MeshBasicMaterial({ map: tex(cfg.src), transparent: true, opacity: 0, depthTest: false, depthWrite: false });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(R.size, R.size / cfg.aspect), mat);
+    mesh.position.set(R.x, R.y, z); mesh.renderOrder = ro; mesh.visible = false;
+    anchor.group.add(mesh);
+    return { mesh, mat };
+  }
+  const fondo = makeOverlay(CFG.fondoVacio, 0.001, 0);   // base: cubre los bichos reales
+  const uvOv  = makeOverlay(CFG.uvManton, 0.05, 20);     // encima de los bichos
+  const micOv = makeOverlay(CFG.microManton, 0.06, 21);
+
+  // --- Insectos (nacen en el centro y vuelan a su sitio) ---
   const bichos = CFG.bichos.map((b, i) => {
     const mat = new THREE.MeshBasicMaterial({ map: tex(b.src), transparent: true, depthTest: false, depthWrite: false });
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
@@ -47,78 +69,84 @@ async function start() {
     return { ...b, mesh, mat, ph: i * 1.7, fx: 0.33 + i * 0.028, fy: 0.26 + i * 0.022, cur: null };
   });
 
-  // Medallón UV (revelado): overlay sobre el medallón central del mantón.
-  let uvMesh = null, uvOn = false, uvMix = 0;
-  if (CFG.medallonUV) {
-    const u = CFG.medallonUV;
-    const mat = new THREE.MeshBasicMaterial({ map: tex(u.src), transparent: true, opacity: 0, depthTest: false, depthWrite: false });
-    uvMesh = new THREE.Mesh(new THREE.PlaneGeometry(u.size * u.aspect, u.size), mat);
-    uvMesh.position.set(u.x, u.y, 0.005); uvMesh.renderOrder = 1; anchor.group.add(uvMesh);
+  // Emergen DESDE EL CENTRO: nacen diminutos en (0,0), crecen y vuelan a su sitio,
+  // y ahí revolotean/aletean. mt = tiempo desde que se detectó la obra.
+  function trans(b, i, now, mt) {
+    const stg = i * 0.14;
+    const grow = smooth(stg, stg + 1.2, mt);          // tamaño 0 → 1
+    const out  = smooth(stg + 0.15, stg + 1.7, mt);   // sale del centro 0 → 1
+    const move = smooth(stg + 1.5, stg + 2.5, mt);    // empieza a revolotear
+    const baseScale = b.size * (0.02 + 0.98 * grow);
+    const sx = baseScale * b.aspect;
+    const bx = lerp(0, b.x, out), by = lerp(0, b.y, out);
+    const amp = b.spread * (mode === "enjambre" ? 1.0 : 0.42);
+    const ox = Math.sin(now * b.fx + b.ph) * amp * move;
+    const oy = (Math.sin(now * b.fy + b.ph * 1.3) * amp * 0.55 + Math.sin(now * 1.1 + b.ph) * 0.012) * move;
+    const flapv = Math.sin(now * b.flap + b.ph);
+    const sy = baseScale * (1 + flapv * 0.14 * (0.35 + 0.65 * move));
+    const rot = Math.sin(now * 0.6 + b.ph) * 0.18 * move + flapv * 0.025;
+    const z = 0.02 + move * (0.05 + 0.03 * Math.sin(now * b.fx + b.ph));
+    return { x: bx + ox, y: by + oy, z, sx, sy, rot };
   }
 
+  // --- Estado ---
   let mode = "revolotea", visible = false, lastTap = -1, startT = 0;
+  let uvOn = false, uvMix = 0, micOn = false, micMix = 0, fondoMix = 0;
   const clock = new THREE.Clock();
   const setCaption = (t) => { $("caption").textContent = t || ""; };
-  const updateBtn = () => { $("btn-modo").textContent = mode === "revolotea" ? "Que vuelen más" : "Que se calmen"; };
-
-  // Al detectar la obra, los bordados EMERGEN: nacen diminutos en su sitio,
-  // crecen escalonados y recién ahí se mueven. Aves (perfil) se mecen; insectos
-  // revolotean y aletean. mt = tiempo desde que se detectó.
-  function trans(b, i, now, mt) {
-    const grow = smooth(i * 0.28, i * 0.28 + 1.3, mt);
-    const move = smooth(i * 0.28 + 1.3, i * 0.28 + 2.3, mt);
-    const baseScale = b.size * (0.03 + 0.97 * grow);
-    const sx = baseScale * b.aspect;
-    let ox = 0, oy = 0, rot = 0, sy = baseScale, z = 0.02;
-    if (b.tipo === "ave") {
-      ox = Math.sin(now * 0.5 + b.ph) * 0.015 * move;
-      oy = Math.sin(now * 0.7 + b.ph) * 0.028 * move;
-      rot = Math.sin(now * 0.55 + b.ph) * 0.05 * move;
-      sy = baseScale * (1 + Math.sin(now * 1.6 + b.ph) * 0.015 * move);
-      z = 0.02 + move * 0.03;
-    } else {
-      const ampMul = mode === "enjambre" ? 1.0 : 0.42;
-      const amp = b.spread * ampMul;
-      ox = Math.sin(now * b.fx + b.ph) * amp * move;
-      oy = (Math.sin(now * b.fy + b.ph * 1.3) * amp * 0.55 + Math.sin(now * 1.1 + b.ph) * 0.012) * move;
-      const flapv = Math.sin(now * b.flap + b.ph);
-      sy = baseScale * (1 + flapv * 0.14 * (0.35 + 0.65 * move));
-      rot = Math.sin(now * 0.6 + b.ph) * 0.18 * move + flapv * 0.025;
-      z = 0.02 + move * (0.05 + 0.03 * Math.sin(now * b.fx + b.ph));
-    }
-    return { x: b.x + ox, y: b.y + oy, z, sx, sy, rot };
+  const normalCap = () => (mode === "enjambre"
+    ? "Los bordados vuelan por todo el mantón"
+    : "Los insectos nacen del centro y revolotean · toca el mantón para que vuelen más");
+  function refreshCaption() {
+    setCaption(uvOn ? "Bajo luz UV el medallón fluoresce"
+      : micOn ? "Microscopía 10x del hilo bordado"
+      : normalCap());
   }
 
-  anchor.onTargetFound = () => { visible = true; startT = clock.getElapsedTime(); bichos.forEach(b => b.cur = null); $("scan").style.display = "none"; $("panel").classList.add("on"); };
-  anchor.onTargetLost = () => { visible = false; $("scan").style.display = "flex"; $("panel").classList.remove("on"); };
+  anchor.onTargetFound = () => {
+    visible = true; startT = clock.getElapsedTime(); bichos.forEach(b => b.cur = null);
+    $("scan").style.display = "none"; $("panel").classList.add("on"); refreshCaption();
+  };
+  anchor.onTargetLost = () => {
+    visible = false; $("scan").style.display = "flex"; $("panel").classList.remove("on");
+  };
 
-  const toggle = () => { mode = mode === "revolotea" ? "enjambre" : "revolotea"; updateBtn();
-    setCaption(mode === "enjambre" ? "Los bordados vuelan por todo el mantón" : "Los insectos revolotean sobre la seda"); };
-  $("btn-modo").addEventListener("click", (e) => { e.stopPropagation(); toggle(); });
-  const uvBtn = $("btn-uv");
-  if (uvBtn) uvBtn.addEventListener("click", (e) => { e.stopPropagation(); uvOn = !uvOn;
-    uvBtn.classList.toggle("on", uvOn);
-    setCaption(uvOn ? "Bajo luz UV el medallón fluoresce" : (mode === "enjambre" ? "Los bordados vuelan por todo el mantón" : "Los insectos revolotean sobre la seda")); });
+  const toggleMode = () => { mode = mode === "revolotea" ? "enjambre" : "revolotea"; refreshCaption(); };
+  // Botón UV y botón Microscopía (mutuamente excluyentes; ocultan los insectos).
+  const uvBtn = $("btn-uv"), micBtn = $("btn-modo");
+  if (uvBtn) uvBtn.addEventListener("click", (e) => {
+    e.stopPropagation(); uvOn = !uvOn; if (uvOn) micOn = false;
+    uvBtn.classList.toggle("on", uvOn); if (micBtn) micBtn.classList.toggle("on", micOn); refreshCaption();
+  });
+  if (micBtn) micBtn.addEventListener("click", (e) => {
+    e.stopPropagation(); micOn = !micOn; if (micOn) uvOn = false;
+    micBtn.classList.toggle("on", micOn); if (uvBtn) uvBtn.classList.toggle("on", uvOn); refreshCaption();
+  });
   function handleTap(el) {
     if (!visible) return;
     if (el && el.closest && el.closest("#panel, #topbar, #error")) return;
-    const now = performance.now(); if (now - lastTap < 350) return; lastTap = now; toggle();
+    if (uvOn || micOn) return;   // en modo UV/micro el toque no cambia el enjambre
+    const now = performance.now(); if (now - lastTap < 350) return; lastTap = now; toggleMode();
   }
   window.addEventListener("pointerdown", (e) => handleTap(e.target));
   window.addEventListener("touchstart", (e) => handleTap(e.target), { passive: true });
-  updateBtn();
 
   try { await mindar.start(); }
   catch (e) { return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")"); }
   const placa = $("loading").querySelector(".creditos");
   if (placa) $("scan").appendChild(placa.cloneNode(true));
   $("loading").style.display = "none";
-  setCaption("Los insectos revolotean sobre la seda");
 
   renderer.setAnimationLoop(() => {
     const now = clock.getElapsedTime();
-    if (uvMesh) { uvMix = lerp(uvMix, uvOn ? 1 : 0, 0.08); uvMesh.material.opacity = uvMix; }
     const mt = now - startT;
+    fondoMix = lerp(fondoMix, visible ? 1 : 0, 0.08);
+    uvMix = lerp(uvMix, uvOn ? 1 : 0, 0.1);
+    micMix = lerp(micMix, micOn ? 1 : 0, 0.1);
+    if (fondo) { fondo.mat.opacity = fondoMix; fondo.mesh.visible = fondoMix > 0.01; }
+    if (uvOv) { uvOv.mat.opacity = uvMix; uvOv.mesh.visible = uvMix > 0.01; }
+    if (micOv) { micOv.mat.opacity = micMix; micOv.mesh.visible = micMix > 0.01; }
+    const bichosVis = Math.max(0, 1 - Math.max(uvMix, micMix));   // se ocultan en UV/micro
     for (let i = 0; i < bichos.length; i++) {
       const b = bichos[i], t = trans(b, i, now, mt);
       if (!b.cur) b.cur = { ...t };
@@ -126,6 +154,8 @@ async function start() {
       b.mesh.position.set(b.cur.x, b.cur.y, b.cur.z);
       b.mesh.scale.set(b.cur.sx, b.cur.sy, 1);
       b.mesh.rotation.z = b.cur.rot;
+      b.mat.opacity = bichosVis;
+      b.mesh.visible = bichosVis > 0.01;
     }
     renderer.render(scene, camera);
   });

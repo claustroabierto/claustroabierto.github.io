@@ -1,28 +1,35 @@
-/*  CONFIG DE PIEZA — bichos (mantón de Manila bordado)
- *  Los insectos bordados del mantón "cobran vida": emergen creciendo desde su
- *  sitio y revolotean. Motor propio (bichos-engine.js). Sprites recortados de
- *  "RA de bichos.png" y "RA de bichos parte 2.png" (el equipo los entregó ya
- *  recortados con transparencia).
+/*  CONFIG DE PIEZA — Palio_procesional (mantón de Manila bordado)
+ *  Los insectos bordados "cobran vida": EMERGEN creciendo DESDE EL CENTRO del
+ *  mantón y vuelan hacia su sitio, en bucle. Motor propio (bichos-engine.js).
  *
- *  Por ahora SOLO insectos (las aves eran de perfil y no se animaban bien).
- *  Coordenadas en el espacio del mantón: ancho = 1, alto = 1/aspect, centro 0.
+ *  Capas nuevas del equipo (misma foto → mismo registro `mantonReg`):
+ *   - fondoVacio : el mantón SIN los bichos sueltos → se superpone sobre la obra
+ *     real para que los bichos animados vuelen sobre una base limpia (tipo dolorosa).
+ *   - uvManton   : fluorescencia del medallón bajo luz UV.
+ *   - microManton: microscopía (4 círculos de hilo 10x).
+ *
+ *  Registro (`mantonReg`) se ajusta A MANO con `uv.html` sobre la obra real —
+ *  no tantear. `size` = ancho del overlay en unidades del mantón (1 = ancho de la obra).
  */
 window.MUSEO_CONFIG = {
   id: "Palio_procesional",
   titulo: "Mantón de Manila",
   subtitulo: "Los bordados cobran vida",
-  ficha: "Mantón de seda bordado · insectos · fluorescencia bajo luz UV y microscopía 10x",
+  ficha: "Mantón de seda bordado (textil filipino) · insectos · fluorescencia UV y microscopía 10x",
 
   targetSrc: "assets/targets.mind",
   targetPreview: "assets/target.jpg",
   fondo: "assets/manton.webp",   // solo para la demo sin cámara
   aspect: 1.462,
 
-  // Revelado bajo luz UV: el medallón central fluoresce (flores azules).
-  medallonUV: { src: "assets/medallon-uv.webp", aspect: 0.997, x: 0.005, y: 0.025, size: 0.37 },
+  // Overlays de mantón completo (los tres comparten registro; vienen de la misma foto).
+  mantonReg:   { x: 0.0, y: 0.0, size: 1.0 },
+  fondoVacio:  { src: "assets/fondo-vacio.webp",  aspect: 1.365 },
+  uvManton:    { src: "assets/uv-manton.webp",    aspect: 1.389 },
+  microManton: { src: "assets/micro-manton.webp", aspect: 1.389 },
 
-  // 15 insectos distribuidos alrededor del medallón (centro despejado para el UV).
-  // Todos vista superior → revolotean y aletean. spread = cuánto revolotea.
+  // 15 insectos: nacen en el CENTRO (0,0) diminutos y vuelan hacia estas posiciones.
+  // spread = cuánto revolotea al llegar · flap = aleteo.
   bichos: [
     { src: "assets/sprites/mariposa.webp",         aspect: 1.311, x: -0.38, y:  0.26, size: 0.12, spread: 0.24, flap: 9.0 },
     { src: "assets/sprites/b2-00.webp",            aspect: 0.759, x: -0.15, y:  0.28, size: 0.11, spread: 0.22, flap: 8.0 },
