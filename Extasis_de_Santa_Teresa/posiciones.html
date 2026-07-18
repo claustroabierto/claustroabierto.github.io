@@ -41,10 +41,13 @@ const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
 const PA = 1290/1505;                       // aspecto de la pintura (target)
 
 // Elementos editables (id -> su cfg en el config)
+const O = CFG.reversoOval;
 const EL = [
   ["Rayos X", "rx", CFG.rx],
-  ["Reverso óvalo", "reversoOval", CFG.reversoOval],
-  ["Reverso panel", "reversoPanel", CFG.reversoPanel],
+  ["Reverso óvalo", "reversoOval", O],
+  // mismo óvalo, pero en su destino de la izquierda (no cambia de tamaño)
+  ["Reverso izq", "reversoIzq", { src: O.src, aspect: O.aspect, width: O.width, x: O.izqX, y: O.izqY }],
+  ["Reverso título", "reversoTitulo", CFG.reversoTitulo],
   ["Título micro", "microTitulo", CFG.microTitulo]
 ];
 CFG.microscopias.forEach((m, i) => EL.push([m.titulo, "mic" + i, m]));
@@ -94,6 +97,9 @@ EL.forEach(([name, id]) => {
 });
 
 function apply() {
+  // el óvalo y su destino izq son la MISMA imagen: el tamaño queda bloqueado
+  if (mode === "reversoOval") P.reversoIzq.w = P.reversoOval.w;
+  if (mode === "reversoIzq") P.reversoOval.w = P.reversoIzq.w;
   EL.forEach(([n, id], i) => { const p = P[id]; M[id].me.scale.set(p.w, p.w / p.aspect, 1); M[id].me.position.set(p.x, p.y, 0.01 + i * 0.002); });
   const p = P[mode]; const r = Math.max(p.w, p.w / p.aspect) * 0.6;
   ring.position.set(p.x, p.y, 0.2); ring.scale.set(r / 0.515, r / 0.515, 1);
@@ -135,8 +141,10 @@ copyBtn.addEventListener("click", async () => {
     '    { src: "' + m.src + '", aspect: ' + m.aspect + ', width: ' + f(P["mic" + i].w) + ', x: ' + f(P["mic" + i].x) + ', y: ' + f(P["mic" + i].y) +
     ', titulo: "' + m.titulo + '", pigmento: "' + m.pigmento + '", formula: "' + m.formula + '", nota: "' + m.nota + '" }').join(",\n");
   const txt = "rx: " + one("rx", CFG.rx) + ",\n" +
-    "reversoOval: " + one("reversoOval", CFG.reversoOval) + ",\n" +
-    "reversoPanel: " + one("reversoPanel", CFG.reversoPanel) + ",\n" +
+    'reversoOval: { src: "' + O.src + '", aspect: ' + O.aspect + ', width: ' + f(P.reversoOval.w) +
+      ', x: ' + f(P.reversoOval.x) + ', y: ' + f(P.reversoOval.y) +
+      ', izqX: ' + f(P.reversoIzq.x) + ', izqY: ' + f(P.reversoIzq.y) + ' },\n' +
+    "reversoTitulo: " + one("reversoTitulo", CFG.reversoTitulo) + ",\n" +
     "microTitulo: " + one("microTitulo", CFG.microTitulo) + ",\n" +
     "microscopias: [\n" + micLines + "\n]";
   try { await navigator.clipboard.writeText(txt); }

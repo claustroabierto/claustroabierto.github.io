@@ -47,15 +47,17 @@ async function start() {
   }
 
   const rx    = plane(CFG.rx, 0.001, 1);            // rayos X (con rótulo)
-  const rvO   = plane(CFG.reversoOval, 0.01, 3);    // reverso sin texto (en el óvalo)
-  const rvP   = plane(CFG.reversoPanel, 0.012, 4);  // reverso con texto (panel izq)
+  const rvO   = plane(CFG.reversoOval, 0.01, 3);    // óvalo del reverso (único, no cambia de tamaño)
+  const rvT   = plane(CFG.reversoTitulo, 0.012, 4); // rótulo "REVERSO" (aparece al llegar)
   const mTit  = plane(CFG.microTitulo, 0.02, 8);    // título MICROSCOPÍA
   const micros = (CFG.microscopias || []).map((m, i) => {
     const p = plane(m, 0.02 + i * 0.001, 10 + i); p.data = m; return p;
   });
 
   // --- Estado / UI ---
-  let visible = false, startT = 0, rxAlpha = 1, staticReady = false;
+  // rxAlpha arranca en 0.5: el rayos X se ve semitransparente y la pintura real
+  // se nota por detrás (pedido del equipo).
+  let visible = false, startT = 0, rxAlpha = 0.5, staticReady = false;
   const clock = new THREE.Clock();
   const INTER = CFG.intervaloReveal || 0.8;
   const setCaption = (t) => { const c = $("caption"); if (c) c.textContent = t || ""; };
@@ -64,7 +66,7 @@ async function start() {
   anchor.onTargetLost = () => { visible = false; $("scan").style.display = "flex"; $("panel").classList.remove("on"); closeCard(); };
 
   const slider = $("reveal");
-  if (slider) { slider.value = 100; slider.addEventListener("input", () => { rxAlpha = slider.value / 100; }); }
+  if (slider) { slider.value = 50; slider.addEventListener("input", () => { rxAlpha = slider.value / 100; }); }
   const rb = $("btn-repeat"); if (rb) rb.addEventListener("click", (e) => { e.stopPropagation(); if (visible) startT = clock.getElapsedTime(); });
 
   // --- Zoom al tocar una microscopía ---
@@ -118,18 +120,16 @@ async function start() {
     rx.mesh.scale.setScalar(lerp(0.02, 1, step(T_RX[0], T_RX[1], t)));
     rx.mat.opacity = step(T_RX[0], T_RX[0] + 0.5, t) * rxAlpha;
 
-    // 2/3) reverso: crece sin texto en el óvalo; al moverse cruza a "con texto".
+    // 2/3) reverso: UN solo óvalo. Crece en el óvalo del rayos X y luego se
+    // traslada a la izquierda SIN cambiar de tamaño (nada salta). El rótulo
+    // "REVERSO" aparece cuando ya llegó.
     const grow = step(T_RV[0], T_RV[1], t);
     const mv = step(T_MOVE[0], T_MOVE[1], t);
-    const ox = CFG.reversoOval.x, oy = CFG.reversoOval.y;
-    const px = CFG.reversoPanel.x, py = CFG.reversoPanel.y;
-    const cx = lerp(ox, px, mv), cy = lerp(oy, py, mv);
-    // el "sin texto" se desvanece a mitad del viaje y aparece el panel con texto
-    rvO.mesh.position.set(cx, cy, 0.01);
-    rvO.mesh.scale.setScalar(grow);
-    rvO.mat.opacity = grow * (1 - step(0.45, 0.75, mv));
-    rvP.mesh.position.set(cx, cy, 0.012);
-    rvP.mat.opacity = step(0.45, 0.8, mv);
+    const O = CFG.reversoOval;
+    rvO.mesh.position.set(lerp(O.x, O.izqX, mv), lerp(O.y, O.izqY, mv), 0.01);
+    rvO.mesh.scale.setScalar(grow);      // solo la entrada; después queda en 1
+    rvO.mat.opacity = grow;
+    rvT.mat.opacity = step(0.75, 1.0, mv);   // el rótulo entra al final del viaje
 
     // 4) columna derecha: título y luego las 3 tarjetas, una por una
     mTit.mat.opacity = step(T_TIT, T_TIT + 0.5, t);

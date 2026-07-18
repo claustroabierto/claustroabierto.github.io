@@ -27,10 +27,13 @@ window.MUSEO_CONFIG = {
   // 1) Rayos X con su rótulo (recorte del análisis).
   rx: { src: "assets/rx.webp", aspect: 0.736, width: 0.984, x: 0.007, y: 0.047 },
 
-  // 2/3) Reverso: `oval` = sin texto, calza en el óvalo del rayos X · `panel` = con
-  // texto (tarjeta REVERSO), a la izquierda. Se cruza uno por otro al moverse.
-  reversoOval:  { src: "assets/reverso-oval.webp",  aspect: 0.596, width: 0.46,  x: -0.014, y: -0.003 },
-  reversoPanel: { src: "assets/reverso-texto.webp", aspect: 0.493, width: 0.556, x: -0.892, y:  0.146 },
+  // 2/3) Reverso: UN SOLO óvalo recortado (sin texto) que crece en el óvalo del
+  // rayos X y luego se MUEVE a la izquierda — nunca cambia de tamaño, así la
+  // transición no salta. El rótulo "REVERSO" es un elemento aparte que aparece
+  // al llegar (igual que el título de microscopía).
+  reversoOval:   { src: "assets/reverso-oval.webp",   aspect: 0.596, width: 0.46, x: -0.014, y: -0.003,
+                   izqX: -0.892, izqY: 0.146 },
+  reversoTitulo: { src: "assets/reverso-titulo.webp", aspect: 4.007, width: 0.34, x: -0.892, y: 0.60 },
 
   // 4) Columna de microscopía a la DERECHA (título + 3 tarjetas, en orden).
   // Las 3 comparten x (columna alineada) y el espaciado vertical es idéntico
