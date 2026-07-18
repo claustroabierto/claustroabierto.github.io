@@ -1,42 +1,42 @@
 /*  CONFIG DE PIEZA — Éxtasis de Santa Teresa (RA5)
- *  Coreografía animada sobre la pintura real (image tracking):
- *   1. Rayos X aparece creciendo hasta calzar el cuadro.
- *   2. El REVERSO (placa oval de piedra) crece y calza en el ÓVALO blanco del rayos X.
- *   3. El reverso se desplaza a la izquierda.
- *   4. Las microscopías aparecen una por una (sin flechas), en sus posiciones.
- *   5. Queda estático: se tocan las microscopías para hacer ZOOM (los círculos no
- *      llevan aro; un aviso abajo indica que se pueden tocar).
- *  + barra de transparencia (opacidad del rayos X) + botón Repetir.
+ *  Todos los recortes salen del "santa teresa analisis.png" del equipo (no de las
+ *  fotos crudas), así conservan su tipografía y sus tarjetas blancas.
  *
- *  Unidades: ancho de la pintura = 1, centro en (0,0), y hacia arriba. Las
- *  posiciones/tamaños se AJUSTAN A MANO con `posiciones.html` (no tantear).
+ *  Coreografía sobre la pintura real (image tracking):
+ *   1. RAYOS X (con su rótulo) crece hasta calzar el cuadro.
+ *   2. El REVERSO crece SIN texto dentro del ÓVALO blanco del rayos X.
+ *   3. Se mueve a la IZQUIERDA y allí pasa a su versión CON texto (panel REVERSO).
+ *   4. A la DERECHA: primero el título MICROSCOPÍA, luego las 3 microscopías una
+ *      por una (Dorado arriba → Carnación → Azurita), cada una con su texto.
+ *   5. Estático: tocar una microscopía la amplía (zoom). Sin aros; aviso abajo.
+ *  + slider de transparencia (opacidad del rayos X) + botón Repetir.
+ *
+ *  Unidades: ancho de la pintura = 1, centro (0,0), y hacia arriba. Las posiciones
+ *  se AJUSTAN A MANO con `posiciones.html` (no tantear).
  */
 window.MUSEO_CONFIG = {
   id: "Extasis_de_Santa_Teresa",
   titulo: "Éxtasis de Santa Teresa",
   subtitulo: "Rayos X · el reverso de piedra · microscopía de pigmentos",
-  ficha: "Óleo sobre placa de piedra (mármol ónice) · Rayos X revela el soporte; el reverso lleva la inscripción «Sta. Teresia con l'angelo»",
+  ficha: "Óleo sobre placa de piedra · Rayos X revela el soporte; el reverso lleva la inscripción «S.ta Teresia con l'angelo»",
 
   targetSrc: "assets/targets.mind",
   targetPreview: "assets/target.jpg",
 
-  // Rayos X que llena el cuadro (PLACEHOLDER — ajustar con posiciones.html).
-  rx: { src: "assets/rx.webp", width: 1.06, height: 1.33, offsetX: 0.0, offsetY: 0.02 },
+  // 1) Rayos X con su rótulo (recorte del análisis).
+  rx: { src: "assets/rx.webp", aspect: 0.736, width: 1.0, x: 0.0, y: 0.0 },
 
-  // Reverso (óvalo) — calza en el óvalo blanco del rayos X y luego va a la IZQUIERDA.
-  reverso: {
-    src: "assets/reverso.webp", width: 0.46, height: 0.62,
-    ovalX: 0.0, ovalY: 0.0,        // dónde calza sobre el óvalo del rayos X
-    izqX: -0.82, izqY: 0.0          // a dónde se mueve (izquierda)
-  },
+  // 2/3) Reverso: `oval` = sin texto, calza en el óvalo del rayos X · `panel` = con
+  // texto (tarjeta REVERSO), a la izquierda. Se cruza uno por otro al moverse.
+  reversoOval:  { src: "assets/reverso-oval.webp",  aspect: 0.596, width: 0.30, x: 0.0,  y: 0.02 },
+  reversoPanel: { src: "assets/reverso-texto.webp", aspect: 0.493, width: 0.42, x: -0.85, y: 0.0 },
 
-  // Microscopías: aparecen una por una (sin flechas). x/y = centro del círculo
-  // (= zona tocable para el zoom). PLACEHOLDER — ajustar con posiciones.html.
-  microTam: 0.20,                   // diámetro de las bolitas
-  intervaloReveal: 0.75,            // seg entre cada aparición
+  // 4) Columna de microscopía a la DERECHA (título + 3 tarjetas, en orden).
+  microTitulo: { src: "assets/micro-titulo.webp", aspect: 6.255, width: 0.60, x: 0.90, y: 0.62 },
+  intervaloReveal: 0.8,
   microscopias: [
-    { img: "assets/micro-dorado.webp",    x: -0.30, y:  0.55, titulo: "Dorado",    pigmento: "Oro",     formula: "Au",                 nota: "Detalles dorados en pan de oro (Au) aplicado sobre bol; el rayos X los muestra opacos." },
-    { img: "assets/micro-carnacion.webp", x:  0.28, y:  0.35, titulo: "Carnación", pigmento: "Plomo",   formula: "Pb",                 nota: "La carnación (tono de piel) se construye con blanco de plomo (Pb)." },
-    { img: "assets/micro-azurita.webp",   x: -0.10, y: -0.45, titulo: "Azurita",   pigmento: "Azurita", formula: "Cu₃(CO₃)₂(OH)₂",     nota: "Azul mineral de azurita, carbonato básico de cobre, muy usado en el manto." }
+    { src: "assets/micro-dorado.webp",    aspect: 1.920, width: 0.62, x: 0.90, y:  0.30, titulo: "Dorado",    pigmento: "Oro",     formula: "Au",             nota: "Detalles en pan de oro (Au); en el rayos X aparecen opacos." },
+    { src: "assets/micro-carnacion.webp", aspect: 1.851, width: 0.62, x: 0.90, y: -0.02, titulo: "Carnación", pigmento: "Plomo",   formula: "Pb",             nota: "La carnación se construye con blanco de plomo (Pb)." },
+    { src: "assets/micro-azurita.webp",   aspect: 1.817, width: 0.62, x: 0.90, y: -0.34, titulo: "Azurita",   pigmento: "Azurita", formula: "Cu₃(CO₃)₂(OH)₂", nota: "Azul mineral de azurita, carbonato básico de cobre." }
   ]
 };

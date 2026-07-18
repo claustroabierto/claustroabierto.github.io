@@ -5,14 +5,14 @@
 <style>:root{font-family:system-ui,sans-serif}*{box-sizing:border-box;margin:0}
 html,body{height:100%;background:#0d0b12;color:#f4efe6;overflow:hidden;touch-action:none}
 #c{position:fixed;inset:0;width:100%;height:100%;display:block}
-#hint{position:fixed;left:0;right:0;top:0;z-index:5;text-align:center;padding:8px 12px;font-size:12px;opacity:.9;background:linear-gradient(#000c,#0000);pointer-events:none}
+#hint{position:fixed;left:0;right:0;top:0;z-index:5;text-align:center;padding:7px 12px;font-size:12px;opacity:.9;background:linear-gradient(#000c,#0000);pointer-events:none}
 #hint b{color:#c9a24b}
-#sel{position:fixed;left:8px;right:8px;top:36px;z-index:6;display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
-#sel button{background:#171320e6;color:#f4efe6;border:1px solid #ffffff22;border-radius:8px;padding:6px 9px;font-size:11px}
+#sel{position:fixed;left:6px;right:6px;top:32px;z-index:6;display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
+#sel button{background:#171320e6;color:#f4efe6;border:1px solid #ffffff22;border-radius:8px;padding:6px 8px;font-size:11px}
 #sel button.on{background:#c9a24b;color:#1a1206;border-color:#c9a24b}
-#pill{position:fixed;left:8px;top:96px;z-index:6;background:#171320ee;border:1px solid #ffffff22;border-radius:10px;padding:7px 9px;font-size:11px;line-height:1.5;font-variant-numeric:tabular-nums}
+#pill{position:fixed;left:8px;top:92px;z-index:6;background:#171320ee;border:1px solid #ffffff22;border-radius:10px;padding:7px 9px;font-size:11px;line-height:1.5;font-variant-numeric:tabular-nums}
 #pill .v{color:#c9a24b;font-weight:700}
-#op{position:fixed;right:8px;top:96px;z-index:6;background:#171320ee;border:1px solid #ffffff22;border-radius:10px;padding:7px 9px;font-size:10px;text-align:center}
+#op{position:fixed;right:8px;top:92px;z-index:6;background:#171320ee;border:1px solid #ffffff22;border-radius:10px;padding:7px 9px;font-size:10px;text-align:center}
 #op input{width:84px;display:block;margin-top:5px}
 .bar{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:8px;background:#0b0910ee;border-top:1px solid #ffffff22}
 .bar button{background:#221c30;color:#f4efe6;border:1px solid #ffffff33;border-radius:8px;padding:9px 11px;font-size:13px;min-width:42px}
@@ -23,10 +23,10 @@ html,body{height:100%;background:#0d0b12;color:#f4efe6;overflow:hidden;touch-act
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 </head><body>
 <canvas id="c"></canvas>
-<div id="hint">Elegí arriba qué mover · arrastra para <b>mover</b> · pellizca/rueda para <b>escalar</b> · <b>Copiar</b> al final</div>
+<div id="hint">Elegí arriba qué mover · arrastra para <b>mover</b> · pellizca/rueda para <b>escalar</b> · <b>Copiar</b></div>
 <div id="sel"></div>
 <div id="pill" style="display:none"></div>
-<div id="op">rayos X<input id="opac" type="range" min="0" max="100" value="55"/></div>
+<div id="op">rayos X<input id="opac" type="range" min="0" max="100" value="60"/></div>
 <div class="bar">
   <div class="grp"><small>X</small><button data-k="x" data-d="-1">◀</button><button data-k="x" data-d="1">▶</button></div>
   <div class="grp"><small>Y</small><button data-k="y" data-d="1">▲</button><button data-k="y" data-d="-1">▼</button></div>
@@ -36,85 +36,112 @@ html,body{height:100%;background:#0d0b12;color:#f4efe6;overflow:hidden;touch-act
 <script src="config.js"></script>
 <script type="module">
 import * as THREE from "three";
-const CFG=window.MUSEO_CONFIG;
-const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
-const PA=1290/1505;                 // aspecto de la pintura (target)
-const RXA=1400/1754, RVA=773/1045;  // aspecto de rayos X y reverso (w/h)
-// estado editable (desde el config)
-const P={
-  rxW:CFG.rx.width, rxOX:CFG.rx.offsetX, rxOY:CFG.rx.offsetY,
-  rvW:CFG.reverso.width, rvOvalX:CFG.reverso.ovalX, rvOvalY:CFG.reverso.ovalY, rvIzqX:CFG.reverso.izqX, rvIzqY:CFG.reverso.izqY,
-  micTam:CFG.microTam, mic:CFG.microscopias.map(m=>({x:m.x,y:m.y}))
-};
-const NUDGE={x:0.004,y:0.004,s:0.006};
-const canvas=document.getElementById("c");
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.outputColorSpace=THREE.SRGBColorSpace;
-const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(40,1,0.01,100);
-let VW=1,VH=1;
-function resize(){renderer.setSize(innerWidth,innerHeight);const a=innerWidth/innerHeight;camera.aspect=a;camera.updateProjectionMatrix();
-  const need=1.6,hV=Math.tan(THREE.MathUtils.degToRad(40)/2);const dz=(a>=1?need/2/(hV*a):need/2/hV);
-  camera.position.set(0,0,Math.max(1.7,dz));camera.lookAt(0,0,0);VH=2*hV*camera.position.z;VW=VH*a;}
-addEventListener("resize",resize);resize();
-const loader=new THREE.TextureLoader();const tx=s=>{const t=loader.load(s);t.colorSpace=THREE.SRGBColorSpace;return t;};
-// pintura de fondo
-const pint=new THREE.Mesh(new THREE.PlaneGeometry(1,1/PA),new THREE.MeshBasicMaterial({map:tx(CFG.targetPreview),depthTest:false,depthWrite:false}));
-pint.renderOrder=0;scene.add(pint);
-// rayos X
-const rxMat=new THREE.MeshBasicMaterial({map:tx(CFG.rx.src),transparent:true,opacity:0.55,depthTest:false,depthWrite:false});
-const rx=new THREE.Mesh(new THREE.PlaneGeometry(1,1),rxMat);rx.renderOrder=1;scene.add(rx);
-// reverso
-const rvMat=new THREE.MeshBasicMaterial({map:tx(CFG.reverso.src),transparent:true,depthTest:false,depthWrite:false});
-const rv=new THREE.Mesh(new THREE.PlaneGeometry(1,1),rvMat);rv.renderOrder=3;scene.add(rv);
-// micros
-const mics=CFG.microscopias.map(m=>{const me=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({map:tx(m.img),transparent:true,depthTest:false,depthWrite:false}));me.renderOrder=10;scene.add(me);return me;});
-// aro de selección
-const ring=new THREE.Mesh(new THREE.RingGeometry(0.5,0.53,4).rotateZ(Math.PI/4),new THREE.MeshBasicMaterial({color:0xffd24b,transparent:true,opacity:.9,side:THREE.DoubleSide,depthTest:false}));
-ring.renderOrder=50;scene.add(ring);
-// modos
-const MODES=[["Rayos X","rx"],["Reverso óvalo","rvOval"],["Reverso izq","rvIzq"]];
-CFG.microscopias.forEach((m,i)=>MODES.push([m.titulo,"mic"+i]));
-let mode="rx";
-const selDiv=document.getElementById("sel");
-MODES.forEach(([name,id])=>{const b=document.createElement("button");b.textContent=name;b.dataset.id=id;b.className=id===mode?"on":"";
-  b.addEventListener("click",()=>{mode=id;[...selDiv.children].forEach(x=>x.classList.toggle("on",x.dataset.id===mode));apply();});selDiv.appendChild(b);});
-// posición/tamaño del objeto activo
-function activePos(){if(mode==="rx")return[P.rxOX,P.rxOY];if(mode==="rvOval")return[P.rvOvalX,P.rvOvalY];if(mode==="rvIzq")return[P.rvIzqX,P.rvIzqY];const i=+mode.slice(3);return[P.mic[i].x,P.mic[i].y];}
-function activeSize(){if(mode==="rx")return Math.max(P.rxW,P.rxW/RXA);if(mode.startsWith("rv"))return Math.max(P.rvW,P.rvW/RVA);return P.micTam;}
-function apply(){
-  rx.scale.set(P.rxW,P.rxW/RXA,1);rx.position.set(P.rxOX,P.rxOY,0.01);
-  const rvp=(mode==="rvIzq")?[P.rvIzqX,P.rvIzqY]:[P.rvOvalX,P.rvOvalY];
-  rv.scale.set(P.rvW,P.rvW/RVA,1);rv.position.set(rvp[0],rvp[1],0.03);
-  mics.forEach((me,i)=>{me.scale.set(P.micTam,P.micTam,1);me.position.set(P.mic[i].x,P.mic[i].y,0.04);});
-  const [ax,ay]=activePos();const r=activeSize()*0.6+0.03;ring.position.set(ax,ay,0.06);ring.scale.set(r/0.515,r/0.515,1);
-  const pill=document.getElementById("pill");pill.style.display="block";
-  pill.innerHTML=`<b>${MODES.find(m=>m[1]===mode)[0]}</b><br>x <span class="v">${ax.toFixed(3)}</span> · y <span class="v">${ay.toFixed(3)}</span>`+(mode==="rx"||mode.startsWith("rv")?`<br>ancho <span class="v">${(mode==="rx"?P.rxW:P.rvW).toFixed(3)}</span>`:`<br>tam <span class="v">${P.micTam.toFixed(3)}</span>`);
+const CFG = window.MUSEO_CONFIG;
+const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
+const PA = 1290/1505;                       // aspecto de la pintura (target)
+
+// Elementos editables (id -> su cfg en el config)
+const EL = [
+  ["Rayos X", "rx", CFG.rx],
+  ["Reverso óvalo", "reversoOval", CFG.reversoOval],
+  ["Reverso panel", "reversoPanel", CFG.reversoPanel],
+  ["Título micro", "microTitulo", CFG.microTitulo]
+];
+CFG.microscopias.forEach((m, i) => EL.push([m.titulo, "mic" + i, m]));
+const P = {}; EL.forEach(([n, id, c]) => P[id] = { x: c.x, y: c.y, w: c.width, aspect: c.aspect, src: c.src });
+let mode = "rx";
+const NUDGE = { x: 0.004, y: 0.004, s: 0.008 };
+
+const canvas = document.getElementById("c");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2)); renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 100);
+let VW = 1, VH = 1;
+function resize() {
+  renderer.setSize(innerWidth, innerHeight); const a = innerWidth / innerHeight;
+  camera.aspect = a; camera.updateProjectionMatrix();
+  const need = 2.6, hV = Math.tan(THREE.MathUtils.degToRad(40) / 2);
+  const dz = (a >= 1 ? need / 2 / (hV * a) : need / 2 / hV);
+  camera.position.set(0, 0, Math.max(2.4, dz)); camera.lookAt(0, 0, 0);
+  VH = 2 * hV * camera.position.z; VW = VH * a;
+}
+addEventListener("resize", resize); resize();
+const loader = new THREE.TextureLoader();
+const tx = (s) => { const t = loader.load(s); t.colorSpace = THREE.SRGBColorSpace; return t; };
+
+// pintura real de referencia
+const pint = new THREE.Mesh(new THREE.PlaneGeometry(1, 1/PA),
+  new THREE.MeshBasicMaterial({ map: tx(CFG.targetPreview), depthTest: false, depthWrite: false }));
+pint.renderOrder = 0; scene.add(pint);
+
+const M = {};
+EL.forEach(([n, id, c], i) => {
+  const mat = new THREE.MeshBasicMaterial({ map: tx(c.src), transparent: true, opacity: id === "rx" ? 0.6 : 1, depthTest: false, depthWrite: false });
+  const me = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
+  me.renderOrder = 1 + i; scene.add(me); M[id] = { me, mat };
+});
+const ring = new THREE.Mesh(new THREE.RingGeometry(0.5, 0.53, 4).rotateZ(Math.PI/4),
+  new THREE.MeshBasicMaterial({ color: 0xffd24b, transparent: true, opacity: 0.9, side: THREE.DoubleSide, depthTest: false }));
+ring.renderOrder = 99; scene.add(ring);
+
+const selDiv = document.getElementById("sel");
+EL.forEach(([name, id]) => {
+  const b = document.createElement("button"); b.textContent = name; b.dataset.id = id;
+  b.className = id === mode ? "on" : "";
+  b.addEventListener("click", () => { mode = id; [...selDiv.children].forEach(x => x.classList.toggle("on", x.dataset.id === mode)); apply(); });
+  selDiv.appendChild(b);
+});
+
+function apply() {
+  EL.forEach(([n, id], i) => { const p = P[id]; M[id].me.scale.set(p.w, p.w / p.aspect, 1); M[id].me.position.set(p.x, p.y, 0.01 + i * 0.002); });
+  const p = P[mode]; const r = Math.max(p.w, p.w / p.aspect) * 0.6;
+  ring.position.set(p.x, p.y, 0.2); ring.scale.set(r / 0.515, r / 0.515, 1);
+  const pill = document.getElementById("pill"); pill.style.display = "block";
+  pill.innerHTML = "<b>" + EL.find(e => e[1] === mode)[0] + "</b><br>x <span class='v'>" + p.x.toFixed(3) +
+    "</span> · y <span class='v'>" + p.y.toFixed(3) + "</span><br>ancho <span class='v'>" + p.w.toFixed(3) + "</span>";
 }
 apply();
-renderer.setAnimationLoop(()=>renderer.render(scene,camera));
-function worldAt(px,py){return{x:((px/innerWidth)*2-1)*VW/2,y:(-(py/innerHeight)*2+1)*VH/2};}
-function setPos(x,y){if(mode==="rx"){P.rxOX=x;P.rxOY=y;}else if(mode==="rvOval"){P.rvOvalX=x;P.rvOvalY=y;}else if(mode==="rvIzq"){P.rvIzqX=x;P.rvIzqY=y;}else{const i=+mode.slice(3);P.mic[i].x=x;P.mic[i].y=y;}}
-function addSize(d){if(mode==="rx")P.rxW=clamp(P.rxW+d,0.1,3);else if(mode.startsWith("rv"))P.rvW=clamp(P.rvW+d,0.05,2);else P.micTam=clamp(P.micTam+d,0.03,0.6);}
-const pts=new Map();let pinch=0,sz0=0;
-canvas.addEventListener("pointerdown",e=>{canvas.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pts.size===2){const[a,b]=[...pts.values()];pinch=Math.hypot(a.x-b.x,a.y-b.y);sz0=(mode==="rx")?P.rxW:mode.startsWith("rv")?P.rvW:P.micTam;}});
-canvas.addEventListener("pointermove",e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(pts.size===1){const w=worldAt(e.clientX,e.clientY);setPos(clamp(w.x,-1.3,1.3),clamp(w.y,-1.3,1.3));apply();}
-  if(pts.size===2){const[a,b]=[...pts.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);if(pinch>0){const f=d/pinch;if(mode==="rx")P.rxW=clamp(sz0*f,0.1,3);else if(mode.startsWith("rv"))P.rvW=clamp(sz0*f,0.05,2);else P.micTam=clamp(sz0*f,0.03,0.6);apply();}}});
-const up=e=>{pts.delete(e.pointerId);if(pts.size<2)pinch=0;};
-canvas.addEventListener("pointerup",up);canvas.addEventListener("pointercancel",up);
-canvas.addEventListener("wheel",e=>{e.preventDefault();addSize(-e.deltaY*0.0006);apply();},{passive:false});
-document.querySelectorAll(".bar button[data-k]").forEach(b=>b.addEventListener("click",()=>{const k=b.dataset.k,d=+b.dataset.d;const[ax,ay]=activePos();if(k==="x")setPos(ax+d*NUDGE.x,ay);if(k==="y")setPos(ax,ay+d*NUDGE.y);if(k==="s")addSize(d*NUDGE.s);apply();}));
-document.getElementById("opac").addEventListener("input",e=>{rxMat.opacity=e.target.value/100;});
-const copyBtn=document.getElementById("copy");let ct=0;
-copyBtn.addEventListener("click",async()=>{
-  const f=v=>+(+v).toFixed(3);
-  const micLines=CFG.microscopias.map((m,i)=>`    { img: "${m.img}", x: ${f(P.mic[i].x)}, y: ${f(P.mic[i].y)}, titulo: "${m.titulo}", pigmento: "${m.pigmento}", formula: "${m.formula}", nota: "${m.nota}" }`).join(",\n");
-  const txt=`rx: { src: "${CFG.rx.src}", width: ${f(P.rxW)}, height: ${f(P.rxW/RXA)}, offsetX: ${f(P.rxOX)}, offsetY: ${f(P.rxOY)} },\n`+
-    `reverso: { src: "${CFG.reverso.src}", width: ${f(P.rvW)}, height: ${f(P.rvW/RVA)}, ovalX: ${f(P.rvOvalX)}, ovalY: ${f(P.rvOvalY)}, izqX: ${f(P.rvIzqX)}, izqY: ${f(P.rvIzqY)} },\n`+
-    `microTam: ${f(P.micTam)},\n`+`microscopias: [\n${micLines}\n]`;
-  try{await navigator.clipboard.writeText(txt);}catch{const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();}
-  copyBtn.textContent="✓ copiado";clearTimeout(ct);ct=setTimeout(()=>copyBtn.textContent="⧉ Copiar",1500);
+renderer.setAnimationLoop(() => renderer.render(scene, camera));
+
+function worldAt(px, py) { return { x: ((px / innerWidth) * 2 - 1) * VW / 2, y: (-(py / innerHeight) * 2 + 1) * VH / 2 }; }
+const pts = new Map(); let pinch = 0, w0 = 0;
+canvas.addEventListener("pointerdown", e => {
+  canvas.setPointerCapture(e.pointerId); pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = Math.hypot(a.x - b.x, a.y - b.y); w0 = P[mode].w; }
+});
+canvas.addEventListener("pointermove", e => {
+  if (!pts.has(e.pointerId)) return; pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pts.size === 1) { const w = worldAt(e.clientX, e.clientY); P[mode].x = clamp(w.x, -2, 2); P[mode].y = clamp(w.y, -2, 2); apply(); }
+  if (pts.size === 2) { const [a, b] = [...pts.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y); if (pinch > 0) { P[mode].w = clamp(w0 * d / pinch, 0.05, 3); apply(); } }
+});
+const up = e => { pts.delete(e.pointerId); if (pts.size < 2) pinch = 0; };
+canvas.addEventListener("pointerup", up); canvas.addEventListener("pointercancel", up);
+canvas.addEventListener("wheel", e => { e.preventDefault(); P[mode].w = clamp(P[mode].w * (1 - e.deltaY * 0.0012), 0.05, 3); apply(); }, { passive: false });
+document.querySelectorAll(".bar button[data-k]").forEach(b => b.addEventListener("click", () => {
+  const k = b.dataset.k, d = +b.dataset.d;
+  if (k === "x") P[mode].x += d * NUDGE.x;
+  if (k === "y") P[mode].y += d * NUDGE.y;
+  if (k === "s") P[mode].w = clamp(P[mode].w + d * NUDGE.s, 0.05, 3);
+  apply();
+}));
+document.getElementById("opac").addEventListener("input", e => { M.rx.mat.opacity = e.target.value / 100; });
+
+const copyBtn = document.getElementById("copy"); let ct = 0;
+copyBtn.addEventListener("click", async () => {
+  const f = v => +(+v).toFixed(3);
+  const one = (id, c) => '{ src: "' + c.src + '", aspect: ' + c.aspect + ', width: ' + f(P[id].w) + ', x: ' + f(P[id].x) + ', y: ' + f(P[id].y) + ' }';
+  const micLines = CFG.microscopias.map((m, i) =>
+    '    { src: "' + m.src + '", aspect: ' + m.aspect + ', width: ' + f(P["mic" + i].w) + ', x: ' + f(P["mic" + i].x) + ', y: ' + f(P["mic" + i].y) +
+    ', titulo: "' + m.titulo + '", pigmento: "' + m.pigmento + '", formula: "' + m.formula + '", nota: "' + m.nota + '" }').join(",\n");
+  const txt = "rx: " + one("rx", CFG.rx) + ",\n" +
+    "reversoOval: " + one("reversoOval", CFG.reversoOval) + ",\n" +
+    "reversoPanel: " + one("reversoPanel", CFG.reversoPanel) + ",\n" +
+    "microTitulo: " + one("microTitulo", CFG.microTitulo) + ",\n" +
+    "microscopias: [\n" + micLines + "\n]";
+  try { await navigator.clipboard.writeText(txt); }
+  catch { const ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); }
+  copyBtn.textContent = "✓ copiado"; clearTimeout(ct); ct = setTimeout(() => copyBtn.textContent = "⧉ Copiar", 1500);
 });
 </script>
 </body></html>
