@@ -1,35 +1,27 @@
-/*  CONFIG DE PIEZA — candelabros (vidrio de uranio)
- *  Toggle antes/después: al deslizar, el candelabro real "se enciende" en verde
- *  (overlay UV sobre la pieza) y al costado aparecen las burbujas comparativas
- *  del cristal de uranio SIN / CON luz UV.
+/*  CONFIG DE PIEZA — candelabros (vidrio de uranio) · MARCADOR RA
+ *  El candelabro es vidrio brilloso 3D que NO rastrea como imagen y se mueve en
+ *  vitrina → el target es un MARCADOR impreso (assets/marcador.jpg = foto del
+ *  candelabro a cover + "RA2"), no la pieza. Al escanearlo, el candelabro sale
+ *  del marcador, flota y SE ENCIENDE en UV (fluorescencia verde con glow).
+ *
+ *  Marcador preliminar (generado con la foto que ya teníamos) — Jimena lo pule
+ *  para imprimir, como el del relicario.
  */
 window.MUSEO_CONFIG = {
   id: "candelabros",
   titulo: "Candelabro de vidrio de uranio",
   subtitulo: "Fluorescencia bajo luz ultravioleta",
-  ficha: "Vidrio con contenido de uranio · fluoresce verde bajo radiación UV",
+  ficha: "Vidrio con contenido de uranio · fluoresce verde bajo radiación UV · target: marcador RA2",
 
   targetSrc: "assets/targets.mind",
-  targetPreview: "assets/target.jpg",
+  targetPreview: "assets/marcador.jpg",
 
-  // Candelabro UV (verde) alineado sobre la pieza rastreada.
-  overlay: {
-    src: "assets/overlay.webp",
-    width: 0.814,
-    height: 1.666,
-    offsetX: -0.054,
-    offsetY: -0.040
-  },
+  // El candelabro UV (recorte transparente) que sale del marcador y se enciende.
+  objeto: { src: "assets/overlay.webp", aspect: 0.541, size: 0.9 },
 
-  // Burbujas comparativas al costado (cristal de uranio sin/con luz UV).
-  extras: [
-    { src: "assets/sinuv.webp", width: 0.52, height: 0.88, offsetX: 0.95, offsetY: 0.50 },
-    { src: "assets/conuv.webp", width: 0.52, height: 0.82, offsetX: 0.95, offsetY: -0.48 }
-  ],
-
-  hotspots: [
-    { x: 0.50, y: 0.50, color: "#39ff14", titulo: "Vidrio de uranio",
-      pigmento: "Fluorescencia bajo luz UV", formula: "Uranio (U)",
-      nota: "El uranio del vidrio absorbe la luz ultravioleta y la reemite como un intenso brillo verde. Invisible a simple vista, resplandece bajo UV." }
+  // Comparativas del cristal (sin / con luz UV) a los costados.
+  comparativas: [
+    { src: "assets/sinuv.webp", aspect: 0.590, size: 0.5, x: -0.92, y: 0.18, label: "Sin UV" },
+    { src: "assets/conuv.webp", aspect: 0.635, size: 0.5, x:  0.92, y: 0.18, label: "Con UV" }
   ]
 };

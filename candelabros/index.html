@@ -4,7 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>RA · Vidrio de uranio — Museo Ayacucho</title>
-  <link rel="stylesheet" href="../shared/styles.css?v=7" />
+  <link rel="stylesheet" href="../shared/styles.css?v=8" />
+  <style>
+    #caption{font-size:13px;line-height:1.4;min-height:1.4em;margin-bottom:10px;text-shadow:0 1px 6px #000a;}
+    #panel .row{justify-content:flex-end;gap:8px;}
+    #panel .row button{background:#7c5cff;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:700;font-size:13px;}
+  </style>
   <script type="importmap">
   {
     "imports": {
@@ -25,28 +30,14 @@
 
   <div id="scan">
     <div class="frame"></div>
-    <p>Apunta la cámara al <b>candelabro de vidrio</b> y enciende la luz UV.</p>
-  </div>
-
-  <div id="card">
-    <button id="card-close">×</button>
-    <div class="head">
-      <div id="card-color"></div>
-      <div>
-        <div id="card-titulo"></div>
-        <div id="card-pigmento"></div>
-        <div id="card-formula"></div>
-      </div>
-    </div>
-    <div id="card-nota"></div>
+    <p>Apunta la cámara al <b>marcador RA</b> junto al candelabro.</p>
   </div>
 
   <div id="panel">
+    <div id="caption"></div>
     <div class="row">
-      <input id="reveal" type="range" min="0" max="100" value="0" />
-      <button id="btn-toggle">Luz UV</button>
+      <button id="btn-repeat">↻ Repetir</button>
     </div>
-    <div class="hint">Desliza para encender la luz ultravioleta · toca el ● para saber por qué brilla</div>
     <div id="ficha-txt"></div>
   </div>
 
@@ -69,7 +60,7 @@
   </div>
   <div id="error"></div>
 
-  <script src="config.js?v=3"></script>
-  <script type="module" src="../shared/ar-engine.js?v=7"></script>
+  <script src="config.js?v=4"></script>
+  <script type="module" src="candelabros-uv-engine.js?v=1"></script>
 </body>
 </html>
