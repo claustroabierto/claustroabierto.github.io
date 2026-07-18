@@ -54,7 +54,7 @@ async function start() {
     if (!cfg) return null;
     const mat = new THREE.MeshBasicMaterial({ map: tex(cfg.src), transparent: true, opacity: 0, depthTest: false, depthWrite: false });
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(R.size, R.size / cfg.aspect), mat);
-    mesh.position.set(R.x, R.y, z); mesh.renderOrder = ro; mesh.visible = false;
+    mesh.position.set(R.x, R.y, z); mesh.rotation.z = R.rot || 0; mesh.renderOrder = ro; mesh.visible = false;
     anchor.group.add(mesh);
     return { mesh, mat };
   }

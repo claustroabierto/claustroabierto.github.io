@@ -24,14 +24,15 @@ html,body{height:100%;background:#0d0b12;color:#f4efe6;overflow:hidden;touch-act
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 </head><body>
 <canvas id="c"></canvas>
-<div id="hint">Arrastra el overlay para <b>moverlo</b> · pellizca/rueda para <b>escalar</b> hasta que calce con el mantón real · <b>Copiar</b></div>
-<div id="pill">x <span class="v" id="px">–</span><br>y <span class="v" id="py">–</span><br>size <span class="v" id="ps">–</span></div>
+<div id="hint">Arrastra para <b>mover</b> · pellizca/rueda para <b>escalar</b> · <b>↺↻ girar</b> hasta que calce con el mantón real · <b>Copiar</b></div>
+<div id="pill">x <span class="v" id="px">–</span><br>y <span class="v" id="py">–</span><br>size <span class="v" id="ps">–</span><br>giro <span class="v" id="pr">–</span>°</div>
 <div id="op">opacidad<input id="opac" type="range" min="0" max="100" value="60"/></div>
 <div id="layers"></div>
 <div class="bar">
   <div class="grp"><small>X</small><button data-k="x" data-d="-1">◀</button><button data-k="x" data-d="1">▶</button></div>
   <div class="grp"><small>Y</small><button data-k="y" data-d="1">▲</button><button data-k="y" data-d="-1">▼</button></div>
   <div class="grp"><small>tamaño</small><button data-k="s" data-d="-1">−</button><button data-k="s" data-d="1">+</button></div>
+  <div class="grp"><small>girar</small><button data-k="r" data-d="-1">↺</button><button data-k="r" data-d="1">↻</button></div>
   <button id="reset" class="wide">↺ Original</button>
   <button id="copy" class="wide">⧉ Copiar</button>
 </div>
@@ -40,9 +41,9 @@ html,body{height:100%;background:#0d0b12;color:#f4efe6;overflow:hidden;touch-act
 import * as THREE from "three";
 const CFG=window.MUSEO_CONFIG, R=CFG.mantonReg;
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
-let X=R.x, Y=R.y, S=R.size; const START={X,Y,S};
+let X=R.x, Y=R.y, S=R.size, ROT=R.rot||0; const START={X,Y,S,ROT};
 const MH=1/CFG.aspect;                     // mantón real: ancho 1, alto 1/aspect
-const NUDGE={x:0.004,y:0.004,s:0.006};
+const NUDGE={x:0.004,y:0.004,s:0.006,r:0.6*Math.PI/180};   // rot: 0.6° por paso
 // capas que comparten registro (se previsualiza una a la vez)
 const LAYERS=[["fondo",CFG.fondoVacio],["UV",CFG.uvManton],["micro",CFG.microManton]].filter(l=>l[1]);
 let li=0;
@@ -63,10 +64,11 @@ manton.renderOrder=0;scene.add(manton);
 const ovMat=new THREE.MeshBasicMaterial({map:tx(LAYERS[0][1].src),transparent:true,opacity:0.6,depthTest:false,depthWrite:false});
 const ov=new THREE.Mesh(new THREE.PlaneGeometry(1,1),ovMat);ov.renderOrder=1;scene.add(ov);
 function curAspect(){return LAYERS[li][1].aspect||1;}
-function apply(){ov.scale.set(S,S/curAspect(),1);ov.position.set(X,Y,0.01);
+function apply(){ov.scale.set(S,S/curAspect(),1);ov.position.set(X,Y,0.01);ov.rotation.z=ROT;
   document.getElementById("px").textContent=X.toFixed(3);
   document.getElementById("py").textContent=Y.toFixed(3);
-  document.getElementById("ps").textContent=S.toFixed(3);}
+  document.getElementById("ps").textContent=S.toFixed(3);
+  document.getElementById("pr").textContent=(ROT*180/Math.PI).toFixed(1);}
 apply();
 renderer.setAnimationLoop(()=>renderer.render(scene,camera));
 function worldPerPx(){const halfV=Math.tan(THREE.MathUtils.degToRad(40)/2);return (2*halfV*camera.position.z)/innerHeight;}
@@ -80,21 +82,21 @@ canvas.addEventListener("pointermove",e=>{if(!pts.has(e.pointerId))return;const 
 const up=e=>{pts.delete(e.pointerId);if(pts.size<2)pinch=0;};
 canvas.addEventListener("pointerup",up);canvas.addEventListener("pointercancel",up);
 canvas.addEventListener("wheel",e=>{e.preventDefault();S=Math.max(0.2,S*(1-e.deltaY*0.0012));apply();},{passive:false});
-document.querySelectorAll(".bar button[data-k]").forEach(b=>b.addEventListener("click",()=>{
-  const k=b.dataset.k,d=+b.dataset.d;if(k==="x")X+=d*NUDGE.x;if(k==="y")Y+=d*NUDGE.y;if(k==="s")S+=d*NUDGE.s;apply();}));
-addEventListener("keydown",e=>{const m={ArrowLeft:["x",-1],ArrowRight:["x",1],ArrowUp:["y",1],ArrowDown:["y",-1],"+":["s",1],"-":["s",-1],"=":["s",1]}[e.key];
-  if(!m)return;e.preventDefault();const[k,d]=m;if(k==="x")X+=d*NUDGE.x;if(k==="y")Y+=d*NUDGE.y;if(k==="s")S+=d*NUDGE.s;apply();});
+function nudge(k,d){if(k==="x")X+=d*NUDGE.x;if(k==="y")Y+=d*NUDGE.y;if(k==="s")S+=d*NUDGE.s;if(k==="r")ROT+=d*NUDGE.r;apply();}
+document.querySelectorAll(".bar button[data-k]").forEach(b=>b.addEventListener("click",()=>nudge(b.dataset.k,+b.dataset.d)));
+addEventListener("keydown",e=>{const m={ArrowLeft:["x",-1],ArrowRight:["x",1],ArrowUp:["y",1],ArrowDown:["y",-1],"+":["s",1],"-":["s",-1],"=":["s",1],",":["r",-1],".":["r",1]}[e.key];
+  if(!m)return;e.preventDefault();nudge(m[0],m[1]);});
 document.getElementById("opac").addEventListener("input",e=>{ovMat.opacity=e.target.value/100;});
 // selector de capa a previsualizar
 const lc=document.getElementById("layers");
 LAYERS.forEach(([name],i)=>{const b=document.createElement("button");b.textContent=name;b.className=i===0?"on":"";
   b.addEventListener("click",()=>{li=i;ovMat.map=tx(LAYERS[i][1].src);ovMat.needsUpdate=true;
     [...lc.children].forEach((x,k)=>x.classList.toggle("on",k===i));apply();});lc.appendChild(b);});
-document.getElementById("reset").addEventListener("click",()=>{X=START.X;Y=START.Y;S=START.S;apply();});
+document.getElementById("reset").addEventListener("click",()=>{X=START.X;Y=START.Y;S=START.S;ROT=START.ROT;apply();});
 const copyBtn=document.getElementById("copy");let ct=0;
 copyBtn.addEventListener("click",async()=>{
-  const f=v=>+v.toFixed(3);
-  const txt=`mantonReg: { x: ${f(X)}, y: ${f(Y)}, size: ${f(S)} },`;
+  const f=v=>+v.toFixed(3), r4=v=>+v.toFixed(4);
+  const txt=`mantonReg: { x: ${f(X)}, y: ${f(Y)}, size: ${f(S)}, rot: ${r4(ROT)} },`;
   try{await navigator.clipboard.writeText(txt);}catch{const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();}
   copyBtn.textContent="✓ copiado";clearTimeout(ct);ct=setTimeout(()=>copyBtn.textContent="⧉ Copiar",1500);
 });
