@@ -58,7 +58,8 @@ async function start() {
     anchor.group.add(mesh);
     return { mesh, mat };
   }
-  const fondo = makeOverlay(CFG.fondoVacio, 0.001, 0);   // base: cubre los bichos reales
+  // NO se superpone el mantón: la base es la obra real (cámara). Solo se muestran,
+  // uno a la vez, los bichos O el UV O la microscopía.
   const uvOv  = makeOverlay(CFG.uvManton, 0.05, 20);     // encima de los bichos
   const micOv = makeOverlay(CFG.microManton, 0.06, 21);
 
@@ -100,7 +101,7 @@ async function start() {
 
   // --- Estado ---
   let mode = "revolotea", visible = false, lastTap = -1, startT = 0;
-  let uvOn = false, uvMix = 0, micOn = false, micMix = 0, fondoMix = 0;
+  let uvOn = false, uvMix = 0, micOn = false, micMix = 0;
   const clock = new THREE.Clock();
   const setCaption = (t) => { $("caption").textContent = t || ""; };
   const normalCap = () => (mode === "enjambre"
@@ -158,10 +159,8 @@ async function start() {
   renderer.setAnimationLoop(() => {
     const now = clock.getElapsedTime();
     const mt = now - startT;
-    fondoMix = lerp(fondoMix, visible ? 1 : 0, 0.08);
     uvMix = lerp(uvMix, uvOn ? 1 : 0, 0.1);
     micMix = lerp(micMix, micOn ? 1 : 0, 0.1);
-    if (fondo) { fondo.mat.opacity = fondoMix; fondo.mesh.visible = fondoMix > 0.01; }
     if (uvOv) { uvOv.mat.opacity = uvMix; uvOv.mesh.visible = uvMix > 0.01; }
     if (micOv) { micOv.mat.opacity = micMix; micOv.mesh.visible = micMix > 0.01; }
     const bichosVis = Math.max(0, 1 - Math.max(uvMix, micMix));   // se ocultan en UV/micro

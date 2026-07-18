@@ -45,11 +45,10 @@ function resize(){renderer.setSize(innerWidth,innerHeight);const a=innerWidth/in
   VH=2*halfV*camera.position.z;VW=VH*a;}
 addEventListener("resize",resize);resize();
 const loader=new THREE.TextureLoader();const tx=s=>{const t=loader.load(s);t.colorSpace=THREE.SRGBColorSpace;return t;};
-// mantón limpio de fondo (donde se posan los bichos)
-const fv=CFG.fondoVacio;
-const manton=new THREE.Mesh(new THREE.PlaneGeometry(R.size,R.size/(fv?fv.aspect:CFG.aspect)),
-  new THREE.MeshBasicMaterial({map:tx(fv?fv.src:CFG.targetPreview),depthTest:false,depthWrite:false}));
-manton.position.set(R.x,R.y,0);manton.renderOrder=0;scene.add(manton);
+// mantón real de referencia (la obra que ve la cámara), ancho 1 centrado
+const manton=new THREE.Mesh(new THREE.PlaneGeometry(1,1/CFG.aspect),
+  new THREE.MeshBasicMaterial({map:tx(CFG.targetPreview),depthTest:false,depthWrite:false}));
+manton.position.set(0,0,0);manton.renderOrder=0;scene.add(manton);
 // bichos (estáticos, para posicionar)
 const B=CFG.bichos.map((b,i)=>{
   const mesh=new THREE.Mesh(new THREE.PlaneGeometry(1,1),
