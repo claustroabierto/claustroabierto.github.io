@@ -23,20 +23,23 @@ window.MUSEO_CONFIG = {
   targetSrc: "assets/targets.mind",
   targetPreview: "assets/target.jpg",
 
+  // Valores AJUSTADOS A MANO por el equipo con `posiciones.html`.
   // 1) Rayos X con su rótulo (recorte del análisis).
-  rx: { src: "assets/rx.webp", aspect: 0.736, width: 1.0, x: 0.0, y: 0.0 },
+  rx: { src: "assets/rx.webp", aspect: 0.736, width: 0.984, x: 0.007, y: 0.047 },
 
   // 2/3) Reverso: `oval` = sin texto, calza en el óvalo del rayos X · `panel` = con
   // texto (tarjeta REVERSO), a la izquierda. Se cruza uno por otro al moverse.
-  reversoOval:  { src: "assets/reverso-oval.webp",  aspect: 0.596, width: 0.30, x: 0.0,  y: 0.02 },
-  reversoPanel: { src: "assets/reverso-texto.webp", aspect: 0.493, width: 0.42, x: -0.85, y: 0.0 },
+  reversoOval:  { src: "assets/reverso-oval.webp",  aspect: 0.596, width: 0.46,  x: -0.014, y: -0.003 },
+  reversoPanel: { src: "assets/reverso-texto.webp", aspect: 0.493, width: 0.556, x: -0.892, y:  0.146 },
 
   // 4) Columna de microscopía a la DERECHA (título + 3 tarjetas, en orden).
-  microTitulo: { src: "assets/micro-titulo.webp", aspect: 6.255, width: 0.60, x: 0.90, y: 0.62 },
+  // Las 3 comparten x (columna alineada) y el espaciado vertical es idéntico
+  // (0.41 entre cada una): Dorado 0.41 · Carnación 0.00 · Azurita -0.41.
+  microTitulo: { src: "assets/micro-titulo.webp", aspect: 6.255, width: 0.60, x: 0.85, y: 0.656 },
   intervaloReveal: 0.8,
   microscopias: [
-    { src: "assets/micro-dorado.webp",    aspect: 1.920, width: 0.62, x: 0.90, y:  0.30, titulo: "Dorado",    pigmento: "Oro",     formula: "Au",             nota: "Detalles en pan de oro (Au); en el rayos X aparecen opacos." },
-    { src: "assets/micro-carnacion.webp", aspect: 1.851, width: 0.62, x: 0.90, y: -0.02, titulo: "Carnación", pigmento: "Plomo",   formula: "Pb",             nota: "La carnación se construye con blanco de plomo (Pb)." },
-    { src: "assets/micro-azurita.webp",   aspect: 1.817, width: 0.62, x: 0.90, y: -0.34, titulo: "Azurita",   pigmento: "Azurita", formula: "Cu₃(CO₃)₂(OH)₂", nota: "Azul mineral de azurita, carbonato básico de cobre." }
+    { src: "assets/micro-dorado.webp",    aspect: 1.920, width: 0.62, x: 0.92, y:  0.41, titulo: "Dorado",    pigmento: "Oro",     formula: "Au",             nota: "Detalles en pan de oro (Au); en el rayos X aparecen opacos." },
+    { src: "assets/micro-carnacion.webp", aspect: 1.851, width: 0.62, x: 0.92, y:  0.00, titulo: "Carnación", pigmento: "Plomo",   formula: "Pb",             nota: "La carnación se construye con blanco de plomo (Pb)." },
+    { src: "assets/micro-azurita.webp",   aspect: 1.817, width: 0.62, x: 0.92, y: -0.41, titulo: "Azurita",   pigmento: "Azurita", formula: "Cu₃(CO₃)₂(OH)₂", nota: "Azul mineral de azurita, carbonato básico de cobre." }
   ]
 };
