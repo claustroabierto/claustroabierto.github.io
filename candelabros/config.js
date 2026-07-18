@@ -16,9 +16,9 @@ window.MUSEO_CONFIG = {
   targetSrc: "assets/targets.mind?v=2",
   targetPreview: "assets/marcador.png",   // RA2 sobre fondo BLANCO (aplanado) — probado: detecta a ~0.5 m (chico) / ~1 m (grande)
 
-  // Título de la pieza (Arial, se muestra en MAYÚSCULAS). `color` = el que definió
-  // el equipo — PLACEHOLDER, cambiar por el hex exacto que pasen.
-  label: { text: "Reflexión por radiación de luz UV", color: "#eafff0", width: 1.15 },
+  // Título de la pieza (Arial, se muestra en MAYÚSCULAS). Color = el MISMO gris
+  // sólido de "CON LUZ UV" de las comparativas (#b4b4b4), sin contorno.
+  label: { text: "Reflexión por radiación de luz UV", color: "#b4b4b4", width: 1.15 },
 
   // El candelabro UV (recorte transparente) que sale del marcador y se enciende.
   objeto: { src: "assets/overlay.webp?v=2", aspect: 0.541, size: 0.9 },

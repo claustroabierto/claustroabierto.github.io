@@ -49,16 +49,14 @@ async function start() {
     g.fillStyle = gr; g.fillRect(0, 0, s, s);
     const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t;
   }
-  // --- Etiqueta de texto en ARIAL (color configurable + leve halo para leerse) ---
+  // --- Etiqueta en ARIAL, color SÓLIDO (mismo gris que "CON LUZ UV"), sin contorno ---
   function makeLabel(text, w, color) {
-    color = color || "#eafff0";
+    color = color || "#b4b4b4";
     const size = 96, c = document.createElement("canvas"), ctx = c.getContext("2d");
     const font = `700 ${size}px Arial, "Helvetica Neue", Helvetica, sans-serif`;
     ctx.font = font; const pad = size * 0.5;
     c.width = Math.ceil(ctx.measureText(text).width) + pad * 2; c.height = size + pad;
     ctx.font = font; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.lineJoin = "round"; ctx.strokeStyle = "rgba(0,0,0,0.85)"; ctx.lineWidth = size * 0.14;
-    ctx.strokeText(text, c.width/2, c.height/2);
     ctx.fillStyle = color; ctx.fillText(text, c.width/2, c.height/2);
     const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
     const h = w * c.height / c.width;
@@ -83,13 +81,13 @@ async function start() {
   shadow.renderOrder = 4; anchor.group.add(shadow);
 
   // --- Comparativas del cristal (sin / con UV) a los costados ---
+  // Las comparativas (sinuv/conuv) YA traen su rótulo ("SIN LUZ UV"/"CON LUZ UV")
+  // impreso → no se les agrega etiqueta extra.
   const comps = (CFG.comparativas || []).map((c) => {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(c.size, c.size / c.aspect),
       new THREE.MeshBasicMaterial({ map: tx(c.src), transparent: true, opacity: 0, depthTest: false, depthWrite: false }));
     m.position.set(c.x, c.y, 0.02); m.renderOrder = 7; anchor.group.add(m);
-    const lab = makeLabel(c.label || "", c.size * 0.9);
-    lab.position.set(c.x, c.y - c.size / c.aspect / 2 - 0.06, 0.03); anchor.group.add(lab);
-    return { m, lab, y: c.y };
+    return { m };
   });
 
   // --- Título de la pieza (Arial, MAYÚSCULAS, color del equipo) arriba, fijo ---
@@ -115,9 +113,24 @@ async function start() {
   if (placa) $("scan").appendChild(placa.cloneNode(true));
   $("loading").style.display = "none";
 
+  // Suavizado del pose: el marcador RA2 es débil (pocas features) → el tracking
+  // tiembla y la escala oscila. Interpolamos posición/rotación/escala del anchor
+  // hacia el valor rastreado (menos jitter, con un poco de lag — aceptable porque
+  // el candelabro FLOTA, no calza pixel a pixel).
+  const _p = new THREE.Vector3(), _q = new THREE.Quaternion(), _s = new THREE.Vector3();
+  const sp = new THREE.Vector3(), sq = new THREE.Quaternion(), ss = new THREE.Vector3();
+  let sInit = false;
+
   renderer.setAnimationLoop(() => {
     const now = clock.getElapsedTime();
     const t = now - startT;
+    if (visible) {
+      anchor.group.matrix.decompose(_p, _q, _s);
+      if (!sInit) { sp.copy(_p); sq.copy(_q); ss.copy(_s); sInit = true; }
+      else { sp.lerp(_p, 0.18); sq.slerp(_q, 0.18); ss.lerp(_s, 0.18); }
+      anchor.group.matrix.compose(sp, sq, ss);
+      anchor.group.matrixWorldNeedsUpdate = true;
+    } else sInit = false;
     const appear = visible ? step(0.0, 0.6, t) : 0;     // sale del marcador
     const rise = visible ? step(0.2, 1.1, t) : 0;       // se adelanta/eleva
     const uv = visible ? step(0.9, 2.3, t) : 0;         // la luz UV se "prende"
@@ -139,7 +152,7 @@ async function start() {
     shadow.position.set(0, -H * 0.52 + bob * 0.5, 0.02);
     // título + comparativas
     title.material.opacity = appear;
-    for (const c of comps) { const op = step(1.4, 2.2, t) * (visible ? 1 : 0); c.m.material.opacity = op; c.lab.material.opacity = op; }
+    for (const c of comps) { c.m.material.opacity = step(1.4, 2.2, t) * (visible ? 1 : 0); }
 
     setCaption(t < 0.9 ? "El candelabro sale del marcador…"
       : uv < 0.99 ? "Encendiendo la luz UV…"
