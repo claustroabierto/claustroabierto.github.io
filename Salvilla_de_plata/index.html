@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>RA · Salvilla de plata — Museo Ayacucho</title>
+  <link rel="stylesheet" href="../shared/styles.css?v=8" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+      "mindar-image-three": "https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="ar"></div>
+
+  <div id="topbar">
+    <div id="titulo">…</div>
+    <div id="subtitulo"></div>
+  </div>
+
+  <div id="scan">
+    <div class="frame"></div>
+    <p>Apunta la cámara a la <b>salvilla de plata</b> para revelar su análisis.</p>
+  </div>
+
+  <div id="card">
+    <button id="card-close">×</button>
+    <div class="head">
+      <div id="card-color"></div>
+      <div>
+        <div id="card-titulo"></div>
+        <div id="card-pigmento"></div>
+        <div id="card-formula"></div>
+      </div>
+    </div>
+    <div id="card-nota"></div>
+    <img id="card-img" alt="Microscopía de la muestra" />
+    <div id="card-imghint" class="hint">Toca la microscopía para agrandarla</div>
+  </div>
+
+  <div id="panel">
+    <div class="row">
+      <input id="reveal" type="range" min="0" max="100" value="0" />
+      <button id="btn-toggle">Revelar</button>
+    </div>
+    <div class="hint">Desliza para revelar el rayos X sobre la pieza y la composición elemental (FRX)</div>
+    <div id="ficha-txt"></div>
+  </div>
+
+  <div id="loading">
+    <div class="centro">
+      <div class="sello">RA</div>
+      <div class="expo">Un claustro abierto al mundo a través del arte</div>
+      <div class="sede">Monasterio de Carmelitas Descalzas de Santa Teresa · Ayacucho</div>
+      <div class="barra"><i></i></div>
+      <div class="estado">Preparando la realidad aumentada…</div>
+    </div>
+    <div class="creditos">
+      <img class="l-carmelitas" src="../shared/logos/carmelitas.webp" width="170" height="210"
+           alt="Monasterio de Carmelitas Descalzas de Santa Teresa" />
+      <img class="l-utec" src="../shared/logos/utec.webp" width="555" height="126"
+           alt="UTEC · Centro de Investigación y Conservación del Patrimonio" />
+      <img class="l-embajada" src="../shared/logos/embajada.webp" width="303" height="114"
+           alt="Embajada de los Estados Unidos de América en Lima" />
+    </div>
+  </div>
+  <!-- Lightbox: reservado (esta pieza no trae microscopías tocables por ahora) -->
+  <div id="zoom"><img id="zoom-img" alt="Microscopía ampliada" /></div>
+  <div id="error"></div>
+
+  <script src="config.js?v=1"></script>
+  <script type="module" src="../shared/ar-engine.js?v=8"></script>
+</body>
+</html>
