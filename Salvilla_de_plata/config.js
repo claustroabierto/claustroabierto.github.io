@@ -30,14 +30,16 @@ window.MUSEO_CONFIG = {
 
   // Disco de rayos X (izq) + panel FRX (der) en un solo overlay transparente.
   // El disco cae sobre la pieza; el panel queda al costado derecho.
-  // Valores medidos (disco=pieza) corregidos por el 4% de margen del target:
-  // ×0.926, para que el disco calce con la silueta y no la sobrepase.
+  // Valores medidos (disco=pieza), corregidos por el 4% de margen del target
+  // (×0.926). offsetY POSITIVO: el disco está por debajo del centro del composite,
+  // así que se sube el overlay para centrarlo sobre la pieza (verificado con
+  // render; antes estaba en -0.074 y el disco quedaba bajo). Fino: align.html.
   overlay: {
     src: "assets/overlay.webp",
     width: 1.646,
     height: 1.145,
     offsetX: 0.299,
-    offsetY: -0.074
+    offsetY: 0.074
   },
 
   // Sin microscopías: el análisis del equipo solo trae rayos X + tabla FRX.
