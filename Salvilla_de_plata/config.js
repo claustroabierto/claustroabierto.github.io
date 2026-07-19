@@ -38,7 +38,7 @@ window.MUSEO_CONFIG = {
     src: "assets/overlay.webp",
     width: 1.646,
     height: 1.145,
-    offsetX: 0.299,
+    offsetX: 0.270,
     offsetY: 0.074
   },
 
