@@ -28,19 +28,27 @@ window.MUSEO_CONFIG = {
   targetSrc: "assets/targets.mind",
   targetPreview: "assets/target.jpg",
 
-  // Disco de rayos X (izq) + panel FRX (der) en un solo overlay transparente.
-  // El disco cae sobre la pieza; el panel queda al costado derecho.
-  // Valores medidos (disco=pieza), corregidos por el 4% de margen del target
-  // (×0.926). offsetY POSITIVO: el disco está por debajo del centro del composite,
-  // así que se sube el overlay para centrarlo sobre la pieza (verificado con
-  // render; antes estaba en -0.074 y el disco quedaba bajo). Fino: align.html.
+  // Revelado en SECUENCIA (aparición animada): al detectar la pieza, primero
+  // sale el rayos X con su nombre y luego el análisis FRX. Ambas capas son
+  // full-frame y comparten esta geometría (disco sobre la pieza, panel al lado).
+  // `overlay` define solo la geometría (y es lo que muestra align.html).
+  // Valores medidos (disco=pieza), corregidos por el 4% de margen (×0.926).
+  // offsetY POSITIVO sube el disco para centrarlo. Fino sobre la pieza: align.html.
   overlay: {
-    src: "assets/overlay.webp",
+    src: "assets/rx.webp",
     width: 1.646,
     height: 1.145,
     offsetX: 0.270,
     offsetY: 0.074
   },
+
+  revelarSecuencial: true,
+  intervaloReveal: 0.9,        // pausa entre el rayos X y el panel FRX
+  reveals: [
+    "assets/rx.webp",         // 1) rayos X + "IMAGEN DE RAYOS X"
+    "assets/frx.webp"         // 2) panel de Fluorescencia de Rayos X (Ag/Cu/Au)
+  ],
+  hintSeq: "Primero aparece el rayos X, luego su composición (FRX) · toca Repetir para verlo de nuevo",
 
   // Sin microscopías: el análisis del equipo solo trae rayos X + tabla FRX.
   hotspots: []

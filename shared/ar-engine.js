@@ -125,7 +125,7 @@ async function start() {
     slider.style.display = "none";
     $("btn-toggle").textContent = "Repetir";
     const ph = slider.closest("#panel") && slider.closest("#panel").querySelector(".hint");
-    if (ph) ph.textContent = "Las microscopías aparecen una por una · toca cada círculo ● para ver el detalle";
+    if (ph) ph.textContent = CFG.hintSeq || "Las microscopías aparecen una por una · toca cada círculo ● para ver el detalle";
   }
 
   // --- Toque sobre hotspots (proyección a pantalla + distancia; robusto en iOS) ---
