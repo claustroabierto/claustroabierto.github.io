@@ -45,8 +45,8 @@ window.MUSEO_CONFIG = {
   revelarSecuencial: true,
   intervaloReveal: 0.9,        // pausa entre el rayos X y el panel FRX
   reveals: [
-    "assets/rx.webp",         // 1) rayos X + "IMAGEN DE RAYOS X"
-    "assets/frx.webp"         // 2) panel de Fluorescencia de Rayos X (Ag/Cu/Au)
+    "assets/rx.webp",          // 1) rayos X + "IMAGEN DE RAYOS X"
+    "assets/frx.webp?v=2"      // 2) panel FRX (Ag/Cu/Au) + flecha completa
   ],
   hintSeq: "Primero aparece el rayos X, luego su composición (FRX) · toca Repetir para verlo de nuevo",
 
