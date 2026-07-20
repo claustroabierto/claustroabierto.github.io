@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>Relicario · alinear a mano</title>
+<style>:root{font-family:system-ui,sans-serif}*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:#0d0b12;color:#f4efe6;overflow:hidden;touch-action:none}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block}
+#hint{position:fixed;left:0;right:0;top:0;z-index:5;text-align:center;padding:8px 12px;font-size:12px;opacity:.9;background:linear-gradient(#000c,#0000);pointer-events:none}
+#hint b{color:#c9a24b}
+#pill{position:fixed;left:8px;top:40px;z-index:6;background:#171320ee;border:1px solid #ffffff22;border-radius:12px;padding:8px 10px;font-size:12px;line-height:1.55;font-variant-numeric:tabular-nums}
+#pill .v{color:#c9a24b;font-weight:700}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:8px;background:#0b0910ee;border-top:1px solid #ffffff22}
+.bar button{pointer-events:auto;background:#221c30;color:#f4efe6;border:1px solid #ffffff33;border-radius:8px;padding:9px 11px;font-size:13px;min-width:44px}
+.bar button:active{background:#3a2f52}
+.bar .wide{min-width:96px}
+.grp{display:flex;gap:4px;align-items:center;background:#00000033;border-radius:8px;padding:3px}
+.grp small{opacity:.7;padding:0 4px}
+#op{position:fixed;right:8px;top:40px;z-index:6;background:#171320ee;border:1px solid #ffffff22;border-radius:12px;padding:8px 10px;font-size:11px;text-align:center}
+#op input{width:90px;display:block;margin-top:6px}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+</head><body>
+<canvas id="c"></canvas>
+<div id="hint">Arrastra para <b>mover</b> · pellizca o rueda para <b>escalar</b> · ajusta hasta que el rayos X calce sobre el relicario del marcador y toca <b>Copiar</b></div>
+<div id="pill">width <span class="v" id="pw">–</span><br>height <span class="v" id="ph">–</span><br>offsetX <span class="v" id="px">–</span><br>offsetY <span class="v" id="py">–</span></div>
+<div id="op">marcador<input id="opac" type="range" min="0" max="100" value="100"/></div>
+<div class="bar">
+  <div class="grp"><small>X</small><button data-k="x" data-d="-1">◀</button><button data-k="x" data-d="1">▶</button></div>
+  <div class="grp"><small>Y</small><button data-k="y" data-d="1">▲</button><button data-k="y" data-d="-1">▼</button></div>
+  <div class="grp"><small>tamaño</small><button data-k="w" data-d="-1">−</button><button data-k="w" data-d="1">+</button></div>
+  <button id="reset" class="wide">↺ Original</button>
+  <button id="copy" class="wide">⧉ Copiar</button>
+</div>
+<script src="config.js"></script>
+<script type="module">
+import * as THREE from "three";
+const CFG=window.MUSEO_CONFIG, OV=CFG.overlay;
+const ASP=OV.width/OV.height;             // aspecto del overlay (bloqueado)
+let W=OV.width, X=OV.offsetX, Y=OV.offsetY;
+const START={W,X,Y};
+const PW=1, PH=1.333;                      // marcador 1080x1440 (portrait)
+const NUDGE={x:0.004,y:0.004,w:0.008};
+
+const canvas=document.getElementById("c");
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.outputColorSpace=THREE.SRGBColorSpace;
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(40,1,0.01,100);
+function resize(){
+  renderer.setSize(innerWidth,innerHeight);const a=innerWidth/innerHeight;
+  camera.aspect=a;camera.updateProjectionMatrix();
+  const need=2.8;const halfV=Math.tan(THREE.MathUtils.degToRad(40)/2);
+  const dz=(a>=1? need/2/(halfV*a) : need/2/halfV);
+  camera.position.set(0,0,Math.max(2.8,dz));camera.lookAt(0,0,0);
+}
+addEventListener("resize",resize);resize();
+function worldPerPx(){const halfV=Math.tan(THREE.MathUtils.degToRad(40)/2);return (2*halfV*camera.position.z)/innerHeight;}
+
+const loader=new THREE.TextureLoader();const tx=s=>{const t=loader.load(s);t.colorSpace=THREE.SRGBColorSpace;return t;};
+// marcador (fijo en el origen = lo que rastrea MindAR)
+const pintMat=new THREE.MeshBasicMaterial({map:tx(CFG.targetPreview),transparent:true,depthTest:false,depthWrite:false});
+const pieza=new THREE.Mesh(new THREE.PlaneGeometry(PW,PH),pintMat);
+pieza.renderOrder=0;scene.add(pieza);
+// overlay: plano de base ancho 1, alto 1/ASP; el grupo se escala a W
+const grupo=new THREE.Group();scene.add(grupo);
+const ovMesh=new THREE.Mesh(new THREE.PlaneGeometry(1,1/ASP),
+  new THREE.MeshBasicMaterial({map:tx(OV.src),transparent:true,depthTest:false,depthWrite:false}));
+ovMesh.position.set(0,0,0.01);ovMesh.renderOrder=2;grupo.add(ovMesh);
+
+function cfgLine(){const H=W/ASP;return `overlay: { src: "${OV.src}", width: ${+W.toFixed(3)}, height: ${+H.toFixed(3)}, offsetX: ${+X.toFixed(3)}, offsetY: ${+Y.toFixed(3)} },`;}
+function apply(){grupo.scale.set(W,W,1);grupo.position.set(X,Y,0);
+  document.getElementById("pw").textContent=W.toFixed(3);
+  document.getElementById("ph").textContent=(W/ASP).toFixed(3);
+  document.getElementById("px").textContent=X.toFixed(3);
+  document.getElementById("py").textContent=Y.toFixed(3);
+}
+apply();
+renderer.setAnimationLoop(()=>renderer.render(scene,camera));
+
+const pts=new Map();let pinchStart=0,Wstart=W;
+canvas.addEventListener("pointerdown",e=>{canvas.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pts.size===2){const [a,b]=[...pts.values()];pinchStart=Math.hypot(a.x-b.x,a.y-b.y);Wstart=W;}});
+canvas.addEventListener("pointermove",e=>{
+  if(!pts.has(e.pointerId))return;const prev=pts.get(e.pointerId);
+  if(pts.size===1){const wpp=worldPerPx();X+=(e.clientX-prev.x)*wpp;Y-=(e.clientY-prev.y)*wpp;apply();}
+  pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pts.size===2){const [a,b]=[...pts.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);
+    if(pinchStart>0){W=Math.max(0.3,Wstart*(d/pinchStart));apply();}}});
+function up(e){pts.delete(e.pointerId);if(pts.size<2)pinchStart=0;}
+canvas.addEventListener("pointerup",up);canvas.addEventListener("pointercancel",up);
+canvas.addEventListener("wheel",e=>{e.preventDefault();W=Math.max(0.3,W*(1-e.deltaY*0.0012));apply();},{passive:false});
+
+document.querySelectorAll(".bar button[data-k]").forEach(b=>b.addEventListener("click",()=>{
+  const k=b.dataset.k,d=+b.dataset.d;
+  if(k==="x")X+=d*NUDGE.x; if(k==="y")Y+=d*NUDGE.y; if(k==="w")W+=d*NUDGE.w; apply();}));
+addEventListener("keydown",e=>{const m={ArrowLeft:["x",-1],ArrowRight:["x",1],ArrowUp:["y",1],ArrowDown:["y",-1],"+":["w",1],"-":["w",-1],"=":["w",1]}[e.key];
+  if(!m)return;e.preventDefault();const[k,d]=m;if(k==="x")X+=d*NUDGE.x;if(k==="y")Y+=d*NUDGE.y;if(k==="w")W+=d*NUDGE.w;apply();});
+document.getElementById("reset").addEventListener("click",()=>{W=START.W;X=START.X;Y=START.Y;apply();});
+document.getElementById("opac").addEventListener("input",e=>{pintMat.opacity=e.target.value/100;});
+const copyBtn=document.getElementById("copy");let copyT=0;
+copyBtn.addEventListener("click",async()=>{
+  const txt=cfgLine();
+  try{await navigator.clipboard.writeText(txt);}catch{ const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();}
+  copyBtn.textContent="✓ copiado";clearTimeout(copyT);copyT=setTimeout(()=>copyBtn.textContent="⧉ Copiar",1500);
+});
+</script>
+</body></html>

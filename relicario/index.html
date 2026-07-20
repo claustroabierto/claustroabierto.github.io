@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>RA · Relicario — Museo Ayacucho</title>
   <link rel="stylesheet" href="../shared/styles.css?v=8" />
-  <style>#panel .row{display:none;}</style>
   <script type="importmap">
   {
     "imports": {
@@ -18,18 +17,41 @@
 </head>
 <body>
   <div id="ar"></div>
+
   <div id="topbar">
     <div id="titulo">…</div>
     <div id="subtitulo"></div>
   </div>
+
   <div id="scan">
     <div class="frame"></div>
-    <p>Apunta la cámara al <b>marcador RA</b> junto a la pieza.</p>
+    <p>Apunta la cámara al <b>marcador RA</b> junto al relicario.</p>
   </div>
+
+  <div id="card">
+    <button id="card-close">×</button>
+    <div class="head">
+      <div id="card-color"></div>
+      <div>
+        <div id="card-titulo"></div>
+        <div id="card-pigmento"></div>
+        <div id="card-formula"></div>
+      </div>
+    </div>
+    <div id="card-nota"></div>
+    <img id="card-img" alt="Microscopía" />
+    <div id="card-imghint" class="hint">Toca la microscopía para agrandarla</div>
+  </div>
+
   <div id="panel">
-    <div class="row"></div>
+    <div class="row">
+      <input id="reveal" type="range" min="0" max="100" value="0" />
+      <button id="btn-toggle">Revelar</button>
+    </div>
+    <div class="hint">Aparece el rayos X y luego las microscopías · toca cada círculo ●</div>
     <div id="ficha-txt"></div>
   </div>
+
   <div id="loading">
     <div class="centro">
       <div class="sello">RA</div>
@@ -39,13 +61,18 @@
       <div class="estado">Preparando la realidad aumentada…</div>
     </div>
     <div class="creditos">
-      <img class="l-carmelitas" src="../shared/logos/carmelitas.webp" width="170" height="210" alt="Monasterio de Carmelitas Descalzas de Santa Teresa" />
-      <img class="l-utec" src="../shared/logos/utec.webp" width="555" height="126" alt="UTEC" />
-      <img class="l-embajada" src="../shared/logos/embajada.webp" width="303" height="114" alt="Embajada de los Estados Unidos de América en Lima" />
+      <img class="l-carmelitas" src="../shared/logos/carmelitas.webp" width="170" height="210"
+           alt="Monasterio de Carmelitas Descalzas de Santa Teresa" />
+      <img class="l-utec" src="../shared/logos/utec.webp" width="555" height="126"
+           alt="UTEC · Centro de Investigación y Conservación del Patrimonio" />
+      <img class="l-embajada" src="../shared/logos/embajada.webp" width="303" height="114"
+           alt="Embajada de los Estados Unidos de América en Lima" />
     </div>
   </div>
+  <div id="zoom"><img id="zoom-img" alt="Microscopía ampliada" /></div>
   <div id="error"></div>
-  <script src="config.js?v=1"></script>
-  <script type="module" src="marcador-engine.js?v=1"></script>
+
+  <script src="config.js?v=2"></script>
+  <script type="module" src="../shared/ar-engine.js?v=9"></script>
 </body>
 </html>
