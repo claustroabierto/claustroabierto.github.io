@@ -28,12 +28,14 @@ window.MUSEO_CONFIG = {
   targetPreview: "assets/marcador.jpg",
 
   // Geometría del composite sobre el marcador (el rayos X cae sobre el relicario).
+  // offsetY bajado (0.029 -> -0.09): el rayos X quedaba más arriba que el
+  // relicario del marcador. Verificado con render; fino final con align.html.
   overlay: {
     src: "assets/rx.webp",                // lo que muestra align.html
     width: 1.834,
     height: 1.936,
     offsetX: 0.411,
-    offsetY: 0.029
+    offsetY: -0.09
   },
 
   // Revelado en secuencia: rayos X y luego las microscopías.
