@@ -44,10 +44,10 @@ window.MUSEO_CONFIG = {
   intervaloReveal: 0.9,
   reveals: [
     "assets/rx.webp?v=3",                 // 1) IMAGEN DE RAYOS X (limpio, de I00002)
-    "assets/micro1.webp?v=3",             // 2) columna esmaltada + flecha (+ título)
-    "assets/micro2.webp?v=3",             // 3) cristales verdes + flecha
-    "assets/micro3.webp?v=3",             // 4) concreción mineral + flecha
-    "assets/micro4.webp?v=3"              // 5) figura azul + flecha
+    "assets/micro1.webp?v=4",             // 2) columna esmaltada + flecha (+ título)
+    "assets/micro2.webp?v=4",             // 3) cristales verdes + flecha
+    "assets/micro3.webp?v=4",             // 4) concreción mineral + flecha
+    "assets/micro4.webp?v=4"              // 5) figura azul + flecha
   ],
   hintSeq: "Aparece el rayos X y luego cada microscopía una por una · toca cada círculo ● para ampliarlo",
 
