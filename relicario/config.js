@@ -1,7 +1,10 @@
 /*  CONFIG DE PIEZA — Relicario (RA6) · revelado científico
  *  El relicario es un medallón de oro con reliquias (objeto de volumen y
- *  brilloso): no rastrea como imagen, así que el target es un MARCADOR RA
- *  impreso (foto de la pieza + "RA6", detección 3737) que ya venía funcionando.
+ *  brilloso): no rastrea como imagen, así que el target es el MARCADOR RA6.
+ *  El marcador denso (foto de la pieza + RA6) NO enganchó en el museo, así que se
+ *  usa el CUBO RA6 (las letras "RA⁶", assets/ra6-target.jpg). ⚠ Mide débil
+ *  (detección 651) — hay que IMPRIMIRLO GRANDE para que enganche a distancia de
+ *  visita. El análisis flota anclado al RA6 (ya no cae sobre una foto).
  *
  *  Al escanear el marcador, el análisis del equipo aparece EN SECUENCIA sobre la
  *  pieza (igual que salvilla + Inmaculada):
@@ -24,18 +27,19 @@ window.MUSEO_CONFIG = {
   subtitulo: "Rayos X y microscopía · escanea el marcador",
   ficha: "Relicario de oro con reliquias y esmaltes · Imagen de rayos X y microscopía de sus componentes",
 
-  targetSrc: "assets/targets.mind",       // el MARCADOR (ya compilado, detección 3737)
-  targetPreview: "assets/marcador.jpg",
+  targetSrc: "assets/targets.mind?v=2",   // MARCADOR RA6 (letras), compilado de ra6-target.jpg
+  targetPreview: "assets/ra6-target.jpg",
 
-  // Geometría del composite sobre el marcador (el rayos X cae sobre el relicario).
-  // Ajustes a ojo por feedback en pieza real (bajar + izquierda). El valor
-  // exacto sale de align.html sobre la pieza; esto es un mejor punto de partida.
+  // El análisis flota anclado al RA6 (cuadrado). El rayos X queda centrado sobre
+  // el marcador y las microscopías se despliegan a la derecha. Elegido con render;
+  // como el RA6 son solo letras, la posición es una preferencia (no hay nada que
+  // "alinear") — moverla con align.html si el equipo la quiere más arriba/abajo.
   overlay: {
     src: "assets/rx.webp?v=3",            // lo que muestra align.html
-    width: 1.834,
-    height: 1.936,
-    offsetX: 0.375,
-    offsetY: -0.135
+    width: 1.55,
+    height: 1.636,
+    offsetX: 0.36,
+    offsetY: 0.0
   },
 
   // Revelado en secuencia: primero el rayos X, luego CADA microscopía una por
