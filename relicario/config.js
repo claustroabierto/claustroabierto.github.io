@@ -29,22 +29,22 @@ window.MUSEO_CONFIG = {
   // Geometría de las capas (full-frame) sobre el RA6. Todo se posiciona igual.
   // Como el RA6 son solo letras, la posición es preferencia -> align.html.
   overlay: {
-    src: "assets/original.webp?v=6",      // lo que muestra align.html
+    src: "assets/original.webp?v=7",      // lo que muestra align.html
     width: 1.55,
     height: 1.636,
     offsetX: 0.36,
     offsetY: 0.0
   },
 
-  original: "assets/original.webp?v=6",   // foto a color (base)
-  rx:       "assets/rx.webp?v=6",         // radiografía (opacidad por slider)
+  original: "assets/original.webp?v=7",   // foto a color (base)
+  rx:       "assets/rx.webp?v=7",         // radiografía (opacidad por slider)
 
   intervaloReveal: 0.9,
   reveals: [
-    "assets/micro1.webp?v=6",             // columna esmaltada + flecha (+ título)
-    "assets/micro2.webp?v=6",             // cristales verdes + flecha
-    "assets/micro3.webp?v=6",             // concreción mineral + flecha
-    "assets/micro4.webp?v=6"              // figura azul + flecha
+    "assets/micro1.webp?v=7",             // columna esmaltada + flecha (+ título)
+    "assets/micro2.webp?v=7",             // cristales verdes + flecha
+    "assets/micro3.webp?v=7",             // concreción mineral + flecha
+    "assets/micro4.webp?v=7"              // figura azul + flecha
   ],
 
   // 4 microscopías tocables (coords normalizadas sobre el marco) — solo para el zoom.
