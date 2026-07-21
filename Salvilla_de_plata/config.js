@@ -1,45 +1,35 @@
 /*  CONFIG DE PIEZA — Salvilla de plata (RA7)
- *  Igual que escapulario: el composite del equipo (rayos X + tabla FRX) se usa
- *  como overlay transparente, posicionado para que el disco de rayos X caiga
- *  SOBRE la salvilla real y la tabla de composición quede al costado.
+ *  El target es el CUBO RA7 (letras "RA⁷", assets/ra7-target.jpg). ⚠ Mide débil
+ *  (detección 647): IMPRIMIRLO GRANDE para que enganche a distancia de visita.
+ *  El análisis del equipo (rayos X de la salvilla + tabla FRX) flota anclado al
+ *  RA7, en secuencia: primero el rayos X con su nombre, luego la composición.
  *
  *  ⚠ NOMBRE PROVISIONAL: "Salvilla_de_plata" no está confirmado contra el Excel
  *  (TAREAS.xlsx, col "Nombres oficiales"). Confirmar y renombrar si difiere.
  *
- *  ⚠ TARGET: se usa la FOTO de la salvilla como image-target. Midió muy bien
- *  (detección 3793, a la altura de escapulario), pero es plata BRILLOSA: hay que
- *  probar en el museo si el reflejo la tumba.
- *  PLAN B si falla — marcador denso impreso (assets/marcador.jpg/.mind, foto de
- *  la pieza + banda "RA7", detección 3043): cambiar targetSrc→marcador.mind y
- *  targetPreview→marcador.jpg, y RE-ALINEAR el overlay con align.html (la foto de
- *  la pieza ocupa solo el cuadro superior del marcador, así que los offsets
- *  cambian). El diseño final del marcador para imprimir lo pule Jimena.
- *
- *  Geometría MEDIDA por bbox de las siluetas (no a ojo) y verificada con un
- *  render de la composición. Ajuste fino sobre la pieza real con align.html.
- *  Unidades: ancho de la salvilla = 1, centro (0,0), y hacia arriba.
+ *  Antes se usaba la foto de la salvilla como image-target (midió 3793) y el
+ *  disco caía sobre la pieza real; se conserva target.jpg + marcador.jpg/.mind
+ *  por si se vuelve. La posición del análisis sobre el RA7 es preferencia (no hay
+ *  nada que "alinear" en las letras): moverla con align.html.
  */
 window.MUSEO_CONFIG = {
   id: "Salvilla_de_plata",
   titulo: "Salvilla de plata",
-  subtitulo: "Rayos X sobre la pieza · composición elemental (FRX)",
+  subtitulo: "Rayos X y composición (FRX) · escanea el marcador RA",
   ficha: "Salvilla de plata repujada · Fluorescencia de rayos X: Plata 90% · Cobre 7% · Oro 1%",
 
-  targetSrc: "assets/targets.mind",
-  targetPreview: "assets/target.jpg",
+  targetSrc: "assets/targets.mind?v=2",    // MARCADOR RA7 (letras)
+  targetPreview: "assets/ra7-target.jpg",
 
-  // Revelado en SECUENCIA (aparición animada): al detectar la pieza, primero
-  // sale el rayos X con su nombre y luego el análisis FRX. Ambas capas son
-  // full-frame y comparten esta geometría (disco sobre la pieza, panel al lado).
-  // `overlay` define solo la geometría (y es lo que muestra align.html).
-  // Valores medidos (disco=pieza), corregidos por el 4% de margen (×0.926).
-  // offsetY POSITIVO sube el disco para centrarlo. Fino sobre la pieza: align.html.
+  // El análisis (rayos X + FRX) anclado al RA7: el disco centrado sobre el
+  // marcador y la tabla FRX al costado. Elegido con render (opción B).
+  // `overlay` define la geometría (y es lo que muestra align.html).
   overlay: {
     src: "assets/rx.webp",
-    width: 1.646,
-    height: 1.145,
-    offsetX: 0.270,
-    offsetY: 0.074
+    width: 1.70,
+    height: 1.183,
+    offsetX: 0.351,
+    offsetY: -0.024
   },
 
   revelarSecuencial: true,
