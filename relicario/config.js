@@ -31,7 +31,7 @@ window.MUSEO_CONFIG = {
   // Ajustes a ojo por feedback en pieza real (bajar + izquierda). El valor
   // exacto sale de align.html sobre la pieza; esto es un mejor punto de partida.
   overlay: {
-    src: "assets/rx.webp",                // lo que muestra align.html
+    src: "assets/rx.webp?v=2",            // lo que muestra align.html
     width: 1.834,
     height: 1.936,
     offsetX: 0.375,
@@ -43,11 +43,11 @@ window.MUSEO_CONFIG = {
   revelarSecuencial: true,
   intervaloReveal: 0.9,
   reveals: [
-    "assets/rx.webp",                     // 1) IMAGEN DE RAYOS X
-    "assets/micro1.webp",                 // 2) columna esmaltada + flecha (+ título)
-    "assets/micro2.webp",                 // 3) cristales verdes + flecha
-    "assets/micro3.webp",                 // 4) concreción mineral + flecha
-    "assets/micro4.webp"                  // 5) figura azul + flecha
+    "assets/rx.webp?v=2",                 // 1) IMAGEN DE RAYOS X (limpio, de I00002)
+    "assets/micro1.webp?v=2",             // 2) columna esmaltada + flecha (+ título)
+    "assets/micro2.webp?v=2",             // 3) cristales verdes + flecha
+    "assets/micro3.webp?v=2",             // 4) concreción mineral + flecha
+    "assets/micro4.webp?v=2"              // 5) figura azul + flecha
   ],
   hintSeq: "Aparece el rayos X y luego cada microscopía una por una · toca cada círculo ● para ampliarlo",
 
