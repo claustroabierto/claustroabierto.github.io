@@ -38,14 +38,18 @@ window.MUSEO_CONFIG = {
     offsetY: -0.135
   },
 
-  // Revelado en secuencia: rayos X y luego las microscopías.
+  // Revelado en secuencia: primero el rayos X, luego CADA microscopía una por
+  // una con su flecha (como Inmaculada). El título "MICROSCOPÍA" entra con la 1a.
   revelarSecuencial: true,
   intervaloReveal: 0.9,
   reveals: [
     "assets/rx.webp",                     // 1) IMAGEN DE RAYOS X
-    "assets/micro.webp"                   // 2) 4 círculos + flechas + MICROSCOPÍA
+    "assets/micro1.webp",                 // 2) columna esmaltada + flecha (+ título)
+    "assets/micro2.webp",                 // 3) cristales verdes + flecha
+    "assets/micro3.webp",                 // 4) concreción mineral + flecha
+    "assets/micro4.webp"                  // 5) figura azul + flecha
   ],
-  hintSeq: "Aparece el rayos X y luego las microscopías · toca cada círculo ● para ampliarlo",
+  hintSeq: "Aparece el rayos X y luego cada microscopía una por una · toca cada círculo ● para ampliarlo",
 
   // 4 microscopías tocables (coords normalizadas sobre el composite). El anillo
   // se oculta en modo secuencial (el círculo ya está dibujado); al tocar, la
