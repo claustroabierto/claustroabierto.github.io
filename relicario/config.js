@@ -44,7 +44,7 @@ window.MUSEO_CONFIG = {
     "assets/micro1.webp?v=7",             // columna esmaltada + flecha (+ título)
     "assets/micro2.webp?v=7",             // cristales verdes + flecha
     "assets/micro3.webp?v=7",             // concreción mineral + flecha
-    "assets/micro4.webp?v=7"              // figura azul + flecha
+    "assets/micro4.webp?v=8"              // figura azul + flecha
   ],
 
   // 4 microscopías tocables (coords normalizadas sobre el marco) — solo para el zoom.
