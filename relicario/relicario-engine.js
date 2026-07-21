@@ -107,10 +107,11 @@ async function start() {
   const placa = $("loading").querySelector(".creditos"); if (placa) $("scan").appendChild(placa.cloneNode(true));
   $("loading").style.display = "none";
 
-  // Tiempos (s desde la detección)
+  // Tiempos (s desde la detección): PRIMERO el original (y sostiene), LUEGO el
+  // rayos X entra a su opacidad de slider, y recién después las microscopías.
   const T_ORIG = [0.2, 1.0];   // original aparece
-  const T_RX   = [1.0, 1.7];   // rayos X entra (a su opacidad de slider)
-  const T_MIC0 = 2.2;          // primera microscopía
+  const T_RX   = [1.5, 2.2];   // rayos X entra (a su opacidad de slider)
+  const T_MIC0 = 2.9;          // primera microscopía
 
   renderer.setAnimationLoop(() => {
     const t = clock.getElapsedTime() - startT;
