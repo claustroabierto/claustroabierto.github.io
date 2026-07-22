@@ -25,7 +25,7 @@ window.MUSEO_CONFIG = {
   // marcador y la tabla FRX al costado. Elegido con render (opción B).
   // `overlay` define la geometría (y es lo que muestra align.html).
   overlay: {
-    src: "assets/original.webp?v=2",     // lo que muestra align.html
+    src: "assets/original.webp?v=3",     // lo que muestra align.html
     width: 1.70,
     height: 1.183,
     offsetX: 0.351,
@@ -34,7 +34,7 @@ window.MUSEO_CONFIG = {
 
   // Motor propio (salvilla-engine.js): la salvilla a color de base, el rayos X
   // encima con opacidad por slider (crossfade), y luego la tabla FRX.
-  original: "assets/original.webp?v=2",  // salvilla a color (registrada con el disco de rayos X)
+  original: "assets/original.webp?v=3",  // salvilla a color (registrada con el disco de rayos X)
   rx:       "assets/rx.webp?v=1",        // rayos X (opacidad por slider) + "IMAGEN DE RAYOS X"
 
   intervaloReveal: 0.9,
