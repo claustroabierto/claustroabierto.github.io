@@ -25,21 +25,23 @@ window.MUSEO_CONFIG = {
   // marcador y la tabla FRX al costado. Elegido con render (opción B).
   // `overlay` define la geometría (y es lo que muestra align.html).
   overlay: {
-    src: "assets/rx.webp",
+    src: "assets/original.webp?v=1",     // lo que muestra align.html
     width: 1.70,
     height: 1.183,
     offsetX: 0.351,
     offsetY: -0.024
   },
 
-  revelarSecuencial: true,
-  intervaloReveal: 0.9,        // pausa entre el rayos X y el panel FRX
-  reveals: [
-    "assets/rx.webp",          // 1) rayos X + "IMAGEN DE RAYOS X"
-    "assets/frx.webp?v=2"      // 2) panel FRX (Ag/Cu/Au) + flecha completa
-  ],
-  hintSeq: "Primero aparece el rayos X, luego su composición (FRX) · toca Repetir para verlo de nuevo",
+  // Motor propio (salvilla-engine.js): la salvilla a color de base, el rayos X
+  // encima con opacidad por slider (crossfade), y luego la tabla FRX.
+  original: "assets/original.webp?v=1",  // salvilla a color (registrada con el disco de rayos X)
+  rx:       "assets/rx.webp?v=1",        // rayos X (opacidad por slider) + "IMAGEN DE RAYOS X"
 
-  // Sin microscopías: el análisis del equipo solo trae rayos X + tabla FRX.
+  intervaloReveal: 0.9,
+  reveals: [
+    "assets/frx.webp?v=3"                // tabla FRX (Ag/Cu/Au) + flecha, aparece al final
+  ],
+
+  // Sin microscopías tocables: el análisis solo trae rayos X + tabla FRX.
   hotspots: []
 };
