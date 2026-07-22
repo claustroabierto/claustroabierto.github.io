@@ -35,7 +35,7 @@ window.MUSEO_CONFIG = {
   // Motor propio (salvilla-engine.js): la salvilla a color de base, el rayos X
   // encima con opacidad por slider (crossfade), y luego la tabla FRX.
   original: "assets/original.webp?v=3",  // salvilla a color (registrada con el disco de rayos X)
-  rx:       "assets/rx.webp?v=1",        // rayos X (opacidad por slider) + "IMAGEN DE RAYOS X"
+  rx:       "assets/rx.webp?v=2",        // rayos X (opacidad por slider) + "IMAGEN DE RAYOS X"
 
   intervaloReveal: 0.9,
   reveals: [
