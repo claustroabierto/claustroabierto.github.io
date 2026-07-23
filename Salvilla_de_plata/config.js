@@ -39,7 +39,7 @@ window.MUSEO_CONFIG = {
 
   intervaloReveal: 0.9,
   reveals: [
-    "assets/frx.webp?v=3"                // tabla FRX (Ag/Cu/Au) + flecha, aparece al final
+    "assets/frx.webp?v=4"                // tabla FRX (Ag/Cu/Au) + flecha, aparece al final
   ],
 
   // Sin microscopías tocables: el análisis solo trae rayos X + tabla FRX.
