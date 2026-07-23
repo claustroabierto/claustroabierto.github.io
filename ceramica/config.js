@@ -26,7 +26,7 @@ window.MUSEO_CONFIG = {
 
   // El composite alineado para que su cara limpia caiga sobre la cara del marcador.
   overlay: {
-    src: "assets/frx.webp",               // la capa con la cara (lo que muestra align.html)
+    src: "assets/frx.webp?v=2",           // la capa con la cara (lo que muestra align.html)
     width: 3.11,
     height: 1.238,
     offsetX: -0.341,
@@ -37,8 +37,8 @@ window.MUSEO_CONFIG = {
   revelarSecuencial: true,
   intervaloReveal: 0.9,
   reveals: [
-    "assets/rx.webp",                     // 1) rayos X perfil + frente + título
-    "assets/frx.webp"                     // 2) cara (sobre el marcador) + tabla FRX
+    "assets/rx.webp?v=2",                 // 1) rayos X perfil + frente + título
+    "assets/frx.webp?v=2"                 // 2) cara (sobre el marcador) + tabla FRX
   ],
   hintSeq: "Aparece el rayos X y luego la composición (FRX) · toca Repetir para verlo de nuevo",
 
