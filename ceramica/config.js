@@ -22,7 +22,7 @@ window.MUSEO_CONFIG = {
   subtitulo: "Rayos X y composición (FRX) · escanea el marcador",
   ficha: "Vasija con rostro, vidriado plúmbeo · Rayos X (perfil y frente) y fluorescencia: Plomo 66% · Silicio 20% · Estaño 11%",
 
-  targetSrc: "assets/targets.mind?v=2",    // MARCADOR RA8 (letras, compilado)
+  targetSrc: "assets/targets.mind?v=3",    // MARCADOR RA8 (letras, compilado)
   targetPreview: "assets/ra8-target.jpg",
 
   // El composite anclado al RA8: la cara centrada sobre el marcador (preferencia),
