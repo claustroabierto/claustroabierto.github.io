@@ -46,7 +46,8 @@ async function start() {
   const naz = new THREE.Mesh(new THREE.PlaneGeometry(F.w, F.h), nazMat);
   naz.position.set(F.x, F.y, 0.002); naz.renderOrder = 2; anchor.group.add(naz);
 
-  const EM = CFG.emerge || { start: 1.4, end: 3.1, z: 0.22, scale: 0.12, y: 0.045 };
+  const EM = CFG.emerge || { start: 1.2, end: 2.4, z: 0.20, scale: 0.10, y: 0.03 };
+  const W = CFG.walk || { dur: 3.8, dist: 0.42, step: 8.0, bob: 0.022, lean: 0.06 };
 
   let visible = false, startT = 0;
   const clock = new THREE.Clock();
@@ -65,18 +66,22 @@ async function start() {
     const app = visible ? smooth(T_APP[0], T_APP[1], t) : 0;
     fondoMat.opacity = app; nazMat.opacity = app;
 
-    const em = visible ? smooth(EM.start, EM.end, t) : 0;   // 0→1 emerge
-    const it = Math.max(0, t - EM.end);                      // tiempo en reposo/vaivén
-    // vaivén sutil (gesto/caminata): sube-baja + balanceo + respiración
-    const bob = Math.sin(it * 1.7) * 0.012 * em;
-    const drift = Math.sin(it * 0.9) * 0.010 * em;
-    const sway = Math.sin(it * 0.9) * 0.03 * em;             // ~1.7°
-    const breath = 1 + Math.sin(it * 1.25) * 0.010 * em;
+    const em = visible ? smooth(EM.start, EM.end, t) : 0;   // 0→1 emerge (sale del plano)
 
-    naz.position.set(F.x + drift, F.y + EM.y * em + bob, 0.002 + EM.z * em);
-    const s = (1 + EM.scale * em) * breath;
+    // CAMINATA hacia la izquierda tras emerger: avanza en -x con cadencia de paso.
+    const wt = Math.max(0, t - EM.end);                      // tiempo desde que puede caminar
+    const wp = smooth(0, W.dur, wt);                         // progreso 0→1 (easeInOut)
+    const walking = wt > 0 && wt < W.dur;
+    const step = wt * W.step;
+    const walkX = -wp * W.dist * em;                         // se desplaza a la izquierda
+    // rebote de paso mientras camina; respiración suave al terminar
+    const bob = (walking ? Math.abs(Math.sin(step)) - 0.35 : Math.sin(wt * 1.5) * 0.4) * W.bob * em;
+    const lean = (-W.lean * wp + (walking ? Math.sin(step * 0.5) * 0.02 : 0)) * em; // se inclina hacia el avance
+
+    naz.position.set(F.x + walkX, F.y + EM.y * em + bob, 0.002 + EM.z * em);
+    const s = 1 + EM.scale * em;
     naz.scale.set(s, s, 1);
-    naz.rotation.z = sway;
+    naz.rotation.z = lean;
 
     renderer.render(scene, camera);
   });
