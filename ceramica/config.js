@@ -25,24 +25,22 @@ window.MUSEO_CONFIG = {
   targetSrc: "assets/targets.mind?v=3",    // MARCADOR RA8 (letras, compilado)
   targetPreview: "assets/ra8-target.jpg",
 
-  // El composite anclado al RA8: la cara centrada sobre el marcador (preferencia),
-  // rayos X a la izquierda y tabla FRX a la derecha. `overlay` = geometría (align.html).
+  // ⚠ MODO CONGELAR (ceramica-engine.js): el infográfico es muy ancho para anclarlo
+  // al RA8 (al acercarse a leer, el marcador sale de cuadro y se pierde el tracking).
+  // Por eso MindAR solo DETECTA el RA8 y el motor CONGELA el infográfico en pantalla
+  // (visor 2D con pellizco/arrastre). La geometría `overlay` de abajo YA NO se usa
+  // (se conserva por si se vuelve al modo anclado + align.html).
   overlay: {
-    src: "assets/frx.webp?v=2",           // la capa con la cara (lo que muestra align.html)
-    width: 3.11,
-    height: 1.238,
-    offsetX: -0.393,
-    offsetY: 0.058
+    src: "assets/frx.webp?v=2",
+    width: 3.11, height: 1.238, offsetX: -0.393, offsetY: 0.058
   },
 
-  // Revelado en secuencia: rayos X y luego la composición.
-  revelarSecuencial: true,
-  intervaloReveal: 0.9,
+  // Las dos capas del mismo marco (1226x488) que apila el visor congelado, en orden
+  // de aparición: primero los rayos X, luego la cara a color + tabla FRX.
   reveals: [
     "assets/rx.webp?v=2",                 // 1) rayos X perfil + frente + título
-    "assets/frx.webp?v=2"                 // 2) cara (sobre el marcador) + tabla FRX
+    "assets/frx.webp?v=2"                 // 2) cara a color + tabla FRX + flecha
   ],
-  hintSeq: "Aparece el rayos X y luego la composición (FRX) · toca Repetir para verlo de nuevo",
 
   hotspots: []
 };

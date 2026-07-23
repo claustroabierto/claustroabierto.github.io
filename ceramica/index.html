@@ -5,6 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>RA · Cerámica — Museo Ayacucho</title>
   <link rel="stylesheet" href="../shared/styles.css?v=8" />
+  <style>
+    /* Visor congelable: al detectar el RA8 el infográfico se fija y se explora
+       con los dedos (pellizcar/arrastrar). La tarjeta ya no necesita estar a la vista. */
+    #ficha { position: fixed; inset: 0; z-index: 40; display: none; overflow: hidden;
+      touch-action: none; -webkit-user-select: none; user-select: none;
+      background: radial-gradient(circle at 50% 38%, #17131fef, #0b0910f8); }
+    #ficha.on { display: block; }
+    #ficha-stage { position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform; }
+    #ficha-stage img { position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      opacity: 0; transition: opacity .55s ease; pointer-events: none; -webkit-user-drag: none; }
+    #ficha-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 41;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+      background: linear-gradient(#0000, #0b0910dd 45%); }
+    #ficha-bar .hint { font-size: 12px; line-height: 1.35; color: #e6dfd0; opacity: .9; }
+    #ficha-rescan { background: #c9a24b; color: #1a1206; border: 0; border-radius: 11px;
+      padding: 11px 15px; font-size: 14px; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 10px #0007; }
+    #ficha-rescan:active { filter: brightness(.9); }
+  </style>
   <script type="importmap">
   {
     "imports": {
@@ -28,28 +47,16 @@
     <p>Apunta la cámara al <b>marcador RA</b> junto a la cerámica.</p>
   </div>
 
-  <div id="card">
-    <button id="card-close">×</button>
-    <div class="head">
-      <div id="card-color"></div>
-      <div>
-        <div id="card-titulo"></div>
-        <div id="card-pigmento"></div>
-        <div id="card-formula"></div>
-      </div>
+  <!-- Infográfico congelado (rayos X + cara + tabla FRX apilados) -->
+  <div id="ficha">
+    <div id="ficha-stage">
+      <img id="ficha-rx" alt="Rayos X de la cerámica" />
+      <img id="ficha-frx" alt="Cara y composición elemental (FRX)" />
     </div>
-    <div id="card-nota"></div>
-    <img id="card-img" alt="" />
-    <div id="card-imghint" class="hint"></div>
-  </div>
-
-  <div id="panel">
-    <div class="row">
-      <input id="reveal" type="range" min="0" max="100" value="0" />
-      <button id="btn-toggle">Revelar</button>
+    <div id="ficha-bar">
+      <div class="hint">Pellizca para acercar · arrastra para mover<br>Doble toque para acercar</div>
+      <button id="ficha-rescan">↻ Volver a escanear</button>
     </div>
-    <div class="hint">Aparece el rayos X y luego la composición elemental (FRX)</div>
-    <div id="ficha-txt"></div>
   </div>
 
   <div id="loading">
@@ -69,10 +76,9 @@
            alt="Embajada de los Estados Unidos de América en Lima" />
     </div>
   </div>
-  <div id="zoom"><img id="zoom-img" alt="" /></div>
   <div id="error"></div>
 
-  <script src="config.js?v=4"></script>
-  <script type="module" src="../shared/ar-engine.js?v=9"></script>
+  <script src="config.js?v=5"></script>
+  <script type="module" src="ceramica-engine.js?v=1"></script>
 </body>
 </html>
