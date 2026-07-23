@@ -42,7 +42,7 @@ async function start() {
   fondo.position.set(0, 0, 0.001); fondo.renderOrder = 1; anchor.group.add(fondo);
   // CRISTO: plano de la figura, en su sitio sobre el marco
   const F = CFG.figura || { w: MW, h: MH, x: 0, y: 0 };
-  const nazMat = new THREE.MeshBasicMaterial({ map: tx(CFG.nazareno), transparent: true, opacity: 0, depthTest: false, depthWrite: false });
+  const nazMat = new THREE.MeshBasicMaterial({ map: tx(CFG.nazareno), transparent: true, opacity: 0, side: THREE.DoubleSide, depthTest: false, depthWrite: false });
   const naz = new THREE.Mesh(new THREE.PlaneGeometry(F.w, F.h), nazMat);
   naz.position.set(F.x, F.y, 0.002); naz.renderOrder = 2; anchor.group.add(naz);
 
@@ -68,20 +68,23 @@ async function start() {
 
     const em = visible ? smooth(EM.start, EM.end, t) : 0;   // 0→1 emerge (sale del plano)
 
-    // CAMINATA hacia la izquierda tras emerger: avanza en -x con cadencia de paso.
+    // GIRA y CAMINA hacia la izquierda tras emerger: rota en Y, avanza en -x con
+    // cadencia de paso y se hunde un poco en la escena (se aleja por el camino).
     const wt = Math.max(0, t - EM.end);                      // tiempo desde que puede caminar
     const wp = smooth(0, W.dur, wt);                         // progreso 0→1 (easeInOut)
     const walking = wt > 0 && wt < W.dur;
     const step = wt * W.step;
     const walkX = -wp * W.dist * em;                         // se desplaza a la izquierda
+    const zWalk = EM.z * em * (1 - 0.5 * wp);                // se acerca al plano al alejarse
     // rebote de paso mientras camina; respiración suave al terminar
     const bob = (walking ? Math.abs(Math.sin(step)) - 0.35 : Math.sin(wt * 1.5) * 0.4) * W.bob * em;
     const lean = (-W.lean * wp + (walking ? Math.sin(step * 0.5) * 0.02 : 0)) * em; // se inclina hacia el avance
+    const turn = -(W.turn || 0) * wp * em;                   // gira sobre su eje (lado izq. se hunde)
 
-    naz.position.set(F.x + walkX, F.y + EM.y * em + bob, 0.002 + EM.z * em);
-    const s = 1 + EM.scale * em;
+    naz.position.set(F.x + walkX, F.y + EM.y * em + bob, 0.002 + zWalk);
+    const s = (1 + EM.scale * em) * (1 - 0.08 * wp * em);    // encoge un poco al alejarse
     naz.scale.set(s, s, 1);
-    naz.rotation.z = lean;
+    naz.rotation.set(0, turn, lean);
 
     renderer.render(scene, camera);
   });
