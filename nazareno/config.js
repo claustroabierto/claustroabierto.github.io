@@ -34,10 +34,11 @@ window.MUSEO_CONFIG = {
 
   // Animación "sale del plano" (segundos desde la detección): el Cristo emerge en z
   // (hacia el visitante), sube un poco y crece...
-  emerge: { start: 1.2, end: 2.4, z: 0.20, scale: 0.10, y: 0.03 },
-  // ...y luego GIRA y CAMINA hacia la izquierda: rota sobre su eje vertical (turn),
-  // se desplaza a la izquierda (dist) con cadencia de paso (step/bob) e inclinación
-  // (lean), y se hunde un poco en la escena (parece alejarse por el camino).
-  // dur = duración, dist = desplazamiento (anchos de marco), turn = giro (rad).
-  walk: { dur: 4.0, dist: 0.46, step: 8.0, bob: 0.022, lean: 0.06, turn: 0.55 }
+  emerge: { start: 1.2, end: 2.4, z: 0.18, scale: 0.08, y: 0.02 },
+  // ...y luego CAMINA de un lado a otro EN BUCLE: primero a la izquierda mirando a la
+  // izquierda; al llegar al extremo la imagen se REFLEJA (espejo horizontal) y camina a
+  // la derecha mirando a la derecha; y así sin fin. `dist` = alcance a cada lado (anchos
+  // de marco), `omega` = velocidad del vaivén, `step`/`bob` = cadencia de paso, `flip` =
+  // qué tan rápido voltea en los extremos (más alto = giro más seco).
+  pace: { dist: 0.40, omega: 0.9, step: 8.0, bob: 0.02, flip: 6 }
 };

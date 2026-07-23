@@ -46,8 +46,8 @@ async function start() {
   const naz = new THREE.Mesh(new THREE.PlaneGeometry(F.w, F.h), nazMat);
   naz.position.set(F.x, F.y, 0.002); naz.renderOrder = 2; anchor.group.add(naz);
 
-  const EM = CFG.emerge || { start: 1.2, end: 2.4, z: 0.20, scale: 0.10, y: 0.03 };
-  const W = CFG.walk || { dur: 3.8, dist: 0.42, step: 8.0, bob: 0.022, lean: 0.06 };
+  const EM = CFG.emerge || { start: 1.2, end: 2.4, z: 0.18, scale: 0.08, y: 0.02 };
+  const P = CFG.pace || { dist: 0.40, omega: 0.9, step: 8.0, bob: 0.02, flip: 6 };
 
   let visible = false, startT = 0;
   const clock = new THREE.Clock();
@@ -68,23 +68,22 @@ async function start() {
 
     const em = visible ? smooth(EM.start, EM.end, t) : 0;   // 0→1 emerge (sale del plano)
 
-    // GIRA y CAMINA hacia la izquierda tras emerger: rota en Y, avanza en -x con
-    // cadencia de paso y se hunde un poco en la escena (se aleja por el camino).
-    const wt = Math.max(0, t - EM.end);                      // tiempo desde que puede caminar
-    const wp = smooth(0, W.dur, wt);                         // progreso 0→1 (easeInOut)
-    const walking = wt > 0 && wt < W.dur;
-    const step = wt * W.step;
-    const walkX = -wp * W.dist * em;                         // se desplaza a la izquierda
-    const zWalk = EM.z * em * (1 - 0.5 * wp);                // se acerca al plano al alejarse
-    // rebote de paso mientras camina; respiración suave al terminar
-    const bob = (walking ? Math.abs(Math.sin(step)) - 0.35 : Math.sin(wt * 1.5) * 0.4) * W.bob * em;
-    const lean = (-W.lean * wp + (walking ? Math.sin(step * 0.5) * 0.02 : 0)) * em; // se inclina hacia el avance
-    const turn = -(W.turn || 0) * wp * em;                   // gira sobre su eje (lado izq. se hunde)
+    // CAMINATA EN BUCLE tras emerger: vaivén izquierda↔derecha. Primero va a la
+    // izquierda mirando a la izquierda; en cada extremo la imagen se REFLEJA (espejo
+    // horizontal, scale.x negativo) y camina al otro lado mirando hacia allá.
+    const tw = Math.max(0, t - EM.end);                      // tiempo de vaivén
+    const ph = P.omega * tw;
+    const paceX = -P.dist * Math.sin(ph) * em;               // 0→izq→centro→der→… (arranca a la izq)
+    const dir = Math.cos(ph);                                // >0 va a la izq · <0 va a la der
+    const face = Math.tanh((P.flip || 6) * dir);             // +1 normal (mira izq) · -1 espejo (mira der) · ~0 al voltear
+    const step = tw * P.step;
+    const bob = (Math.abs(Math.sin(step)) - 0.35) * P.bob * em;  // rebote de pisada
+    const wob = Math.sin(step) * 0.012 * em;                 // bamboleo leve
 
-    naz.position.set(F.x + walkX, F.y + EM.y * em + bob, 0.002 + zWalk);
-    const s = (1 + EM.scale * em) * (1 - 0.08 * wp * em);    // encoge un poco al alejarse
-    naz.scale.set(s, s, 1);
-    naz.rotation.set(0, turn, lean);
+    naz.position.set(F.x + paceX, F.y + EM.y * em + bob, 0.002 + EM.z * em);
+    const s = 1 + EM.scale * em;
+    naz.scale.set(s * face, s, 1);                           // face = ±1 → reflejo horizontal
+    naz.rotation.set(0, 0, wob);
 
     renderer.render(scene, camera);
   });
