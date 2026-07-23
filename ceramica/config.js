@@ -42,5 +42,15 @@ window.MUSEO_CONFIG = {
     "assets/frx.webp?v=2"                 // 2) cara a color + tabla FRX + flecha
   ],
 
+  // Elementos tocables del infográfico: al tocar cada uno se abre un pop-up con esa
+  // parte ampliada (explorable con los dedos). `bbox` = [x0,y0,x1,y1] normalizados
+  // (0..1) sobre el marco 1226x488, medidos de las capas del PSD.
+  items: [
+    { label: "Rayos X — vista de perfil",  bbox: [0.006, 0.176, 0.245, 0.920] },
+    { label: "Rayos X — vista frontal",    bbox: [0.276, 0.209, 0.485, 0.926] },
+    { label: "Cara vidriada (color real)", bbox: [0.515, 0.176, 0.737, 0.920] },
+    { label: "Composición elemental (FRX)", bbox: [0.762, 0.283, 0.945, 0.857] }
+  ],
+
   hotspots: []
 };
