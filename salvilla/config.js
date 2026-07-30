@@ -13,7 +13,7 @@
  *  nada que "alinear" en las letras): moverla con align.html.
  */
 window.MUSEO_CONFIG = {
-  id: "Salvilla_de_plata",
+  id: "salvilla",
   titulo: "Salvilla de plata",
   subtitulo: "Rayos X y composición (FRX) · escanea el marcador RA",
   ficha: "Salvilla de plata repujada · Fluorescencia de rayos X: Plata 90% · Cobre 7% · Oro 1%",
