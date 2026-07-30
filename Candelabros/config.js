@@ -8,7 +8,7 @@
  *  para imprimir, como el del relicario.
  */
 window.MUSEO_CONFIG = {
-  id: "cristales",
+  id: "candelabros",
   titulo: "Candelabro de vidrio de uranio",
   subtitulo: "Fluorescencia bajo luz ultravioleta",
   ficha: "Vidrio con contenido de uranio · fluoresce verde bajo radiación UV · target: marcador RA2",
