@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>3D · Wawapampay — Museo Ayacucho</title>
+  <link rel="stylesheet" href="../shared/styles.css?v=8" />
+  <style>
+    html, body { height: 100%; margin: 0; background: #0d0b12; overflow: hidden; }
+    model-viewer { position: fixed; inset: 0; width: 100%; height: 100%;
+      --poster-color: transparent; --progress-bar-color: #c9a24b;
+      background: radial-gradient(circle at 50% 40%, #1b1626, #0b0910 72%); }
+    /* Reproductor de YouTube oculto (solo música de fondo) */
+    #yt { position: fixed; width: 1px; height: 1px; left: -10px; bottom: -10px; opacity: 0; pointer-events: none; }
+    /* Letra corriendo (subtítulos) */
+    #letra { position: fixed; left: 0; right: 0; bottom: calc(78px + env(safe-area-inset-bottom)); z-index: 6;
+      text-align: center; padding: 0 22px; color: #f4efe6; font: 600 18px/1.4 system-ui, sans-serif;
+      text-shadow: 0 2px 8px #000a, 0 0 2px #000; opacity: 0; transition: opacity .4s ease; pointer-events: none; }
+    #letra.on { opacity: 1; }
+    #music-btn { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom));
+      z-index: 7; display: inline-flex; align-items: center; gap: 8px; background: #c9a24b; color: #1a1206; border: 0;
+      border-radius: 12px; padding: 11px 18px; font: 700 14px system-ui, sans-serif; box-shadow: 0 3px 14px #0008; }
+    #music-btn:active { filter: brightness(.92); }
+    #hint3d { position: fixed; left: 0; right: 0; top: calc(58px + env(safe-area-inset-top)); z-index: 5;
+      text-align: center; color: #e6dfd0; font: 12px system-ui, sans-serif; opacity: .75; pointer-events: none; }
+  </style>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+</head>
+<body>
+  <model-viewer id="mv"
+    src="assets/wawapampay.glb?v=1"
+    alt="Diorama de fiesta andina — Wawapampay"
+    camera-controls
+    auto-rotate auto-rotate-delay="800" rotation-per-second="11deg"
+    interaction-prompt="auto" interaction-prompt-threshold="1500"
+    camera-orbit="20deg 62deg 100%" min-camera-orbit="auto 25deg auto" max-camera-orbit="auto 90deg auto"
+    field-of-view="32deg" min-field-of-view="14deg" max-field-of-view="46deg"
+    shadow-intensity="0.9" shadow-softness="1" exposure="1">
+    <div id="hint3d">Arrastra para girar · pellizca para acercar</div>
+  </model-viewer>
+
+  <div id="topbar">
+    <div id="titulo">Wawapampay</div>
+    <div id="subtitulo">Fiesta andina · modelo 3D (fotogrametría)</div>
+  </div>
+
+  <div id="letra"></div>
+  <button id="music-btn">🎵 Música</button>
+  <div id="yt"></div>
+
+  <div id="loading">
+    <div class="centro">
+      <div class="sello">RA</div>
+      <div class="expo">Un claustro abierto al mundo a través del arte</div>
+      <div class="sede">Monasterio de Carmelitas Descalzas de Santa Teresa · Ayacucho</div>
+      <div class="barra"><i></i></div>
+      <div class="estado">Cargando el modelo 3D…</div>
+    </div>
+    <div class="creditos">
+      <img class="l-carmelitas" src="../shared/logos/carmelitas.webp" width="170" height="210"
+           alt="Monasterio de Carmelitas Descalzas de Santa Teresa" />
+      <img class="l-utec" src="../shared/logos/utec.webp" width="555" height="126"
+           alt="UTEC · Centro de Investigación y Conservación del Patrimonio" />
+      <img class="l-embajada" src="../shared/logos/embajada.webp" width="303" height="114"
+           alt="Embajada de los Estados Unidos de América en Lima" />
+    </div>
+  </div>
+
+  <script src="config.js?v=1"></script>
+  <script src="wawapampay.js?v=1"></script>
+</body>
+</html>

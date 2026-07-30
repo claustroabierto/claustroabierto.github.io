@@ -4,7 +4,9 @@
  *  Render en espacio UV (posición = uv) con los colores de vértice + grado (brillo),
  *  relleno de costuras (dilatación 3 pasadas) y JPEG 4096². */
 import puppeteer from "puppeteer";import fs from "fs";
-const GEO="/tmp/rp/borja-geo";
+// Uso: node bake.mjs <geoDir> <outJpg>
+const GEO=process.argv[2]||"/tmp/rp/borja-geo";
+const OUTJPG=process.argv[3]||"/tmp/rp/borja-tex.jpg";
 const html=`<!doctype html><html><head><meta charset="utf8">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script></head>
 <body><canvas id="c"></canvas><script type="module">
@@ -37,5 +39,5 @@ const b=await puppeteer.launch({headless:"new",args:["--no-sandbox","--use-gl=an
 const pg=await b.newPage();await pg.goto("file:///tmp/rp/bake.html",{waitUntil:"domcontentloaded"});
 await pg.waitForFunction("window.__done===true||window.__err.length",{timeout:120000}).catch(()=>{});
 const err=await pg.evaluate(()=>window.__err);if(err){console.log("ERR",err);process.exit(1);}
-fs.writeFileSync("/tmp/rp/borja-tex.jpg",Buffer.from(await pg.evaluate(()=>window.__jpg),"base64"));await b.close();
-console.log("textura:",(fs.statSync("/tmp/rp/borja-tex.jpg").size/1e6).toFixed(2),"MB");
+fs.writeFileSync(OUTJPG,Buffer.from(await pg.evaluate(()=>window.__jpg),"base64"));await b.close();
+console.log("textura:",(fs.statSync(OUTJPG).size/1e6).toFixed(2),"MB");

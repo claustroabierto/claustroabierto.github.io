@@ -1,7 +1,9 @@
 import fs from "fs";
 import readline from "readline";
-const IN = process.argv[2], OUT = "/tmp/rp/borja-geo";
-const NV = 1085696, NT = 1119544;
+// Uso: node parse-tex.mjs <obj> <NV> <NT> <geoDir>
+const IN = process.argv[2], OUT = process.argv[5] || "/tmp/rp/borja-geo";
+const NV = +(process.argv[3] || 1085696), NT = +(process.argv[4] || 1119544);
+fs.mkdirSync(OUT, { recursive: true });
 const pos = new Float32Array(NV*3), col = new Uint8Array(NV*3);   // por posición p
 const uvv = new Float32Array(NT*2);                              // por texcoord t
 let vi=0, ti=0;
