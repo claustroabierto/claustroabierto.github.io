@@ -17,15 +17,18 @@
   var player = null, ready = false, playing = false;
   var btn = $("music-btn");
 
+  var START = CFG.startSec || 0;   // 1:21 = 81 s
   window.onYouTubeIframeAPIReady = function () {
     player = new YT.Player("yt", {
       videoId: CFG.youtubeId,
-      playerVars: { controls: 0, disablekb: 1, playsinline: 1, rel: 0, loop: 1, playlist: CFG.youtubeId },
+      playerVars: { controls: 0, disablekb: 1, playsinline: 1, rel: 0, start: START },
       events: {
         onReady: function () { ready = true; },
         onStateChange: function (e) {
           playing = (e.data === YT.PlayerState.PLAYING);
           if (btn) btn.textContent = playing ? "⏸ Música" : "🎵 Música";
+          // Repetir desde el minuto de inicio (no desde 0).
+          if (e.data === YT.PlayerState.ENDED) { player.seekTo(START, true); player.playVideo(); }
         }
       }
     });

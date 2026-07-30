@@ -14,6 +14,7 @@ window.MUSEO_CONFIG = {
 
   // Música de fondo (solo audio): https://www.youtube.com/watch?v=dYNXHx6gr50
   youtubeId: "dYNXHx6gr50",
+  startSec: 81,          // arranca en 1:21 (y vuelve ahí al repetir)
 
   // Letra en español, sincronizada: cada línea { t: <segundos>, txt: "<verso>" }.
   // ⚠ PENDIENTE: pegar la letra real (del Video.docx) con sus tiempos. Mientras esté
