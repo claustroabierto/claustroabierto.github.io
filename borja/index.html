@@ -3,51 +3,54 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <title>3D · San Francisco de Borja — Museo Ayacucho</title>
+  <title>RA · San Francisco de Borja — Museo Ayacucho</title>
   <link rel="stylesheet" href="../shared/styles.css?v=8" />
   <style>
-    html, body { height: 100%; margin: 0; background: #0d0b12; overflow: hidden; }
-    model-viewer {
-      position: fixed; inset: 0; width: 100%; height: 100%;
-      --poster-color: transparent; --progress-bar-color: #c9a24b;
-      background: radial-gradient(circle at 50% 38%, #1b1626, #0b0910 70%);
-    }
-    /* Botón AR ("ver en tu espacio") */
-    #ar-btn {
-      position: absolute; left: 50%; transform: translateX(-50%);
-      bottom: calc(64px + env(safe-area-inset-bottom)); z-index: 6;
-      display: inline-flex; align-items: center; gap: 8px;
-      background: #c9a24b; color: #1a1206; border: 0; border-radius: 12px;
-      padding: 11px 18px; font: 700 14px system-ui, sans-serif; box-shadow: 0 3px 14px #0008;
-    }
-    #ar-btn:active { filter: brightness(.92); }
-    #hint3d {
-      position: fixed; left: 0; right: 0; bottom: calc(16px + env(safe-area-inset-bottom));
-      z-index: 5; text-align: center; color: #e6dfd0; font: 13px system-ui, sans-serif;
-      opacity: .82; pointer-events: none;
-    }
+    /* Visor 3D (aparece al detectar la imagen) */
+    #viewer { position: fixed; inset: 0; z-index: 30; display: none;
+      background: radial-gradient(circle at 50% 38%, #1b1626, #0b0910 70%); }
+    #viewer.on { display: block; }
+    #mv { width: 100%; height: 100%; --poster-color: transparent; --progress-bar-color: #c9a24b; background: transparent; }
+    #hint3d { position: fixed; left: 0; right: 0; bottom: calc(70px + env(safe-area-inset-bottom)); z-index: 31;
+      text-align: center; color: #e6dfd0; font: 13px system-ui, sans-serif; opacity: .82; pointer-events: none; }
+    #back3d { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom));
+      z-index: 32; background: #c9a24b; color: #1a1206; border: 0; border-radius: 12px; padding: 11px 18px;
+      font: 700 14px system-ui, sans-serif; box-shadow: 0 3px 14px #0008; }
+    #back3d:active { filter: brightness(.92); }
   </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+      "mindar-image-three": "https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
+    }
+  }
+  </script>
   <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 </head>
 <body>
-  <model-viewer id="mv"
-    src="assets/borja.glb?v=2"
-    ios-src="assets/borja.usdz?v=1"
-    alt="Escultura policromada de San Francisco de Borja con crucifijo"
-    camera-controls
-    auto-rotate auto-rotate-delay="2500" rotation-per-second="16deg"
-    interaction-prompt="auto" interaction-prompt-threshold="1500"
-    camera-orbit="0deg 82deg 105%" min-camera-orbit="auto 25deg auto" max-camera-orbit="auto 125deg auto"
-    field-of-view="30deg" min-field-of-view="12deg" max-field-of-view="45deg"
-    shadow-intensity="0.9" shadow-softness="1" exposure="1"
-    ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto">
-    <button slot="ar-button" id="ar-btn">📱 Ver en tu espacio</button>
-    <div id="hint3d">Arrastra para girar · pellizca para acercar</div>
-  </model-viewer>
+  <div id="ar"></div>
 
   <div id="topbar">
-    <div id="titulo">San Francisco de Borja</div>
-    <div id="subtitulo">Escultura policromada · modelo 3D (fotogrametría)</div>
+    <div id="titulo">…</div>
+    <div id="subtitulo"></div>
+  </div>
+
+  <div id="scan">
+    <div class="frame"></div>
+    <p>Apunta la cámara a la <b>imagen de San Francisco de Borja</b> para verlo en 3D.</p>
+  </div>
+
+  <!-- Visor 3D: se muestra al detectar la imagen -->
+  <div id="viewer">
+    <model-viewer id="mv"
+      alt="Escultura policromada de San Francisco de Borja"
+      camera-controls interaction-prompt="none"
+      field-of-view="30deg" min-field-of-view="14deg" max-field-of-view="42deg"
+      shadow-intensity="0.85" shadow-softness="1" exposure="1"></model-viewer>
+    <div id="hint3d">Arrastra para girar (solo el frente) · pellizca para acercar</div>
+    <button id="back3d">↻ Volver a escanear</button>
   </div>
 
   <div id="loading">
@@ -56,7 +59,7 @@
       <div class="expo">Un claustro abierto al mundo a través del arte</div>
       <div class="sede">Monasterio de Carmelitas Descalzas de Santa Teresa · Ayacucho</div>
       <div class="barra"><i></i></div>
-      <div class="estado">Cargando el modelo 3D…</div>
+      <div class="estado">Preparando la realidad aumentada…</div>
     </div>
     <div class="creditos">
       <img class="l-carmelitas" src="../shared/logos/carmelitas.webp" width="170" height="210"
@@ -67,14 +70,9 @@
            alt="Embajada de los Estados Unidos de América en Lima" />
     </div>
   </div>
+  <div id="error"></div>
 
-  <script type="module">
-    const mv = document.getElementById("mv");
-    const loading = document.getElementById("loading");
-    const hide = () => { if (loading) loading.style.display = "none"; };
-    mv.addEventListener("load", hide);
-    // respaldo por si el evento no llega
-    setTimeout(hide, 12000);
-  </script>
+  <script src="config.js?v=1"></script>
+  <script type="module" src="borja-engine.js?v=1"></script>
 </body>
 </html>
