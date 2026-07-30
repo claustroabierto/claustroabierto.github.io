@@ -16,7 +16,7 @@
  *  al marco). Ajuste fino: mover con align si hiciera falta.
  */
 window.MUSEO_CONFIG = {
-  id: "nazareno",
+  id: "jesus_nazareno",
   titulo: "Jesús Nazareno",
   subtitulo: "El Cristo sale de la pintura · apunta al cuadro",
   ficha: "Cristo camino al Calvario · pintura colonial con pan de oro. La figura se despega del plano y avanza hacia ti.",
