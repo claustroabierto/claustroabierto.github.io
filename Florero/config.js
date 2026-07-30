@@ -17,7 +17,7 @@
  *  Sin microscopías (el análisis solo trae rayos X + FRX).
  */
 window.MUSEO_CONFIG = {
-  id: "ceramica",
+  id: "florero",
   titulo: "Cerámica vidriada",
   subtitulo: "Rayos X y composición (FRX) · escanea el marcador",
   ficha: "Vasija con rostro, vidriado plúmbeo · Rayos X (perfil y frente) y fluorescencia: Plomo 66% · Silicio 20% · Estaño 11%",
