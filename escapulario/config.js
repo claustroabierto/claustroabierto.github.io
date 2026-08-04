@@ -36,19 +36,22 @@ window.MUSEO_CONFIG = {
   // recuadro3.
   microReveals: [
     "assets/reveal/microtitulo.webp?v=2",
-    "assets/reveal/detalle1-foto.webp",
-    "assets/reveal/detalle1-box.webp",
-    "assets/reveal/detalle2-foto.webp",
-    "assets/reveal/detalle2-box.webp",
-    "assets/reveal/detalle3-foto.webp",
-    "assets/reveal/detalle3-box.webp"
+    "assets/reveal/detalle1-foto.webp?v=2",
+    "assets/reveal/detalle1-box.webp?v=2",
+    "assets/reveal/detalle2-foto.webp?v=2",
+    "assets/reveal/detalle2-box.webp?v=2",
+    "assets/reveal/detalle3-foto.webp?v=2",
+    "assets/reveal/detalle3-box.webp?v=2"
   ],
   intervaloReveal: 0.8,
 
   // Globitos de microscopía tocables (coords normalizadas sobre el asset).
+  // y subido ~0.047 (70px de 1495) junto con las fotos/recuadros de arriba,
+  // para achicar el hueco vacío entre el título y la primera fila (pedido
+  // del equipo: "hay mucho espacio, mueve todo más arriba").
   hotspots: [
-    { x: 0.560, y: 0.290, color: "#8a4a36", img: "assets/micro-muestra1.webp", titulo: "Detalle 1", pigmento: "Fluorescencia de rayos X", formula: "Ag 48% - Cu 50% - Au 2%", nota: "Hilos de lana roja bordada con hilos metálicos de plata dorada" },
-    { x: 0.568, y: 0.571, color: "#8b7b58", img: "assets/micro-muestra2.webp", titulo: "Detalle 2", pigmento: "Fluorescencia de rayos X", formula: "Ag 52% - Cu 43% - Au 5%", nota: "Hilos metálicos entorchados de plata dorada" },
-    { x: 0.570, y: 0.849, color: "#9a8a5f", img: "assets/micro-muestra3.webp", titulo: "Detalle 3", pigmento: "Fluorescencia de rayos X", formula: "Ag 94% - Cu 1% - Au 5%", nota: "Hilos metálicos laminados de plata dorada" }
+    { x: 0.560, y: 0.243, color: "#8a4a36", img: "assets/micro-muestra1.webp", titulo: "Detalle 1", pigmento: "Fluorescencia de rayos X", formula: "Ag 48% - Cu 50% - Au 2%", nota: "Hilos de lana roja bordada con hilos metálicos de plata dorada" },
+    { x: 0.568, y: 0.524, color: "#8b7b58", img: "assets/micro-muestra2.webp", titulo: "Detalle 2", pigmento: "Fluorescencia de rayos X", formula: "Ag 52% - Cu 43% - Au 5%", nota: "Hilos metálicos entorchados de plata dorada" },
+    { x: 0.570, y: 0.802, color: "#9a8a5f", img: "assets/micro-muestra3.webp", titulo: "Detalle 3", pigmento: "Fluorescencia de rayos X", formula: "Ag 94% - Cu 1% - Au 5%", nota: "Hilos metálicos laminados de plata dorada" }
   ]
 };
