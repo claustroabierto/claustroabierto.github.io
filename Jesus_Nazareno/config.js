@@ -18,8 +18,8 @@
 window.MUSEO_CONFIG = {
   id: "jesus_nazareno",
   titulo: "Jesús Nazareno",
-  subtitulo: "Jesús Nazareno cobra vida y peregrina con la Santa Cruz camino al calvario",
-  ficha: "Jesús Nazareno sale de la pintura y peregrina de un lado al otro camino al calvario · Pintura virreinal con detalles en pan de oro.",
+  subtitulo: "Óleo sobre lienzo - Siglo XVIII · La imagen cobra vida y peregrina con la Santa Cruz camino al calvario",
+  ficha: "Óleo sobre lienzo, siglo XVIII · La imagen de Jesús Nazareno abandona la pintura y peregrina de un lado al otro, camino al Calvario.",
 
   targetSrc: "assets/targets.mind?v=1",      // la pintura completa (fondo+Cristo)
   targetPreview: "assets/marcador.jpg",
