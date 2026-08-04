@@ -50,6 +50,7 @@ async function start() {
   const rx    = plane(CFG.rx, 0.001, 1);            // rayos X (con rótulo)
   const rvO   = plane(CFG.reversoOval, 0.01, 3);    // óvalo del reverso (único, no cambia de tamaño)
   const rvT   = plane(CFG.reversoTitulo, 0.012, 4); // rótulo "REVERSO" (aparece al llegar)
+  const rvS   = plane(CFG.reversoSubtitulo, 0.013, 5); // leyenda "Sta Teresia con Angelo" (aparece con REVERSO)
   const mTit  = plane(CFG.microTitulo, 0.02, 8);    // título MICROSCOPÍA
   const micros = (CFG.microscopias || []).map((m, i) => {
     const p = plane(m, 0.02 + i * 0.001, 10 + i); p.data = m; return p;
@@ -93,6 +94,7 @@ async function start() {
     $("card-nota").textContent = m.nota || "";
     // en la tarjeta/zoom va la foto INDIVIDUAL (sin el texto del análisis)
     const img = $("card-img"); if (img) { img.src = m.zoom || m.src; img.style.display = "block"; }
+    const ih = $("card-imghint"); if (ih) ih.style.display = "block";
     $("card").classList.add("on");
   }
   function closeCard() { $("card").classList.remove("on"); const z = $("zoom"); if (z) z.classList.remove("on"); }
@@ -146,6 +148,7 @@ async function start() {
     rvO.mesh.scale.setScalar(grow);      // solo la entrada; después queda en 1
     rvO.mat.opacity = grow;
     rvT.mat.opacity = step(0.75, 1.0, mv);   // el rótulo entra al final del viaje
+    rvS.mat.opacity = step(0.75, 1.0, mv);   // la leyenda entra junto con "REVERSO"
 
     // 4) columna derecha: título y luego las 3 tarjetas, una por una
     mTit.mat.opacity = step(T_TIT, T_TIT + 0.5, t);

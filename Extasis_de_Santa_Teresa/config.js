@@ -18,8 +18,8 @@
 window.MUSEO_CONFIG = {
   id: "Extasis_de_Santa_Teresa",
   titulo: "Éxtasis de Santa Teresa",
-  subtitulo: "imagen de Rayos X - Microscopía y composición química FRX",
-  ficha: "Óleo sobre placa de piedra · Rayos X revela el soporte; el reverso lleva la inscripción «S.ta Teresia con l'angelo»",
+  subtitulo: "Pintura sobre mármol - Siglo XVII · imagen de Rayos X - Microscopía y composición química FRX",
+  ficha: "Éxtasis de Santa Teresa, óleo sobre mármol, inscripción posterior, Rayos X, microscopía.",
 
   targetSrc: "assets/targets.mind",
   targetPreview: "assets/target.jpg",
@@ -35,6 +35,10 @@ window.MUSEO_CONFIG = {
   reversoOval:   { src: "assets/reverso-oval.webp",   aspect: 0.596, width: 0.46, x: -0.014, y: -0.003,
                    izqX: -0.892, izqY: 0.146 },
   reversoTitulo: { src: "assets/reverso-titulo.webp", aspect: 4.007, width: 0.34, x: -0.892, y: 0.60 },
+  // Leyenda de la inscripción, debajo del óvalo (mismo font/color que REVERSO:
+  // Arial Bold #b4b4b4, regenerada con el mismo criterio — ver posiciones.html
+  // si hace falta reajustar). Aparece junto con "REVERSO".
+  reversoSubtitulo: { src: "assets/reverso-subtitulo.webp", aspect: 7.791, width: 0.46, x: -0.892, y: -0.31 },
 
   // 4) Columna de microscopía a la DERECHA (título + 3 tarjetas, en orden).
   // Las 3 comparten x (columna alineada) y el espaciado vertical es idéntico
@@ -46,13 +50,13 @@ window.MUSEO_CONFIG = {
   // oscuro; Dorado se queda dorado).
   // Nombres finales del PDF (por ubicación en la pintura, no por color):
   // Dorado->Aureola, Carnación->Rostro, Azurita->Alas.
-  // x alineado en columna (1.017, promedio de lo ajustado con el editor) y size
+  // x alineado en columna (1.119, promedio de lo ajustado con el editor) y size
   // uniformado (0.07); y queda como lo dejaron.
   microscopias: [
     // `src` = tarjeta del análisis (con su texto) que se ve en el AR.
     // `zoom` = la foto INDIVIDUAL original (sin texto), que es la que se amplía al tocar.
-    { src: "assets/micro-dorado.webp",    zoom: "assets/zoom-dorado.webp",    aspect: 1.920, width: 0.62, x: 1.017, y:  0.404, size: 0.07, titulo: "Aureola", pigmento: "Oro",     formula: "Au",             nota: "Aplicado a pincel.", color: "#c9a24b" },
-    { src: "assets/micro-carnacion.webp", zoom: "assets/zoom-carnacion.webp", aspect: 1.851, width: 0.62, x: 1.017, y:  0.001, size: 0.07, titulo: "Rostro",  pigmento: "Plomo",   formula: "2PbCO₃ · Pb(OH)₂", nota: "Blanco de plomo o albayalde.", color: "#eab676" },
-    { src: "assets/micro-azurita.webp",   zoom: "assets/zoom-azurita.webp",   aspect: 1.817, width: 0.62, x: 1.017, y: -0.362, size: 0.07, titulo: "Alas",    pigmento: "Azurita", formula: "Cu₃(CO₃)₂(OH)₂", nota: "Azul mineral de azurita, carbonato básico de cobre.", color: "#26456e" }
+    { src: "assets/micro-dorado.webp",    zoom: "assets/zoom-dorado.webp",    aspect: 1.920, width: 0.62, x: 1.119, y:  0.392, size: 0.07, titulo: "Aureola", pigmento: "Oro",     formula: "Au",             nota: "Aplicado a pincel.", color: "#c9a24b" },
+    { src: "assets/micro-carnacion.webp", zoom: "assets/zoom-carnacion.webp", aspect: 1.851, width: 0.62, x: 1.119, y:  0.005, size: 0.07, titulo: "Rostro",  pigmento: "Plomo",   formula: "2PbCO₃ · Pb(OH)₂", nota: "Blanco de plomo o albayalde.", color: "#eab676" },
+    { src: "assets/micro-azurita.webp",   zoom: "assets/zoom-azurita.webp",   aspect: 1.817, width: 0.62, x: 1.119, y: -0.316, size: 0.07, titulo: "Alas",    pigmento: "Azurita", formula: "Cu₃(CO₃)₂(OH)₂", nota: "Azul mineral de azurita, carbonato básico de cobre.", color: "#26456e" }
   ]
 };
