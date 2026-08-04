@@ -50,13 +50,16 @@ window.MUSEO_CONFIG = {
   // oscuro; Dorado se queda dorado).
   // Nombres finales del PDF (por ubicación en la pintura, no por color):
   // Dorado->Aureola, Carnación->Rostro, Azurita->Alas.
-  // x alineado en columna (1.119, promedio de lo ajustado con el editor) y size
-  // uniformado (0.07); y queda como lo dejaron.
+  // x alineado en columna (0.90, acercado al cuadro por pedido del equipo —
+  // antes 1.119 quedaba muy separado) y size uniformado (0.07). y con espaciado
+  // PAREJO (0.41 entre cada una, igual que el original) centrado en 0.005 —
+  // las coordenadas sueltas del editor habían quedado con distancias distintas
+  // (0.387 vs 0.321) y Rostro/Alas se tocaban.
   microscopias: [
     // `src` = tarjeta del análisis (con su texto) que se ve en el AR.
     // `zoom` = la foto INDIVIDUAL original (sin texto), que es la que se amplía al tocar.
-    { src: "assets/micro-dorado.webp",    zoom: "assets/zoom-dorado.webp",    aspect: 1.920, width: 0.62, x: 1.119, y:  0.392, size: 0.07, titulo: "Aureola", pigmento: "Oro",     formula: "Au",             nota: "Aplicado a pincel.", color: "#c9a24b" },
-    { src: "assets/micro-carnacion.webp", zoom: "assets/zoom-carnacion.webp", aspect: 1.851, width: 0.62, x: 1.119, y:  0.005, size: 0.07, titulo: "Rostro",  pigmento: "Plomo",   formula: "2PbCO₃ · Pb(OH)₂", nota: "Blanco de plomo o albayalde.", color: "#eab676" },
-    { src: "assets/micro-azurita.webp",   zoom: "assets/zoom-azurita.webp",   aspect: 1.817, width: 0.62, x: 1.119, y: -0.316, size: 0.07, titulo: "Alas",    pigmento: "Azurita", formula: "Cu₃(CO₃)₂(OH)₂", nota: "Azul mineral de azurita, carbonato básico de cobre.", color: "#26456e" }
+    { src: "assets/micro-dorado.webp",    zoom: "assets/zoom-dorado.webp",    aspect: 1.920, width: 0.62, x: 0.90, y:  0.415, size: 0.07, titulo: "Aureola", pigmento: "Oro",     formula: "Au",             nota: "Aplicado a pincel.", color: "#c9a24b" },
+    { src: "assets/micro-carnacion.webp", zoom: "assets/zoom-carnacion.webp", aspect: 1.851, width: 0.62, x: 0.90, y:  0.005, size: 0.07, titulo: "Rostro",  pigmento: "Plomo",   formula: "2PbCO₃ · Pb(OH)₂", nota: "Blanco de plomo o albayalde.", color: "#eab676" },
+    { src: "assets/micro-azurita.webp",   zoom: "assets/zoom-azurita.webp",   aspect: 1.817, width: 0.62, x: 0.90, y: -0.405, size: 0.07, titulo: "Alas",    pigmento: "Azurita", formula: "Cu₃(CO₃)₂(OH)₂", nota: "Azul mineral de azurita, carbonato básico de cobre.", color: "#26456e" }
   ]
 };

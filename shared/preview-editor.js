@@ -81,11 +81,6 @@ function init() {
     render();
   });
 
-  const hint = document.createElement("div");
-  hint.style.cssText = "position:fixed;left:8px;top:60px;z-index:99997;background:#171320e6;color:#f4efe6;border-radius:8px;padding:6px 10px;font:11px system-ui,sans-serif;display:none";
-  hint.textContent = "Arrastrá el centro para mover · arrastrá el punto del borde para agrandar/achicar";
-  document.body.appendChild(hint);
-
   // --- Círculos DOM (uno + su handle de tamaño, por item) ---
   const layer = document.createElement("div");
   layer.style.cssText = "position:fixed;inset:0;z-index:99996;pointer-events:none;display:none";
@@ -190,7 +185,6 @@ function init() {
     layer.style.display = active ? "block" : "none";
     panel.style.display = active && !panelHidden ? "block" : "none";
     panelToggleBtn.style.display = active ? "block" : "none";
-    hint.style.display = active ? "block" : "none";
     toggleBtn.textContent = active ? "▶ Ver animación" : "🔧 Editar círculos";
     toggleBtn.style.background = active ? "#c9a24b" : "";
     toggleBtn.style.color = active ? "#1a1206" : "";
