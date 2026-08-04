@@ -41,7 +41,7 @@ window.MUSEO_CONFIG = {
 
   intervaloReveal: 0.9,
   reveals: [
-    "assets/micro1.webp?v=7",             // columna esmaltada + flecha (+ título)
+    "assets/micro1.webp?v=8",             // columna esmaltada + flecha (+ título "MICROSCOPÍA · 10x de aumento")
     "assets/micro2.webp?v=7",             // cristales verdes + flecha
     "assets/micro3.webp?v=7",             // concreción mineral + flecha
     "assets/micro4.webp?v=8"              // figura azul + flecha
