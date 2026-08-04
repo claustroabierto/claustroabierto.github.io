@@ -141,8 +141,8 @@ async function start() {
   function reveal() {
     revealT.forEach(clearTimeout); revealT = [];
     rxImg.style.opacity = 0; frxImg.style.opacity = 0;
-    revealT.push(setTimeout(() => { rxImg.style.opacity = 1; }, 80));
-    revealT.push(setTimeout(() => { frxImg.style.opacity = 1; }, 730));
+    revealT.push(setTimeout(() => { rxImg.style.opacity = 1; }, 150));
+    revealT.push(setTimeout(() => { frxImg.style.opacity = 1; }, 480));
   }
   function freeze() {
     if (frozen) return; frozen = true;

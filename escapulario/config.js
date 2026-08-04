@@ -23,7 +23,7 @@ window.MUSEO_CONFIG = {
   // Rayos X (título + boceto) — el único que se controla con el slider
   // "Revelar". Misma geometría que el overlay.webp original.
   overlay: {
-    src: "assets/reveal/rayosx.webp",
+    src: "assets/reveal/rayosx.webp?v=2",
     width: 2.082,
     height: 2.076,
     offsetX: 0.566,   // corre el asset a la derecha -> rayos X sobre la pieza, globitos al costado

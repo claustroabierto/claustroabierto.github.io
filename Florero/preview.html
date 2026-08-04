@@ -15,10 +15,11 @@
 
     /* Visor congelable: al detectar el RA8 el infográfico se fija y se explora
        con los dedos (pellizcar/arrastrar). La tarjeta ya no necesita estar a la vista. */
-    #ficha { position: fixed; inset: 0; z-index: 40; display: none; overflow: hidden;
+    #ficha { position: fixed; inset: 0; z-index: 40; overflow: hidden; opacity: 0;
+      pointer-events: none; transition: opacity .4s ease;
       touch-action: none; -webkit-user-select: none; user-select: none;
       background: radial-gradient(circle at 50% 38%, #17131fef, #0b0910f8); }
-    #ficha.on { display: block; }
+    #ficha.on { opacity: 1; pointer-events: auto; }
     #ficha-stage { position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform; }
     #ficha-stage img { position: absolute; top: 0; left: 0; width: 100%; height: 100%;
       opacity: 0; transition: opacity .55s ease; pointer-events: none; -webkit-user-drag: none; }
@@ -149,7 +150,7 @@
 
   <div id="scan">
     <div class="frame"></div>
-    <p>Apunta la cámara al <b>marcador RA</b> junto a la cerámica.</p>
+    <p>Apunta la cámara al <b>RA</b> para revelar su análisis.</p>
   </div>
 
   <!-- Infográfico congelado (rayos X + cara + tabla FRX apilados) -->
@@ -197,7 +198,7 @@
   <div id="error"></div>
 
   <script src="config.js?v=8"></script>
-  <script type="module" src="ceramica-engine.js?v=2"></script>
+  <script type="module" src="ceramica-engine.js?v=3"></script>
   <script type="module" src="../shared/preview-editor.js?v=4"></script>
 </body>
 </html>

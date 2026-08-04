@@ -64,9 +64,18 @@ async function start() {
   anchor.onTargetFound = () => { visible = true; startT = clock.getElapsedTime(); $("scan").style.display = "none"; $("panel").classList.add("on"); };
   anchor.onTargetLost = () => { visible = false; $("scan").style.display = "flex"; $("panel").classList.remove("on"); closeCard(); };
 
+  // Slider de rayos X: arranca a 50% (crossfade). "Revelar" alterna 100%/0% a
+  // partir de ahí (100 → 0 → 100 → ...); "Repetir" es aparte y reinicia toda
+  // la coreografía (original → rayos X → microscopías), sin tocar el slider.
   const slider = $("reveal");
   if (slider) { slider.value = 50; slider.addEventListener("input", () => { rxAlpha = slider.value / 100; }); }
-  const rb = $("btn-toggle"); if (rb) rb.addEventListener("click", (e) => { e.stopPropagation(); if (visible) startT = clock.getElapsedTime(); });
+  const toggleBtn = $("btn-toggle");
+  if (toggleBtn) toggleBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    rxAlpha = rxAlpha > 0.5 ? 0 : 1;
+    if (slider) slider.value = rxAlpha * 100;
+  });
+  const rb = $("btn-repeat"); if (rb) rb.addEventListener("click", (e) => { e.stopPropagation(); if (visible) startT = clock.getElapsedTime(); });
 
   // --- Zoom al tocar una microscopía ---
   function openCard(i) {

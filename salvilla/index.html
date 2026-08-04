@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>RA · Salvilla de plata — Museo Ayacucho</title>
   <link rel="stylesheet" href="../shared/styles.css?v=8" />
+  <style>
+    #panel .row button{background:var(--gold);color:#1a1206;border:0;border-radius:10px;padding:10px 14px;font-weight:700;font-size:13px;}
+  </style>
   <script type="importmap">
   {
     "imports": {
@@ -46,7 +49,8 @@
   <div id="panel">
     <div class="row">
       <input id="reveal" type="range" min="0" max="100" value="50" />
-      <button id="btn-toggle">Repetir</button>
+      <button id="btn-toggle">Revelar</button>
+      <button id="btn-repeat">↻ Repetir</button>
     </div>
     <div class="hint">Desliza para pasar de la salvilla al rayos X · luego aparece la composición (FRX)</div>
     <div id="ficha-txt"></div>
@@ -72,6 +76,6 @@
   <div id="error"></div>
 
   <script src="config.js?v=13"></script>
-  <script type="module" src="salvilla-engine.js?v=1"></script>
+  <script type="module" src="salvilla-engine.js?v=2"></script>
 </body>
 </html>

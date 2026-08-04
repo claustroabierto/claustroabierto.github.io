@@ -7,8 +7,8 @@
  */
 window.MUSEO_CONFIG = {
   id: "wawapampay",
-  titulo: "Wawapampay",
-  subtitulo: "Fiesta andina · modelo 3D (fotogrametría)",
+  titulo: "Wawa pampay",
+  subtitulo: "Tipos y costumbres ayacuchanas - Principios del Siglo XX · Madera, maguey, tela y pasta · Modelo 3D . velorio de un niño",
 
   modelo: "assets/wawapampay.glb?v=1",
 
