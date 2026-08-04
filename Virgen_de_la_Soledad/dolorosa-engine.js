@@ -320,10 +320,9 @@ async function start() {
       f.gmat.visible = alive > 0.02;
     }
 
-    if (vitrina) setCaption("Mostrando la profundidad… (vuelve solo al AR)");
-    else if (t < SEP[1]) setCaption("El cuadro cobra vida…");
+    if (t < SEP[1]) setCaption("Mueve tu celular alrededor de la pintura");
     else setCaption(lit
-      ? "La Virgen se adelanta · mueve tu celular alrededor · toca para apagar las velas"
+      ? "Velas encendidas - toca para apagar las velas"
       : "Velas apagadas · toca para encenderlas");
 
     renderer.render(scene, camera);

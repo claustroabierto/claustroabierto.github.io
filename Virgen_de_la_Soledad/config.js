@@ -11,10 +11,10 @@
  *  `z` = cuánto se adelanta cada capa (unidades MindAR, ancho de la obra = 1).
  */
 window.MUSEO_CONFIG = {
-  id: "Virgen_de_la_Soledad_de_Madrid",
-  titulo: "Virgen Dolorosa",
-  subtitulo: "El cuadro cobra vida · la Virgen se adelanta entre los cirios",
-  ficha: "Óleo colonial sobre lienzo · Hornacina con mandorla de rayos y cirios",
+  id: "Virgen_de_la_Soledad",
+  titulo: "Virgen de la Soledad",
+  subtitulo: "Óleo sobre lienzo · Siglo XVII · Interacción de RA, la imagen se proyecta y la velas se encienden",
+  ficha: "Óleo sobre lienzo, siglo XVIII. Verdadero retrato de la Virgen de la Soledad de Madrid, en su altar, sobre su peana con mandorla y un par de velas.",
 
   targetSrc: "assets/targets.mind",
   targetPreview: "assets/target.jpg",
