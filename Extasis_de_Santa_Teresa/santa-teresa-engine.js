@@ -157,7 +157,7 @@ async function start() {
     staticReady = micros.length > 0 && shown >= micros.length;
 
     hotMeshes.forEach((m) => {
-      const pulse = 1 + Math.sin(t * 3 + m.userData.idx) * 0.12;
+      const pulse = 1 + Math.sin(t * 3) * 0.12;
       m.scale.set(pulse, pulse, pulse);
       m.material.opacity += ((staticReady ? 0.9 : 0) - m.material.opacity) * 0.15;
     });
@@ -165,7 +165,7 @@ async function start() {
     if (t < T_RV[0]) setCaption("Rayos X: el soporte de piedra bajo la pintura…");
     else if (t < T_MOVE[1]) setCaption("El reverso de piedra, con su inscripción");
     else if (!staticReady) setCaption("Microscopía de los pigmentos…");
-    else setCaption("Toca cada microscopía para ampliarla · desliza para ver el rayos X");
+    else setCaption("Desliza para comparar la pintura con los Rayos X · Toca cada círculo de la microscopía para ampliar información");
 
     renderer.render(scene, camera);
   });

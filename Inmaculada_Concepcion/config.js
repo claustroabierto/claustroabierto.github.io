@@ -10,8 +10,8 @@
  */
 window.MUSEO_CONFIG = {
   id: "Inmaculada_Concepcion",
-  titulo: "La Inmaculada Concepción",
-  subtitulo: "Microscopía y materialidad · pigmentos",
+  titulo: "Inmaculada Concepción",
+  subtitulo: "Microscopía y composición química con FRX",
   ficha: "Óleo sobre lienzo, siglo XVIII · Identificación de pigmentos históricos",
   hintSeq: "Análisis de pigmentos con FRX y microscopía · Toca cada círculo para ampliar",
 
@@ -46,14 +46,19 @@ window.MUSEO_CONFIG = {
   // overlay = centro de cada círculo.
   // x uniformado por columna (izq 0.232 / der 0.757) y size uniformado (0.051)
   // a partir de lo que ajustaron a mano con el editor de círculos del preview.
+  // Nombres/textos finales del PDF (por ubicación anatómica/compositiva, no por
+  // color): Carnación->Rostro, Verde->Manto(verdigris), Rojo1->Manto(bermellón),
+  // Azul->Nube, Amarillo->Blonda, Morado->Querubín, Blanco->Huerto.
+  // ⚠ Rojo2 (2do rojo) el PDF no lo nombra aparte del Rojo1/Manto — dejé su texto
+  // viejo, confirmar con el equipo si también es "Manto" o es otra cosa.
   hotspots: [
-    { x: 0.232, y: 0.245, size: 0.051, color: "#c98a6a", img: "assets/micro-carnacion.webp", titulo: "Carnación", pigmento: "Bermellón / Albayalde", formula: "HgS · PbCO₃", nota: "El tono de la piel combina bermellón (rojo) y albayalde (blanco de plomo)." },
-    { x: 0.757, y: 0.242, size: 0.051, color: "#5c7f4f", img: "assets/micro-verde.webp", titulo: "Verde", pigmento: "Malaquita", formula: "Cu₂CO₃(OH)₂", nota: "Verde mineral de cobre, muy usado en el manto y paisajes." },
-    { x: 0.232, y: 0.459, size: 0.051, color: "#e8562a", img: "assets/micro-rojo1.webp", titulo: "Rojo", pigmento: "Bermellón", formula: "HgS", nota: "Sulfuro de mercurio: el rojo más intenso del periodo colonial." },
+    { x: 0.232, y: 0.245, size: 0.051, color: "#c98a6a", img: "assets/micro-carnacion.webp", titulo: "Rostro", pigmento: "Bermellón / Albayalde", formula: "HgS · PbCO₃", nota: "Detalle del rostro con craqueladuras y pinceladas de óleo de albayalde mezclado con bermellón." },
+    { x: 0.757, y: 0.242, size: 0.051, color: "#5c7f4f", img: "assets/micro-verde.webp", titulo: "Manto", pigmento: "Verdigris", formula: "Cu(C₁₉H₂₉COO)₂", nota: "Detalle del manto con pigmento verde de verdigrís (acetato de cobre)." },
+    { x: 0.232, y: 0.459, size: 0.051, color: "#e8562a", img: "assets/micro-rojo1.webp", titulo: "Manto", pigmento: "Bermellón", formula: "HgS", nota: "Detalle del interior del manto de la Virgen con pigmento bermellón o cinabrio que es un sulfuro de mercurio." },
     { x: 0.757, y: 0.460, size: 0.051, color: "#c1431f", img: "assets/micro-rojo2.webp", titulo: "Rojo", pigmento: "Bermellón", formula: "HgS", nota: "También presente en los pliegues del manto rojo." },
-    { x: 0.232, y: 0.687, size: 0.051, color: "#5a79b0", img: "assets/micro-azul.webp", titulo: "Azul", pigmento: "Añil", formula: "C₁₆H₁₀N₂O₂", nota: "Tinte vegetal (índigo) traído del comercio colonial." },
-    { x: 0.757, y: 0.690, size: 0.051, color: "#d8b41f", img: "assets/micro-amarillo.webp", titulo: "Amarillo", pigmento: "Oropimente", formula: "As₂S₃", nota: "Sulfuro de arsénico: amarillo brillante y tóxico." },
-    { x: 0.232, y: 0.909, size: 0.051, color: "#b0446a", img: "assets/micro-morado.webp", titulo: "Morado", pigmento: "Cochinilla", formula: "C₂₂H₂₀O₁₃", nota: "Colorante del insecto cochinilla, tesoro tintóreo andino." },
-    { x: 0.757, y: 0.914, size: 0.051, color: "#d9cdb8", img: "assets/micro-blanco.webp", titulo: "Blanco", pigmento: "Albayalde", formula: "PbCO₃", nota: "Blanco de plomo, base de las luces y carnaciones." }
+    { x: 0.232, y: 0.687, size: 0.051, color: "#5a79b0", img: "assets/micro-azul.webp", titulo: "Nube", pigmento: "Añil", formula: "C₁₆H₁₀N₂O₂", nota: "Detalle del cielo y las nubes con pigmento de índigo (Indigofera tinctoria) y carga de carbonato de calcio." },
+    { x: 0.757, y: 0.690, size: 0.051, color: "#d8b41f", img: "assets/micro-amarillo.webp", titulo: "Blonda", pigmento: "Oropimente", formula: "As₂S₃", nota: "Detalle de la blonda de hilos metálicos representada con oropimente (trisulfuro de arsénico)." },
+    { x: 0.232, y: 0.909, size: 0.051, color: "#b0446a", img: "assets/micro-morado.webp", titulo: "Querubín", pigmento: "Carmín", formula: "C₂₂H₂₀O₁₃", nota: "Detalle del ala del querubín con pigmento carmín, obtenido de Dactylopius coccus (cochinilla)." },
+    { x: 0.757, y: 0.914, size: 0.051, color: "#d9cdb8", img: "assets/micro-blanco.webp", titulo: "Huerto", pigmento: "Albayalde", formula: "PbCO₃", nota: "Detalle del cerco del huerto (hortus conclusus) con pigmento blanco de plomo o albayalde." }
   ]
 };

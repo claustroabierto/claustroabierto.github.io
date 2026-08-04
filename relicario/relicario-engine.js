@@ -140,7 +140,7 @@ async function start() {
 
     // Anillos: pulsan solo cuando ya se puede tocar (las 4 microscopías completas).
     hotMeshes.forEach((m) => {
-      const pulse = 1 + Math.sin(t * 3 + m.userData.idx) * 0.12;
+      const pulse = 1 + Math.sin(t * 3) * 0.12;
       m.scale.set(pulse, pulse, pulse);
       m.material.opacity += ((ready ? 0.9 : 0) - m.material.opacity) * 0.15;
     });

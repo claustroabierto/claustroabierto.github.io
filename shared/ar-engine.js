@@ -226,7 +226,7 @@ async function start() {
       // aro visual (pulsando) permanece apagado para no adelantar la sorpresa.
       seqReady = seqMats.length > 0 && shown >= seqMats.length;
       hotMeshes.forEach((m) => {
-        const pulse = 1 + Math.sin(t * 3 + m.userData.idx) * 0.12;
+        const pulse = 1 + Math.sin(t * 3) * 0.12;
         m.scale.set(pulse, pulse, pulse);
         m.material.opacity += ((seqReady ? 0.9 : 0) - m.material.opacity) * 0.15;
       });
@@ -235,7 +235,7 @@ async function start() {
       fadeMats.forEach((m) => { m.opacity += (reveal - m.opacity) * 0.15; });
       // pulso de los anillos, escalado por revelado
       hotMeshes.forEach((m) => {
-        const pulse = 1 + Math.sin(t * 3 + m.userData.idx) * 0.12;
+        const pulse = 1 + Math.sin(t * 3) * 0.12;
         const s = pulse * m.userData.base;
         m.scale.set(s, s, s);
         m.material.opacity = 0.15 + reveal * 0.85;

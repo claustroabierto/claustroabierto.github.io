@@ -6,7 +6,7 @@
 window.MUSEO_CONFIG = {
   id: "escapulario",
   titulo: "Escapulario bordado",
-  subtitulo: "Rayos X sobre la pieza · composición elemental",
+  subtitulo: "Rayos X sobre la pieza · composición química",
   ficha: "Bordado con hilos metálicos · Imagen de rayos X y fluorescencia (FRX)",
 
   targetSrc: "assets/targets.mind",

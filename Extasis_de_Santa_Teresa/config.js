@@ -18,7 +18,7 @@
 window.MUSEO_CONFIG = {
   id: "Extasis_de_Santa_Teresa",
   titulo: "Éxtasis de Santa Teresa",
-  subtitulo: "Rayos X · el reverso de piedra · microscopía de pigmentos",
+  subtitulo: "imagen de Rayos X - Microscopía y composición química FRX",
   ficha: "Óleo sobre placa de piedra · Rayos X revela el soporte; el reverso lleva la inscripción «S.ta Teresia con l'angelo»",
 
   targetSrc: "assets/targets.mind",
@@ -44,11 +44,13 @@ window.MUSEO_CONFIG = {
   // `color` = color del círculo interactivo sobre la microscopía y del punto en
   // la tarjeta (pedido del equipo: Carnación crema/naranja suave, Azurita azul
   // oscuro; Dorado se queda dorado).
+  // Nombres finales del PDF (por ubicación en la pintura, no por color):
+  // Dorado->Aureola, Carnación->Rostro, Azurita->Alas.
   microscopias: [
     // `src` = tarjeta del análisis (con su texto) que se ve en el AR.
     // `zoom` = la foto INDIVIDUAL original (sin texto), que es la que se amplía al tocar.
-    { src: "assets/micro-dorado.webp",    zoom: "assets/zoom-dorado.webp",    aspect: 1.920, width: 0.62, x: 0.92, y:  0.41, titulo: "Dorado",    pigmento: "Oro",     formula: "Au",             nota: "Detalles en pan de oro (Au); en el rayos X aparecen opacos.", color: "#c9a24b" },
-    { src: "assets/micro-carnacion.webp", zoom: "assets/zoom-carnacion.webp", aspect: 1.851, width: 0.62, x: 0.92, y:  0.00, titulo: "Carnación", pigmento: "Plomo",   formula: "Pb",             nota: "La carnación se construye con blanco de plomo (Pb).", color: "#eab676" },
-    { src: "assets/micro-azurita.webp",   zoom: "assets/zoom-azurita.webp",   aspect: 1.817, width: 0.62, x: 0.92, y: -0.41, titulo: "Azurita",   pigmento: "Azurita", formula: "Cu₃(CO₃)₂(OH)₂", nota: "Azul mineral de azurita, carbonato básico de cobre.", color: "#26456e" }
+    { src: "assets/micro-dorado.webp",    zoom: "assets/zoom-dorado.webp",    aspect: 1.920, width: 0.62, x: 0.92, y:  0.41, titulo: "Aureola", pigmento: "Oro",     formula: "Au",             nota: "Aplicado a pincel.", color: "#c9a24b" },
+    { src: "assets/micro-carnacion.webp", zoom: "assets/zoom-carnacion.webp", aspect: 1.851, width: 0.62, x: 0.92, y:  0.00, titulo: "Rostro",  pigmento: "Plomo",   formula: "2PbCO₃ · Pb(OH)₂", nota: "Blanco de plomo o albayalde.", color: "#eab676" },
+    { src: "assets/micro-azurita.webp",   zoom: "assets/zoom-azurita.webp",   aspect: 1.817, width: 0.62, x: 0.92, y: -0.41, titulo: "Alas",    pigmento: "Azurita", formula: "Cu₃(CO₃)₂(OH)₂", nota: "Azul mineral de azurita, carbonato básico de cobre.", color: "#26456e" }
   ]
 };

@@ -20,7 +20,7 @@
 window.MUSEO_CONFIG = {
   id: "relicario",
   titulo: "Relicario",
-  subtitulo: "Original, rayos X y microscopía · escanea el marcador RA",
+  subtitulo: "imagen de Rayos X - Microscopía",
   ficha: "Relicario, Siglo XVIII, plata dorada, pigmentos, papel y plumas.",
 
   targetSrc: "assets/targets.mind?v=2",   // MARCADOR RA6 (letras)
@@ -53,16 +53,16 @@ window.MUSEO_CONFIG = {
   // mineral/Figura azul -> Columna policromada/Plumas/Fragmento de hueso/Azul de añil).
   hotspots: [
     { x: 0.63, y: 0.15, color: "#c8a24b", img: "assets/zoom1.webp",
-      titulo: "Columna policromada", pigmento: "Microscopía", formula: "",
+      titulo: "Columna policromada", pigmento: "Microscopía a 10× de aumento", formula: "",
       nota: "Detalle de columna policromada." },
     { x: 0.82, y: 0.32, color: "#7bd150", img: "assets/zoom2.webp",
-      titulo: "Plumas", pigmento: "Microscopía", formula: "",
+      titulo: "Plumas", pigmento: "Microscopía a 10× de aumento", formula: "",
       nota: "Detalle de plumas de colibrí al interior del relicario." },
     { x: 0.82, y: 0.58, color: "#d9d2c4", img: "assets/zoom3.webp",
-      titulo: "Fragmento de hueso", pigmento: "Microscopía", formula: "",
+      titulo: "Fragmento de hueso", pigmento: "Microscopía a 10× de aumento", formula: "",
       nota: "Detalle de una de las reliquias (posiblemente San Lorenzo)." },
     { x: 0.60, y: 0.78, color: "#4a7bd1", img: "assets/zoom4.webp",
-      titulo: "Azul de añil", pigmento: "Microscopía", formula: "",
+      titulo: "Azul de añil", pigmento: "Microscopía a 10× de aumento", formula: "",
       nota: "Detalle de hilos de oro y perlas, junto a restos de pigmento azul añil o índigo de origen vegetal." }
   ]
 };

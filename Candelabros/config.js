@@ -9,9 +9,9 @@
  */
 window.MUSEO_CONFIG = {
   id: "candelabros",
-  titulo: "Candelabro de vidrio de uranio",
-  subtitulo: "Fluorescencia bajo luz ultravioleta",
-  ficha: "Cristal de uranio · emite niveles bajos de radiación · fluoresce verde intenso brillante al recibir luz UV",
+  titulo: "Candelabros",
+  subtitulo: "Fluorescencia bajo luz ultravioleta UV",
+  ficha: "Cristal de Uranio, mediados del Siglo XX · emite niveles bajos de radiación · fluoresce verde intenso brillante al recibir luz UV",
 
   targetSrc: "assets/targets.mind?v=2",
   targetPreview: "assets/marcador.png",   // RA2 sobre fondo BLANCO (aplanado) — probado: detecta a ~0.5 m (chico) / ~1 m (grande)
