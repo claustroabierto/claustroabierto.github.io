@@ -63,7 +63,7 @@ async function start() {
     const size = p.data.size || 0.07; // radio del aro (ajustable con el editor de círculos del preview)
     const mat = new THREE.MeshBasicMaterial({ color: p.data.color || "#ffffff", transparent: true, opacity: 0, side: THREE.DoubleSide, depthTest: false });
     const ring = new THREE.Mesh(new THREE.RingGeometry(size * 0.7, size, 40), mat);
-    ring.position.set(p.cfg.x, p.cfg.y, 0.03 + i * 0.001); ring.renderOrder = 20 + i;
+    ring.position.set(p.cfg.hotX ?? p.cfg.x, p.cfg.hotY ?? p.cfg.y, 0.03 + i * 0.001); ring.renderOrder = 20 + i;
     ring.userData = { idx: i };
     anchor.group.add(ring);
     return ring;

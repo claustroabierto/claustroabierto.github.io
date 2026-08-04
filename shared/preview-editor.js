@@ -37,15 +37,26 @@ function init() {
   }
   const OV = CFG.overlay;
 
+  // En "microscopias" el x/y del item posiciona la TARJETA entera (imagen con
+  // texto); el aro interactivo tiene su propio hotX/hotY (independiente),
+  // porque la foto del pigmento no siempre cae en el centro geométrico de la
+  // tarjeta. Este editor solo mueve el aro (hotX/hotY) — nunca toca x/y, para
+  // no arrastrar sin querer toda la tarjeta al exportar el JSON.
   function toWorld(item) {
     if (mode === "hotspots") {
       return { lx: OV.offsetX + (item.x - 0.5) * OV.width, ly: OV.offsetY + (0.5 - item.y) * OV.height };
+    }
+    if (mode === "microscopias") {
+      return { lx: item.hotX ?? item.x, ly: item.hotY ?? item.y };
     }
     return { lx: item.x, ly: item.y };
   }
   function fromWorld(lx, ly) {
     if (mode === "hotspots") {
       return { x: fmt(0.5 + (lx - OV.offsetX) / OV.width), y: fmt(0.5 - (ly - OV.offsetY) / OV.height) };
+    }
+    if (mode === "microscopias") {
+      return { hotX: fmt(lx), hotY: fmt(ly) };
     }
     return { x: fmt(lx), y: fmt(ly) };
   }
@@ -139,7 +150,8 @@ function init() {
   function renderPanel() {
     const out = state.map((s, i) => {
       const cfg = fromWorld(s.lx, s.ly);
-      return `#${i + 1} ${(items[i].titulo || "").padEnd(20)} x:${cfg.x} y:${cfg.y} size:${fmt(s.size)}`;
+      const coords = Object.entries(cfg).map(([k, v]) => `${k}:${v}`).join(" ");
+      return `#${i + 1} ${(items[i].titulo || "").padEnd(20)} ${coords} size:${fmt(s.size)}`;
     });
     panel.innerHTML =
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-family:system-ui,sans-serif">' +
@@ -153,7 +165,7 @@ function init() {
     copyBtn.addEventListener("click", () => {
       const arr = state.map((s, i) => {
         const cfg = fromWorld(s.lx, s.ly);
-        return Object.assign({}, items[i], { x: cfg.x, y: cfg.y, size: fmt(s.size) });
+        return Object.assign({}, items[i], cfg, { size: fmt(s.size) });
       });
       navigator.clipboard && navigator.clipboard.writeText(JSON.stringify(arr, null, 2));
     });
