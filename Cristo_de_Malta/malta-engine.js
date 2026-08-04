@@ -242,7 +242,7 @@ async function start() {
     const freed = L.slot;
     if (centerL) { centerL.slot = freed; centerL.peek = false; }
     L.slot = "center"; L.peek = false;
-    setLabel(L.titulo, L.desc, "Toca el centro para ver la obra real");
+    setLabel(L.titulo, L.desc, "Toca el centro para volver a la pintura");
   }
   window.addEventListener("pointerdown", (e) => handleTap(e.clientX, e.clientY, e.target));
   window.addEventListener("touchstart", (e) => {

@@ -18,8 +18,8 @@
 window.MUSEO_CONFIG = {
   id: "Cristo_de_Malta",
   titulo: "Cristo de Malta",
-  subtitulo: "Tres miradas científicas · y una Virgen oculta",
-  ficha: "Óleo colonial · Infrarrojo, ultravioleta y rayos X revelan una imagen anterior bajo la pintura",
+  subtitulo: "Óleo sobre lienzo - Siglo XVIII · Debajo del Cristo hay una pintura anterior · Resultados de imagen científica: UV, IR, Rayos X",
+  ficha: "Óleo sobre lienzo, siglo XVIII · Estudios de imagen científica revelan una imagen anterior bajo la pintura",
 
   targetSrc: "assets/targets.mind",
   targetPreview: "assets/target.jpg",
@@ -34,7 +34,7 @@ window.MUSEO_CONFIG = {
       slot: "left",
       titulo: "Infrarrojo",
       etiqueta: "LUZ INFRARROJA",   // label negro DEBAJO de la imagen (crece/se mueve con ella)
-      desc: "Aflora el dibujo subyacente: las líneas con que el pintor trazó el Cristo antes de pintarlo."
+      desc: "La reflectografía infrarroja revela los trazos de composición, las pinceladas y las inscripciones realizadas por el artista."
     },
     {
       key: "uv",
@@ -43,7 +43,7 @@ window.MUSEO_CONFIG = {
       slot: "right",
       titulo: "Ultravioleta",
       etiqueta: "LUZ ULTRAVIOLETA",
-      desc: "Revela barnices y retoques en la superficie: dónde y cuándo se intervino la obra."
+      desc: "Revela la presencia de barnices oxidados y retoques realizados sobre la superficie de la pintura."
     },
     {
       key: "rx",
@@ -52,7 +52,7 @@ window.MUSEO_CONFIG = {
       slot: "center",
       titulo: "Rayos X",
       etiqueta: "RAYOS X",
-      desc: "Bajo el Cristo hay otra pintura: una Virgen que fue cubierta y quedó oculta durante siglos."
+      desc: "Revela la reutilización del lienzo: bajo la pintura visible del Cristo de Malta se encuentra representada una Virgen de Pomata."
     }
   ]
 };

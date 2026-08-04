@@ -157,7 +157,7 @@ async function start() {
 
     setCaption(t < 0.9 ? "El candelabro sale del marcador…"
       : uv < 0.99 ? "Encendiendo la luz UV…"
-      : "El vidrio de uranio fluoresce verde bajo luz UV · toca para repetir");
+      : "Toca para repetir la fluorescencia");
     renderer.render(scene, camera);
   });
 }
