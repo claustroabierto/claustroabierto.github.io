@@ -45,8 +45,8 @@ window.MUSEO_CONFIG = {
   // Círculos tocables (tocar → zoom de la microscopía). Coords 0..1 sobre el
   // overlay = centro de cada círculo.
   hotspots: [
-    { x: 0.235, y: 0.214, color: "#c98a6a", img: "assets/micro-carnacion.webp", titulo: "Carnación", pigmento: "Bermellón / Albayalde", formula: "HgS · PbCO₃", nota: "El tono de la piel combina bermellón (rojo) y albayalde (blanco de plomo)." },
-    { x: 0.752, y: 0.214, color: "#5c7f4f", img: "assets/micro-verde.webp", titulo: "Verde", pigmento: "Malaquita", formula: "Cu₂CO₃(OH)₂", nota: "Verde mineral de cobre, muy usado en el manto y paisajes." },
+    { x: 0.235, y: 0.245, size: 0.05, color: "#c98a6a", img: "assets/micro-carnacion.webp", titulo: "Carnación", pigmento: "Bermellón / Albayalde", formula: "HgS · PbCO₃", nota: "El tono de la piel combina bermellón (rojo) y albayalde (blanco de plomo)." },
+    { x: 0.76, y: 0.242, size: 0.059, color: "#5c7f4f", img: "assets/micro-verde.webp", titulo: "Verde", pigmento: "Malaquita", formula: "Cu₂CO₃(OH)₂", nota: "Verde mineral de cobre, muy usado en el manto y paisajes." },
     { x: 0.235, y: 0.430, color: "#e8562a", img: "assets/micro-rojo1.webp", titulo: "Rojo", pigmento: "Bermellón", formula: "HgS", nota: "Sulfuro de mercurio: el rojo más intenso del periodo colonial." },
     { x: 0.752, y: 0.430, color: "#c1431f", img: "assets/micro-rojo2.webp", titulo: "Rojo", pigmento: "Bermellón", formula: "HgS", nota: "También presente en los pliegues del manto rojo." },
     { x: 0.235, y: 0.666, color: "#5a79b0", img: "assets/micro-azul.webp", titulo: "Azul", pigmento: "Añil", formula: "C₁₆H₁₀N₂O₂", nota: "Tinte vegetal (índigo) traído del comercio colonial." },

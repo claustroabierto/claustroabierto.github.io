@@ -65,8 +65,21 @@ function init() {
   document.body.appendChild(toggleBtn);
 
   const panel = document.createElement("div");
-  panel.style.cssText = "display:none;position:fixed;left:8px;right:8px;bottom:80px;z-index:99997;background:#0d0b12f2;color:#f4efe6;border:1px solid #c9a24b55;border-radius:12px;padding:10px;font:11px/1.5 ui-monospace,Consolas,monospace;max-height:45vh;overflow:auto";
+  panel.style.cssText = "display:none;position:fixed;left:8px;right:8px;bottom:80px;z-index:99997;background:#0d0b12f2;color:#f4efe6;border:1px solid #c9a24b55;border-radius:12px;padding:10px;font:11px/1.5 ui-monospace,Consolas,monospace;max-height:32vh;overflow:auto";
   document.body.appendChild(panel);
+
+  // El panel tapaba los círculos de abajo (pidieron poder ocultarlo sin salir
+  // del modo edición) — este botón lo esconde/muestra, aparte de "Editar círculos".
+  const panelToggleBtn = document.createElement("button");
+  panelToggleBtn.textContent = "📋 Ocultar panel";
+  panelToggleBtn.style.cssText = "display:none;position:fixed;right:8px;bottom:80px;z-index:99998;background:#171320e6;color:#f4efe6;border:1px solid #c9a24b88;border-radius:20px;padding:6px 10px;font:700 11px system-ui,sans-serif";
+  document.body.appendChild(panelToggleBtn);
+  let panelHidden = false;
+  panelToggleBtn.addEventListener("click", () => {
+    panelHidden = !panelHidden;
+    panelToggleBtn.textContent = panelHidden ? "📋 Mostrar panel" : "📋 Ocultar panel";
+    render();
+  });
 
   const hint = document.createElement("div");
   hint.style.cssText = "position:fixed;left:8px;top:60px;z-index:99997;background:#171320e6;color:#f4efe6;border-radius:8px;padding:6px 10px;font:11px system-ui,sans-serif;display:none";
@@ -115,6 +128,7 @@ function init() {
 
   function render() {
     if (!active) return;
+    panel.style.display = panelHidden ? "none" : "block";
     state.forEach((s, i) => {
       const center = project(s.lx, s.ly);
       const edge = project(s.lx + s.size, s.ly);
@@ -174,7 +188,8 @@ function init() {
   toggleBtn.addEventListener("click", () => {
     active = !active;
     layer.style.display = active ? "block" : "none";
-    panel.style.display = active ? "block" : "none";
+    panel.style.display = active && !panelHidden ? "block" : "none";
+    panelToggleBtn.style.display = active ? "block" : "none";
     hint.style.display = active ? "block" : "none";
     toggleBtn.textContent = active ? "▶ Ver animación" : "🔧 Editar círculos";
     toggleBtn.style.background = active ? "#c9a24b" : "";
