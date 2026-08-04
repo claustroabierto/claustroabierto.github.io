@@ -51,17 +51,19 @@ window.MUSEO_CONFIG = {
   // finales confirmados por el equipo (pg3-4 de "Modificaciones de Texto RA"):
   // reemplazan los provisionales (Columna esmaltada/Cristales verdes/Concreción
   // mineral/Figura azul -> Columna policromada/Plumas/Fragmento de hueso/Azul de añil).
+  // x alineado en 2 columnas (1&4 = 0.628 · 2&3 = 0.824) y size uniformado (0.08),
+  // a partir de lo que pasaron con el editor de círculos del preview.
   hotspots: [
-    { x: 0.63, y: 0.15, color: "#c8a24b", img: "assets/zoom1.webp",
+    { x: 0.628, y: 0.15, size: 0.08, color: "#c8a24b", img: "assets/zoom1.webp",
       titulo: "Columna policromada", pigmento: "Microscopía a 10× de aumento", formula: "",
       nota: "Detalle de columna policromada." },
-    { x: 0.82, y: 0.32, color: "#7bd150", img: "assets/zoom2.webp",
+    { x: 0.824, y: 0.338, size: 0.08, color: "#7bd150", img: "assets/zoom2.webp",
       titulo: "Plumas", pigmento: "Microscopía a 10× de aumento", formula: "",
       nota: "Detalle de plumas de colibrí al interior del relicario." },
-    { x: 0.82, y: 0.58, color: "#d9d2c4", img: "assets/zoom3.webp",
+    { x: 0.824, y: 0.606, size: 0.08, color: "#d9d2c4", img: "assets/zoom3.webp",
       titulo: "Fragmento de hueso", pigmento: "Microscopía a 10× de aumento", formula: "",
       nota: "Detalle de una de las reliquias (posiblemente San Lorenzo)." },
-    { x: 0.60, y: 0.78, color: "#4a7bd1", img: "assets/zoom4.webp",
+    { x: 0.628, y: 0.785, size: 0.08, color: "#4a7bd1", img: "assets/zoom4.webp",
       titulo: "Azul de añil", pigmento: "Microscopía a 10× de aumento", formula: "",
       nota: "Detalle de hilos de oro y perlas, junto a restos de pigmento azul añil o índigo de origen vegetal." }
   ]
