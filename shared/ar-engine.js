@@ -83,6 +83,27 @@ async function start() {
     (CFG.extras || []).forEach((ex, i) => addLayer(ex, 0.002 + i * 0.001));
   }
 
+  // Microscopía en secuencia, INDEPENDIENTE del slider de revelado (opcional):
+  // si la pieza trae `microReveals`, esas capas (título + fotos + recuadros)
+  // se animan solas al detectar la obra, una por una, sin depender de `reveal`
+  // (que solo controla el overlay principal / rayos X). Antes compartían la
+  // misma capa que el rayos X y se desvanecían juntos con el slider — pedido
+  // del equipo: la microscopía tiene que aparecer sola, no apagarse con el
+  // rayos X. Coordenadas = mismas del overlay (son recortes del mismo lienzo).
+  const hasMicro = !!(CFG.microReveals && CFG.microReveals.length);
+  const microMats = [];
+  if (hasMicro) {
+    CFG.microReveals.forEach((src, i) => {
+      const tex = loader.load(src); tex.colorSpace = THREE.SRGBColorSpace;
+      const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0, depthTest: false, depthWrite: false });
+      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(ov.width, ov.height), mat);
+      mesh.position.set(ov.offsetX, ov.offsetY, 0.003 + i * 0.001);
+      mesh.renderOrder = i;
+      anchor.group.add(mesh);
+      microMats.push(mat);
+    });
+  }
+
   // --- Hotspots (anillo visual + disco invisible de toque, más grande) ---
   const hotMeshes = [];  // aros visuales (pulsan)
   const hitMeshes = [];  // discos invisibles para el raycast (área de toque amplia)
@@ -107,15 +128,23 @@ async function start() {
 
   // --- Estado de detección + UI ---
   let visible = false;
-  let seqReady = false; // modo seq: true recién cuando terminaron todos los reveals
-  let seqStart = 0;   // instante en que arrancó el revelado secuencial
-  anchor.onTargetFound = () => { visible = true; $("scan").style.display = "none"; $("panel").classList.add("on"); if (seq) seqStart = performance.now(); };
+  let seqReady = false;   // modo seq: true recién cuando terminaron todos los reveals
+  let seqStart = 0;       // instante en que arrancó el revelado secuencial
+  let microReady = false; // modo microReveals: true recién cuando terminó toda la secuencia
+  let microStart = 0;     // instante en que arrancó el revelado de microscopía
+  anchor.onTargetFound = () => {
+    visible = true; $("scan").style.display = "none"; $("panel").classList.add("on");
+    if (seq) seqStart = performance.now();
+    if (hasMicro) microStart = performance.now();
+  };
   anchor.onTargetLost = () => { visible = false; $("scan").style.display = "flex"; $("panel").classList.remove("on"); closeCard(); };
 
   // Slider de revelado (interactivo): 0 = pintura limpia, 1 = análisis completo.
-  // En modo secuencial no aplica: el revelado se anima solo y el botón REPITE.
+  // Arranca a la mitad (pedido del equipo) para que se note de entrada que es
+  // interactivo, en vez de arrancar en "pintura limpia". En modo secuencial no
+  // aplica: el revelado se anima solo y el botón REPITE.
   const slider = $("reveal");
-  let reveal = 0;
+  let reveal = 0.5;
   slider.addEventListener("input", () => { reveal = slider.value / 100; });
   $("btn-toggle").addEventListener("click", () => {
     if (seq) { if (visible) seqStart = performance.now(); return; }
@@ -128,12 +157,17 @@ async function start() {
     const ph = slider.closest("#panel") && slider.closest("#panel").querySelector(".hint");
     if (ph) ph.textContent = CFG.hintSeq || "Las microscopías aparecen una por una · toca cada círculo ● para ver el detalle";
   }
+  // Botón aparte para repetir SOLO la secuencia de microscopía (el de "Revelar"
+  // sigue siendo nada más del rayos X).
+  const btnRepeat = $("btn-repeat");
+  if (btnRepeat) btnRepeat.addEventListener("click", () => { if (visible && hasMicro) microStart = performance.now(); });
 
   // --- Toque sobre hotspots (proyección a pantalla + distancia; robusto en iOS) ---
   const _wp = new THREE.Vector3();
   function handleTap(clientX, clientY, target) {
     if (!visible) return;
     if (seq && !seqReady) return; // esperar a que termine el revelado uno por uno
+    if (hasMicro && !microReady) return; // esperar a que termine la microscopía
     // ignorar toques sobre la UI (panel, tarjeta, barra)
     if (target && target.closest && target.closest("#panel, #card, #topbar, #zoom")) return;
     let best = -1, bestD = Infinity;
@@ -231,15 +265,39 @@ async function start() {
         m.material.opacity += ((seqReady ? 0.9 : 0) - m.material.opacity) * 0.15;
       });
     } else {
-      // fade de todas las capas según revelado
+      // fade de la capa principal (overlay / rayos X) según revelado — la
+      // microscopía NO va acá: tiene su propio revelado más abajo, para que
+      // no se apague junto con el rayos X.
       fadeMats.forEach((m) => { m.opacity += (reveal - m.opacity) * 0.15; });
-      // pulso de los anillos, escalado por revelado
-      hotMeshes.forEach((m) => {
-        const pulse = 1 + Math.sin(t * 3) * 0.12;
-        const s = pulse * m.userData.base;
-        m.scale.set(s, s, s);
-        m.material.opacity = 0.15 + reveal * 0.85;
-      });
+
+      if (hasMicro) {
+        // Microscopía en secuencia: cada recorte (foto o recuadro) aparece en
+        // su turno, sola, arrancando al detectar la obra (o al tocar Repetir).
+        const et = (performance.now() - microStart) / 1000;
+        let shown = 0;
+        microMats.forEach((m, i) => {
+          const o = visible ? step(0.2 + i * INTER, 0.2 + i * INTER + 0.5, et) : 0;
+          m.opacity += (o - m.opacity) * 0.3;
+          if (o > 0.5) shown++;
+        });
+        // Los aros tocables se encienden recién cuando terminó toda la
+        // secuencia (mismo criterio que el modo seq).
+        microReady = microMats.length > 0 && shown >= microMats.length;
+        hotMeshes.forEach((m) => {
+          const pulse = 1 + Math.sin(t * 3) * 0.12;
+          const s = pulse * m.userData.base;
+          m.scale.set(s, s, s);
+          m.material.opacity += ((microReady ? 0.9 : 0) - m.material.opacity) * 0.15;
+        });
+      } else {
+        // pulso de los anillos, escalado por revelado
+        hotMeshes.forEach((m) => {
+          const pulse = 1 + Math.sin(t * 3) * 0.12;
+          const s = pulse * m.userData.base;
+          m.scale.set(s, s, s);
+          m.material.opacity = 0.15 + reveal * 0.85;
+        });
+      }
     }
     renderer.render(scene, camera);
   });
