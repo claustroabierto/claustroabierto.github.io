@@ -37,12 +37,28 @@ async function start() {
   const loader = new THREE.TextureLoader();
   const tx = (s) => { const t = loader.load(s); t.colorSpace = THREE.SRGBColorSpace; return t; };
 
+  // El target RA7 se imprimió más chico de lo previsto (3cm) y, como todo el
+  // tamaño de la pieza está en unidades "ancho del target = 1", el análisis
+  // salía chico en pantalla. En vez de tocar cada medida a mano (y que quede
+  // atado a ESTE tamaño de impresión en particular), todo el contenido vive
+  // en un grupo aparte (`content`) al que se le compensa la escala cada
+  // cuadro según la distancia real cámara↔target: MindAR no sabe de
+  // centímetros, solo mide esa distancia en sus propias unidades, así que
+  // "target chico" y "cámara lejos" son exactamente lo mismo para este
+  // cálculo. `REF` = la distancia a la que el tamaño queda "normal" (1x) —
+  // ajustar probando con el target real hasta que cubra bien la pantalla a
+  // la distancia en que la gente sostiene el celular.
+  const content = new THREE.Group();
+  anchor.group.add(content);
+  const REF = 1.4, MIN_SCALE = 1, MAX_SCALE = 4;
+  const _camPos = new THREE.Vector3(), _ancPos = new THREE.Vector3();
+
   const OV = CFG.overlay;
   // Todas las capas son el mismo marco (full-frame) -> misma geometría.
   function layer(src, z, ro) {
     const mat = new THREE.MeshBasicMaterial({ map: tx(src), transparent: true, opacity: 0, depthTest: false, depthWrite: false });
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(OV.width, OV.height), mat);
-    mesh.position.set(OV.offsetX, OV.offsetY, z); mesh.renderOrder = ro; anchor.group.add(mesh);
+    mesh.position.set(OV.offsetX, OV.offsetY, z); mesh.renderOrder = ro; content.add(mesh);
     return { mesh, mat };
   }
   const original = layer(CFG.original, 0.001, 1);
@@ -54,7 +70,7 @@ async function start() {
     const lx = OV.offsetX + (h.x - 0.5) * OV.width;
     const ly = OV.offsetY + (0.5 - h.y) * OV.height;
     const m = new THREE.Mesh(new THREE.CircleGeometry(0.16, 20), new THREE.MeshBasicMaterial({ visible: false }));
-    m.position.set(lx, ly, 0.02); m.userData = { idx: i, data: h }; anchor.group.add(m); return m;
+    m.position.set(lx, ly, 0.02); m.userData = { idx: i, data: h }; content.add(m); return m;
   });
 
   // --- Estado / UI ---
@@ -124,6 +140,22 @@ async function start() {
 
   renderer.setAnimationLoop(() => {
     const t = clock.getElapsedTime() - startT;
+
+    // Compensación de escala por distancia (ver comentario más arriba):
+    // multiplicar por la distancia real cancela la división por distancia
+    // que hace la proyección en pantalla, así el tamaño aparente queda
+    // igual sin importar qué tan lejos/cerca esté el celular del target.
+    // No aplica en el preview sin cámara: ahí la "distancia" es un número
+    // inventado por la cámara falsa para encuadrar bonito, no una medida
+    // real, así que compensarla solo lo desencuadra sin decir nada del
+    // tamaño real de impresión — este ajuste hay que probarlo en el celular.
+    if (visible && !window.__previewMindAR) {
+      camera.getWorldPosition(_camPos);
+      content.getWorldPosition(_ancPos);
+      const dist = _camPos.distanceTo(_ancPos);
+      content.scale.setScalar(THREE.MathUtils.clamp(dist / REF, MIN_SCALE, MAX_SCALE));
+    }
+
     const appO = visible ? step(T_ORIG[0], T_ORIG[1], t) : 0;
     const appR = visible ? step(T_RX[0], T_RX[1], t) : 0;
     original.mat.opacity = appO;
