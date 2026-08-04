@@ -12,7 +12,8 @@ window.MUSEO_CONFIG = {
   id: "Inmaculada_Concepcion",
   titulo: "La Inmaculada Concepción",
   subtitulo: "Microscopía y materialidad · pigmentos",
-  ficha: "Óleo sobre lienzo · Escuela colonial · Análisis científico de pigmentos",
+  ficha: "Óleo sobre lienzo, siglo XVIII · Identificación de pigmentos históricos",
+  hintSeq: "Análisis de pigmentos con FRX y microscopía · Toca cada círculo para ampliar",
 
   targetSrc: "assets/targets.mind",
   targetPreview: "assets/target.jpg",

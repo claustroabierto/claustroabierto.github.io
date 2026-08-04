@@ -86,20 +86,19 @@ async function start() {
   // --- Hotspots (anillo visual + disco invisible de toque, más grande) ---
   const hotMeshes = [];  // aros visuales (pulsan)
   const hitMeshes = [];  // discos invisibles para el raycast (área de toque amplia)
-  const ringGeo = new THREE.RingGeometry(0.05, 0.07, 40);
-  const hitGeo = new THREE.CircleGeometry(0.11, 24);
   (CFG.hotspots || []).forEach((h, i) => {
     const lx = ov.offsetX + (h.x - 0.5) * ov.width;
     const ly = ov.offsetY + (0.5 - h.y) * ov.height; // y invertida
+    const size = h.size || 0.07; // radio del aro (ajustable con el editor de círculos del preview)
     const mat = new THREE.MeshBasicMaterial({ color: h.color || "#ffffff", transparent: true, opacity: 0.95, side: THREE.DoubleSide, depthTest: false, depthWrite: false });
-    const ring = new THREE.Mesh(ringGeo, mat);
+    const ring = new THREE.Mesh(new THREE.RingGeometry(size * 0.7, size, 40), mat);
     ring.position.set(lx, ly, 0.006);
     ring.renderOrder = 30 + i; // por encima de los reveals secuenciales (hasta renderOrder 8) y del overlay
     ring.userData = { idx: i, base: 1 };
     anchor.group.add(ring);
     hotMeshes.push(ring);
 
-    const hit = new THREE.Mesh(hitGeo, new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide }));
+    const hit = new THREE.Mesh(new THREE.CircleGeometry(Math.max(size * 1.6, 0.11), 24), new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide }));
     hit.position.set(lx, ly, 0.007);
     hit.userData = { idx: i };
     anchor.group.add(hit);

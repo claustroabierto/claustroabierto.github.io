@@ -18,8 +18,8 @@
 window.MUSEO_CONFIG = {
   id: "jesus_nazareno",
   titulo: "Jesús Nazareno",
-  subtitulo: "El Cristo sale de la pintura · apunta al cuadro",
-  ficha: "Cristo camino al Calvario · pintura colonial con pan de oro. La figura se despega del plano y avanza hacia ti.",
+  subtitulo: "Jesús Nazareno cobra vida y peregrina con la Santa Cruz camino al calvario",
+  ficha: "Jesús Nazareno sale de la pintura y peregrina de un lado al otro camino al calvario · Pintura virreinal con detalles en pan de oro.",
 
   targetSrc: "assets/targets.mind?v=1",      // la pintura completa (fondo+Cristo)
   targetPreview: "assets/marcador.jpg",

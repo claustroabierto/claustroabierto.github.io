@@ -21,6 +21,29 @@ function loadImage(src) {
   });
 }
 
+// Recorre TODO el config buscando objetos con forma "overlay" (offsetX/offsetY +
+// width/height) o "capa" (x/y + width[/aspect]) — los dos patrones que usan las
+// piezas para plantar cosas en el espacio — y arma la caja que las contiene a
+// todas. Así el encuadre del preview no depende de adivinar por pieza: cubre
+// etiquetas/paneles que se extienden bien afuera de la foto plana del cuadro
+// (pasaba en Inmaculada: las etiquetas de microscopía quedaban cortadas arriba).
+function scanBBox(node, bbox, seen) {
+  if (!node || typeof node !== "object" || seen.has(node)) return;
+  seen.add(node);
+  if (Array.isArray(node)) { node.forEach((n) => scanBBox(n, bbox, seen)); return; }
+  const hasOverlay = typeof node.offsetX === "number" && typeof node.width === "number";
+  const hasCapa = typeof node.x === "number" && typeof node.y === "number" && typeof node.width === "number";
+  if (hasOverlay || hasCapa) {
+    const cx = hasOverlay ? node.offsetX : node.x;
+    const cy = hasOverlay ? (node.offsetY || 0) : node.y;
+    const w = node.width;
+    const h = hasOverlay ? (node.height || w) : (node.aspect ? node.width / node.aspect : w);
+    bbox.minX = Math.min(bbox.minX, cx - w / 2); bbox.maxX = Math.max(bbox.maxX, cx + w / 2);
+    bbox.minY = Math.min(bbox.minY, cy - h / 2); bbox.maxY = Math.max(bbox.maxY, cy + h / 2);
+  }
+  Object.values(node).forEach((v) => { if (v && typeof v === "object") scanBBox(v, bbox, seen); });
+}
+
 export class MindARThree {
   constructor(opts) {
     this.container = opts.container;
@@ -41,13 +64,21 @@ export class MindARThree {
     };
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(40, 1, 0.01, 100);
-    this._need = 2.6; // ancho/alto visible por defecto (algunas piezas tienen paneles
-    // laterales bien anchos, ej. Santa Teresa/Escapulario) — mejor que sobre margen a
-    // que se corten; se ajusta un poco al cargar la foto de fondo.
+    this._need = 3.4; // ancho/alto visible por defecto — bien alejado (pidieron ver
+    // todo más chico, no llenando la pantalla); se ajusta un poco al cargar la foto.
     this._anchors = [];
     this._onResize = () => this._resize();
     window.addEventListener("resize", this._onResize);
+    // Zoom manual con la rueda del mouse / pellizco de dos dedos, para laptop.
+    this.container.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      this._need = Math.min(8, Math.max(0.8, this._need * (1 + e.deltaY * 0.001)));
+      this._resize();
+    }, { passive: false });
     this._resize();
+
+    // Expuesto para la herramienta de edición de círculos (shared/preview-editor.js).
+    window.__previewMindAR = this;
   }
 
   _resize() {
@@ -59,8 +90,9 @@ export class MindARThree {
     const a = w / h;
     const halfV = Math.tan(THREE.MathUtils.degToRad(this.camera.fov) / 2);
     const dz = a >= 1 ? this._need / 2 / (halfV * a) : this._need / 2 / halfV;
-    this.camera.position.set(0, 0, Math.max(1.4, dz));
-    this.camera.lookAt(0, 0, 0);
+    const lookAt = this._lookAt || { x: 0, y: 0 };
+    this.camera.position.set(lookAt.x, lookAt.y, Math.max(1.4, dz));
+    this.camera.lookAt(lookAt.x, lookAt.y, 0);
   }
 
   addAnchor() {
@@ -68,6 +100,7 @@ export class MindARThree {
     this.scene.add(group);
     const anchor = { group, onTargetFound: null, onTargetLost: null };
     this._anchors.push(anchor);
+    window.__previewAnchors = this._anchors;
     return anchor;
   }
 
@@ -76,9 +109,17 @@ export class MindARThree {
     const img = await loadImage(CFG.targetPreview);
     if (img && img.naturalWidth) {
       const w = 1, h = img.naturalHeight / img.naturalWidth;
-      // Margen generoso: varias piezas tienen paneles/columnas que se extienden bien
-      // más allá del ancho de la foto (microscopías al costado, etc.).
-      this._need = Math.max(Math.max(w, h) * 1.4, 2.4);
+
+      // Encuadre real: caja que contiene la foto Y todo lo que la pieza planta
+      // encima (overlays, capas, microscopías...), no solo la foto sola.
+      const bbox = { minX: -w / 2, maxX: w / 2, minY: -h / 2, maxY: h / 2 };
+      scanBBox(CFG, bbox, new Set());
+      const need = Math.max(bbox.maxX - bbox.minX, bbox.maxY - bbox.minY) * 1.15;
+      this._need = Math.max(need, 1.2);
+      // Si la caja no queda centrada en (0,0) (p.ej. paneles bien corridos a un
+      // lado), centramos la cámara en el medio real en vez de en el origen.
+      this._lookAt = { x: (bbox.minX + bbox.maxX) / 2, y: (bbox.minY + bbox.maxY) / 2 };
+
       const tex = new THREE.TextureLoader().load(CFG.targetPreview);
       tex.colorSpace = THREE.SRGBColorSpace;
       const mesh = new THREE.Mesh(

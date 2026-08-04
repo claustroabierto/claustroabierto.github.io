@@ -53,16 +53,16 @@ async function start() {
   // + anillo visible del color de cada muestra (mismo patrón que escapulario), para
   // que se note dónde tocar. El anillo solo se enciende cuando `ready` (las 4
   // microscopías ya terminaron de aparecer) — antes de eso no hay nada que tocar.
-  const ringGeo = new THREE.RingGeometry(0.06, 0.08, 40);
   const hotMeshes = [];
   const hits = (CFG.hotspots || []).map((h, i) => {
     const lx = OV.offsetX + (h.x - 0.5) * OV.width;
     const ly = OV.offsetY + (0.5 - h.y) * OV.height;
-    const m = new THREE.Mesh(new THREE.CircleGeometry(0.16, 20), new THREE.MeshBasicMaterial({ visible: false }));
+    const size = h.size || 0.08; // radio del aro (ajustable con el editor de círculos del preview)
+    const m = new THREE.Mesh(new THREE.CircleGeometry(size * 2, 20), new THREE.MeshBasicMaterial({ visible: false }));
     m.position.set(lx, ly, 0.02); m.userData = { idx: i, data: h }; anchor.group.add(m);
 
     const ringMat = new THREE.MeshBasicMaterial({ color: h.color || "#ffffff", transparent: true, opacity: 0, side: THREE.DoubleSide, depthTest: false, depthWrite: false });
-    const ring = new THREE.Mesh(ringGeo, ringMat);
+    const ring = new THREE.Mesh(new THREE.RingGeometry(size * 0.75, size, 40), ringMat);
     ring.position.set(lx, ly, 0.021); ring.renderOrder = 20 + i; ring.userData = { idx: i };
     anchor.group.add(ring); hotMeshes.push(ring);
 
