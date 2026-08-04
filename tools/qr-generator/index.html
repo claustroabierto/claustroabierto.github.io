@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Generador de QR fijos · Museo Ayacucho</title>
+<style>
+  :root{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  *{box-sizing:border-box}
+  body{background:#0d0b12;color:#f4efe6;margin:0;padding:24px 16px 60px;display:flex;flex-direction:column;align-items:center;gap:18px}
+  h1{font-size:20px;margin:0 0 4px;text-align:center}
+  p.lead{max-width:640px;text-align:center;font-size:13px;line-height:1.6;opacity:.78;margin:0}
+  .k{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#c9a24b;opacity:.9}
+  .panel{background:#171320;border:1px solid #ffffff1a;border-radius:14px;padding:20px;width:100%;max-width:560px;display:flex;flex-direction:column;gap:14px}
+  label{font-size:12px;opacity:.8;display:block;margin-bottom:6px}
+  select,input[type=text],input[type=file]{width:100%;background:#0d0b12;color:#f4efe6;border:1px solid #ffffff2a;border-radius:8px;padding:9px 10px;font-size:14px}
+  input[type=range]{width:100%}
+  .row{display:flex;gap:14px;flex-wrap:wrap}
+  .row>div{flex:1;min-width:180px}
+  .logo-choices{display:flex;gap:8px;flex-wrap:wrap}
+  .logo-choices label{display:flex;align-items:center;gap:6px;background:#0d0b12;border:1px solid #ffffff2a;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;margin:0}
+  .logo-choices img{width:20px;height:20px;object-fit:contain;background:#fff;border-radius:3px}
+  .logo-choices input{margin:0;accent-color:#c9a24b}
+  #sizeVal{color:#c9a24b}
+  .preview{display:flex;flex-direction:column;align-items:center;gap:10px}
+  #qrCanvas{background:#fff;border-radius:8px;max-width:100%;height:auto}
+  .linkOut{font-size:12px;word-break:break-all;color:#9fd1ff;text-align:center}
+  button{background:#c9a24b;color:#0d0b12;border:none;border-radius:8px;padding:11px 18px;font-size:14px;font-weight:700;cursor:pointer}
+  button:hover{filter:brightness(1.08)}
+  button.secondary{background:transparent;color:#f4efe6;border:1px solid #ffffff33;font-weight:500}
+  footer{font-size:11px;opacity:.5;max-width:560px;text-align:center;line-height:1.6}
+</style>
+</head>
+<body>
+  <div class="k">Realidad Aumentada · Museo Ayacucho</div>
+  <h1>Generador de QR fijos</h1>
+  <p class="lead">
+    El QR nunca cambia porque apunta directo a <b>claustroabierto.github.io</b> (hosting gratis
+    permanente, sin dominio propio). No pasa por ningún acortador ni servicio de terceros, así que
+    no puede vencer, mostrar publicidad ni requerir cuenta. Todo se genera en tu navegador,
+    sin internet una vez cargada esta página.
+  </p>
+
+  <div class="panel">
+    <div>
+      <label for="linkSelect">Enlace</label>
+      <select id="linkSelect"></select>
+    </div>
+    <div>
+      <label for="customUrl">O escribe/edita la URL directamente</label>
+      <input type="text" id="customUrl" />
+    </div>
+
+    <div>
+      <label>Logo al centro (opcional)</label>
+      <div class="logo-choices" id="logoChoices"></div>
+      <input type="file" id="logoUpload" accept="image/*" style="margin-top:8px" />
+    </div>
+
+    <div>
+      <label for="logoSize">Tamaño del logo: <span id="sizeVal">22%</span></label>
+      <input type="range" id="logoSize" min="0" max="28" value="22" />
+    </div>
+
+    <div class="row">
+      <button id="regen">Generar</button>
+      <button class="secondary" id="download">Descargar PNG (alta resolución)</button>
+    </div>
+  </div>
+
+  <div class="preview">
+    <canvas id="qrCanvas"></canvas>
+    <div class="linkOut" id="linkOut"></div>
+  </div>
+
+  <footer>
+    Corrección de errores nivel H (recupera hasta ~30% del código) para que el logo no rompa la
+    lectura. Aun así: <b>probar siempre con el celular real</b> antes de imprimir en tamaño final,
+    igual que se prueba el tracking de cada pieza.
+  </footer>
+
+<script src="qrcode.lib.js"></script>
+<script>
+  const BASE = 'https://claustroabierto.github.io/';
+  const LINKS = [
+    ['', 'Portada (todas las obras)'],
+    ['San_Francisco_de_Borja/', 'San Francisco de Borja'],
+    ['Wawa_pampay/', 'Wawapampay'],
+    ['Inmaculada_Concepcion/', 'La Inmaculada'],
+    ['escapulario/', 'Escapulario'],
+    ['salvilla/', 'Salvilla de plata'],
+    ['Candelabros/', 'Vidrio de uranio'],
+    ['Cristo_de_Malta/', 'Cristo de Malta'],
+    ['Extasis_de_Santa_Teresa/', 'Éxtasis de Santa Teresa'],
+    ['Virgen_de_la_Soledad_de_Madrid/', 'Virgen Dolorosa'],
+    ['Palio_procesional/', 'Mantón de Manila'],
+    ['relicario/', 'Relicario'],
+    ['Florero/', 'Cerámica vidriada'],
+    ['Jesus_Nazareno/', 'Jesús Nazareno'],
+  ];
+
+  const LOGOS = [
+    ['none', 'Sin logo', null],
+    ['carmelitas', 'Carmelitas', '../../shared/logos/carmelitas.webp'],
+    ['utec', 'UTEC', '../../shared/logos/utec.webp'],
+    ['embajada', 'Embajada', '../../shared/logos/embajada.webp'],
+  ];
+
+  const linkSelect = document.getElementById('linkSelect');
+  const customUrl = document.getElementById('customUrl');
+  const logoChoices = document.getElementById('logoChoices');
+  const logoUpload = document.getElementById('logoUpload');
+  const logoSizeInput = document.getElementById('logoSize');
+  const sizeVal = document.getElementById('sizeVal');
+  const canvas = document.getElementById('qrCanvas');
+  const linkOut = document.getElementById('linkOut');
+  const ctx = canvas.getContext('2d');
+
+  let selectedLogoSrc = null;
+  let uploadedLogoUrl = null;
+
+  LINKS.forEach(([path, label]) => {
+    const opt = document.createElement('option');
+    opt.value = BASE + path;
+    opt.textContent = label;
+    linkSelect.appendChild(opt);
+  });
+
+  LOGOS.forEach(([id, label, src], i) => {
+    const wrap = document.createElement('label');
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'logo';
+    radio.value = id;
+    radio.checked = i === 0;
+    radio.addEventListener('change', () => { selectedLogoSrc = src; uploadedLogoUrl = null; draw(); });
+    wrap.appendChild(radio);
+    if (src) {
+      const img = document.createElement('img');
+      img.src = src;
+      wrap.appendChild(img);
+    }
+    wrap.appendChild(document.createTextNode(label));
+    logoChoices.appendChild(wrap);
+  });
+
+  logoUpload.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    uploadedLogoUrl = URL.createObjectURL(file);
+    document.querySelectorAll('input[name=logo]').forEach(r => r.checked = false);
+    draw();
+  });
+
+  linkSelect.addEventListener('change', () => { customUrl.value = linkSelect.value; draw(); });
+  customUrl.addEventListener('input', draw);
+  logoSizeInput.addEventListener('input', () => { sizeVal.textContent = logoSizeInput.value + '%'; draw(); });
+  document.getElementById('regen').addEventListener('click', draw);
+
+  function draw() {
+    const url = customUrl.value.trim();
+    linkOut.textContent = url;
+    if (!url) { ctx.clearRect(0, 0, canvas.width, canvas.height); return; }
+
+    const qr = qrcode(0, 'H');
+    qr.addData(url);
+    qr.make();
+
+    const moduleCount = qr.getModuleCount();
+    const quietZone = 4; // módulos, mínimo recomendado por la especificación QR
+    const targetPx = 1600;
+    const cell = Math.max(4, Math.round(targetPx / (moduleCount + quietZone * 2)));
+    const size = (moduleCount + quietZone * 2) * cell;
+
+    canvas.width = size;
+    canvas.height = size;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, size, size);
+    ctx.fillStyle = '#000000';
+    for (let r = 0; r < moduleCount; r++) {
+      for (let c = 0; c < moduleCount; c++) {
+        if (qr.isDark(r, c)) {
+          ctx.fillRect((c + quietZone) * cell, (r + quietZone) * cell, cell, cell);
+        }
+      }
+    }
+
+    const logoUrl = uploadedLogoUrl || selectedLogoSrc;
+    const pct = Number(logoSizeInput.value);
+    if (logoUrl && pct > 0) {
+      const img = new Image();
+      img.onload = () => {
+        const logoSize = size * (pct / 100);
+        const pad = logoSize * 0.14;
+        const cx = size / 2, cy = size / 2;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cx - logoSize / 2 - pad, cy - logoSize / 2 - pad, logoSize + pad * 2, logoSize + pad * 2);
+        // encaja el logo manteniendo proporción dentro del cuadro
+        const ratio = Math.min(logoSize / img.width, logoSize / img.height);
+        const w = img.width * ratio, h = img.height * ratio;
+        ctx.drawImage(img, cx - w / 2, cy - h / 2, w, h);
+      };
+      img.src = logoUrl;
+    }
+  }
+
+  document.getElementById('download').addEventListener('click', () => {
+    const a = document.createElement('a');
+    const url = customUrl.value.trim();
+    const name = (LINKS.find(([p]) => BASE + p === url)?.[1] || 'qr')
+      .toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-');
+    a.download = `qr-${name}.png`;
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  });
+
+  // estado inicial
+  linkSelect.value = BASE;
+  customUrl.value = BASE;
+  draw();
+</script>
+</body>
+</html>
