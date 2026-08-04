@@ -111,7 +111,12 @@ async function start() {
     const lx = ov.offsetX + (h.x - 0.5) * ov.width;
     const ly = ov.offsetY + (0.5 - h.y) * ov.height; // y invertida
     const size = h.size || 0.07; // radio del aro (ajustable con el editor de círculos del preview)
-    const mat = new THREE.MeshBasicMaterial({ color: h.color || "#ffffff", transparent: true, opacity: 0.95, side: THREE.DoubleSide, depthTest: false, depthWrite: false });
+    // Arranca en opacity 0: en los modos que HACEN FADE-IN del aro (seq /
+    // microReveals, más abajo) el valor inicial importa porque se acerca a su
+    // meta de a poco (`+=`) — si arrancaba en 0.95 el aro se veía de entrada
+    // como un flash suelto, antes de que aparezcan las fotos. En el modo con
+    // slider no afecta: ese la pisa entera cada frame.
+    const mat = new THREE.MeshBasicMaterial({ color: h.color || "#ffffff", transparent: true, opacity: 0, side: THREE.DoubleSide, depthTest: false, depthWrite: false });
     const ring = new THREE.Mesh(new THREE.RingGeometry(size * 0.7, size, 40), mat);
     ring.position.set(lx, ly, 0.006);
     ring.renderOrder = 30 + i; // por encima de los reveals secuenciales (hasta renderOrder 8) y del overlay
