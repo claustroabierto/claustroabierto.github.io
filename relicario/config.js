@@ -14,14 +14,14 @@
  *  transparente) colocados donde estaba el rayos X del composite, así las flechas
  *  de las microscopías (micro1..4, recortes del composite del equipo) apuntan bien.
  *
- *  ⚠ Textos de cada microscopía PROVISIONALES (descripción visual): el equipo debe
- *  dar los reales. Posición sobre el RA6 = preferencia (mover con align.html).
+ *  Textos de cada microscopía confirmados por el equipo (2026-08-03, "Modificaciones
+ *  de Texto RA"). Posición sobre el RA6 = preferencia (mover con align.html).
  */
 window.MUSEO_CONFIG = {
   id: "relicario",
   titulo: "Relicario",
   subtitulo: "Original, rayos X y microscopía · escanea el marcador RA",
-  ficha: "Relicario de oro con reliquias y esmaltes · Desliza para ver el rayos X; toca cada microscopía",
+  ficha: "Relicario, Siglo XVIII, plata dorada, pigmentos, papel y plumas.",
 
   targetSrc: "assets/targets.mind?v=2",   // MARCADOR RA6 (letras)
   targetPreview: "assets/ra6-target.jpg",
@@ -47,19 +47,22 @@ window.MUSEO_CONFIG = {
     "assets/micro4.webp?v=8"              // figura azul + flecha
   ],
 
-  // 4 microscopías tocables (coords normalizadas sobre el marco) — solo para el zoom.
+  // 4 microscopías tocables (coords normalizadas sobre el marco). Textos y nombres
+  // finales confirmados por el equipo (pg3-4 de "Modificaciones de Texto RA"):
+  // reemplazan los provisionales (Columna esmaltada/Cristales verdes/Concreción
+  // mineral/Figura azul -> Columna policromada/Plumas/Fragmento de hueso/Azul de añil).
   hotspots: [
     { x: 0.63, y: 0.15, color: "#c8a24b", img: "assets/zoom1.webp",
-      titulo: "Columna esmaltada", pigmento: "Microscopía", formula: "",
-      nota: "Esmalte azul y dorado sobre la filigrana. (texto provisional — confirmar con el equipo)" },
+      titulo: "Columna policromada", pigmento: "Microscopía", formula: "",
+      nota: "Detalle de columna policromada." },
     { x: 0.82, y: 0.32, color: "#7bd150", img: "assets/zoom2.webp",
-      titulo: "Cristales verdes", pigmento: "Microscopía", formula: "",
-      nota: "Formaciones cristalinas verdes. (texto provisional — confirmar con el equipo)" },
+      titulo: "Plumas", pigmento: "Microscopía", formula: "",
+      nota: "Detalle de plumas de colibrí al interior del relicario." },
     { x: 0.82, y: 0.58, color: "#d9d2c4", img: "assets/zoom3.webp",
-      titulo: "Concreción mineral", pigmento: "Microscopía", formula: "",
-      nota: "Concreción porosa blanquecina. (texto provisional — confirmar con el equipo)" },
+      titulo: "Fragmento de hueso", pigmento: "Microscopía", formula: "",
+      nota: "Detalle de una de las reliquias (posiblemente San Lorenzo)." },
     { x: 0.60, y: 0.78, color: "#4a7bd1", img: "assets/zoom4.webp",
-      titulo: "Figura azul", pigmento: "Microscopía", formula: "",
-      nota: "Esmalte azul con hilos de oro y perlas. (texto provisional — confirmar con el equipo)" }
+      titulo: "Azul de añil", pigmento: "Microscopía", formula: "",
+      nota: "Detalle de hilos de oro y perlas, junto a restos de pigmento azul añil o índigo de origen vegetal." }
   ]
 };

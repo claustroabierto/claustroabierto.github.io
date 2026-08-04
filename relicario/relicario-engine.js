@@ -49,12 +49,24 @@ async function start() {
   const rxL      = layer(CFG.rx, 0.002, 2);
   const micros   = (CFG.reveals || []).map((src, i) => layer(src, 0.003 + i * 0.001, 5 + i));
 
-  // Discos invisibles de toque en cada hotspot (coords normalizadas sobre el marco).
+  // Discos invisibles de toque en cada hotspot (coords normalizadas sobre el marco)
+  // + anillo visible del color de cada muestra (mismo patrón que escapulario), para
+  // que se note dónde tocar. El anillo solo se enciende cuando `ready` (las 4
+  // microscopías ya terminaron de aparecer) — antes de eso no hay nada que tocar.
+  const ringGeo = new THREE.RingGeometry(0.06, 0.08, 40);
+  const hotMeshes = [];
   const hits = (CFG.hotspots || []).map((h, i) => {
     const lx = OV.offsetX + (h.x - 0.5) * OV.width;
     const ly = OV.offsetY + (0.5 - h.y) * OV.height;
     const m = new THREE.Mesh(new THREE.CircleGeometry(0.16, 20), new THREE.MeshBasicMaterial({ visible: false }));
-    m.position.set(lx, ly, 0.02); m.userData = { idx: i, data: h }; anchor.group.add(m); return m;
+    m.position.set(lx, ly, 0.02); m.userData = { idx: i, data: h }; anchor.group.add(m);
+
+    const ringMat = new THREE.MeshBasicMaterial({ color: h.color || "#ffffff", transparent: true, opacity: 0, side: THREE.DoubleSide, depthTest: false, depthWrite: false });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.position.set(lx, ly, 0.021); ring.renderOrder = 20 + i; ring.userData = { idx: i };
+    anchor.group.add(ring); hotMeshes.push(ring);
+
+    return m;
   });
 
   // --- Estado / UI ---
@@ -125,6 +137,14 @@ async function start() {
       p.mat.opacity = o; if (o > 0.6) shown++;
     });
     ready = micros.length > 0 && shown >= micros.length;
+
+    // Anillos: pulsan solo cuando ya se puede tocar (las 4 microscopías completas).
+    hotMeshes.forEach((m) => {
+      const pulse = 1 + Math.sin(t * 3 + m.userData.idx) * 0.12;
+      m.scale.set(pulse, pulse, pulse);
+      m.material.opacity += ((ready ? 0.9 : 0) - m.material.opacity) * 0.15;
+    });
+
     renderer.render(scene, camera);
   });
 }

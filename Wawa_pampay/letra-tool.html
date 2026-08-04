@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Marcador de letra y tiempos · Wawa pampay</title>
+<style>
+  :root{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  *{box-sizing:border-box}
+  body{background:#0d0b12;color:#f4efe6;margin:0;padding:20px 16px 60px;display:flex;flex-direction:column;align-items:center;gap:16px}
+  h1{font-size:19px;margin:0}
+  p.lead{max-width:640px;font-size:13px;line-height:1.6;opacity:.8;text-align:center;margin:0}
+  .panel{background:#171320;border:1px solid #ffffff1a;border-radius:14px;padding:18px;width:100%;max-width:680px;display:flex;flex-direction:column;gap:12px}
+  #player{width:100%;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#000}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  button{background:#c9a24b;color:#1a1206;border:0;border-radius:9px;padding:10px 14px;font-weight:700;font-size:13px;cursor:pointer}
+  button.secondary{background:#2a2438;color:#f4efe6}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  #tnow{font:700 20px/1 ui-monospace,monospace;color:#c9a24b;min-width:70px;text-align:center}
+  textarea{width:100%;min-height:160px;background:#0d0b12;color:#f4efe6;border:1px solid #ffffff2a;border-radius:8px;padding:10px;font:14px/1.5 system-ui;resize:vertical}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  td,th{padding:6px 8px;border-bottom:1px solid #ffffff14;text-align:left}
+  td.t{font:700 13px ui-monospace,monospace;color:#c9a24b;white-space:nowrap;width:64px}
+  td button{padding:6px 10px;font-size:12px}
+  #out{width:100%;min-height:140px;background:#0d0b12;color:#9fd1ff;border:1px solid #ffffff2a;border-radius:8px;padding:10px;font:12px/1.5 ui-monospace,monospace;white-space:pre;overflow:auto}
+  .start-marker{background:#2a2438;border:1px solid #c9a24b55;border-radius:9px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .hint{font-size:12px;opacity:.7}
+</style>
+</head>
+<body>
+  <h1>Marcador de letra y tiempos · Wawa pampay</h1>
+  <p class="lead">
+    Herramienta para NO tantear a mano: escuchá la canción acá mismo, escribí cada verso
+    en español (uno por línea) y tocá "Marcar" justo cuando empieza a cantarse. También
+    marcá dónde termina realmente la introducción (para saltar el ruido/tos inicial).
+    Al final copiás el bloque listo para pegar en <code>config.js</code>.
+  </p>
+
+  <div class="panel">
+    <div id="player"></div>
+    <div class="row">
+      <button id="btn-play">▶ Reproducir</button>
+      <button id="btn-back5" class="secondary">« 5s</button>
+      <span id="tnow">0:00</span>
+      <button id="btn-fwd5" class="secondary">5s »</button>
+    </div>
+    <div class="start-marker">
+      <div>
+        <b>Inicio real del canto</b> (después de intro/tos)
+        <div class="hint">Reproducí, ubicate justo antes de que empiece a cantar, y tocá marcar.</div>
+      </div>
+      <button id="btn-mark-start">Marcar aquí</button>
+    </div>
+    <div id="start-out" class="hint">startSec aún no marcado (config actual: 81s = 1:21).</div>
+  </div>
+
+  <div class="panel">
+    <label class="hint" for="lyrics">Letra en español, un verso por línea (pegá o escribí acá):</label>
+    <textarea id="lyrics" placeholder="Un verso por línea…"></textarea>
+    <button id="btn-load">Cargar versos ↓</button>
+  </div>
+
+  <div class="panel" id="panel-lines" style="display:none">
+    <table>
+      <thead><tr><th>Tiempo</th><th>Verso</th><th></th></tr></thead>
+      <tbody id="lines-body"></tbody>
+    </table>
+    <div class="hint">Reproducí la canción y tocá "Marcar" en cada fila justo cuando se canta ese verso (podés re-marcar las veces que quieras).</div>
+  </div>
+
+  <div class="panel">
+    <label class="hint">Bloque listo para pegar en <code>Wawa_pampay/config.js</code> (reemplaza <code>startSec</code> y <code>letra</code>):</label>
+    <div id="out">Marcá el inicio y cargá los versos para generar el bloque…</div>
+    <button id="btn-copy" class="secondary">Copiar al portapapeles</button>
+  </div>
+
+<script>
+  var player, ready = false;
+  var startSec = null;
+  var lines = []; // {txt, t}
+
+  function fmt(s) {
+    s = Math.max(0, Math.round(s));
+    return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  }
+
+  window.onYouTubeIframeAPIReady = function () {
+    player = new YT.Player('player', {
+      videoId: 'dYNXHx6gr50',
+      playerVars: { rel: 0, playsinline: 1 },
+      events: { onReady: function () { ready = true; } }
+    });
+  };
+  (function () {
+    var s = document.createElement('script');
+    s.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(s);
+  })();
+
+  document.getElementById('btn-play').addEventListener('click', function () {
+    if (!ready) return;
+    var st = player.getPlayerState();
+    if (st === YT.PlayerState.PLAYING) player.pauseVideo(); else player.playVideo();
+  });
+  document.getElementById('btn-back5').addEventListener('click', function () {
+    if (!ready) return; player.seekTo(Math.max(0, player.getCurrentTime() - 5), true);
+  });
+  document.getElementById('btn-fwd5').addEventListener('click', function () {
+    if (!ready) return; player.seekTo(player.getCurrentTime() + 5, true);
+  });
+
+  setInterval(function () {
+    if (!ready) return;
+    document.getElementById('tnow').textContent = fmt(player.getCurrentTime());
+  }, 200);
+
+  document.getElementById('btn-mark-start').addEventListener('click', function () {
+    if (!ready) return;
+    startSec = Math.round(player.getCurrentTime());
+    document.getElementById('start-out').textContent = 'startSec marcado: ' + startSec + 's (' + fmt(startSec) + ')';
+    renderOutput();
+  });
+
+  document.getElementById('btn-load').addEventListener('click', function () {
+    var raw = document.getElementById('lyrics').value.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+    lines = raw.map(function (txt, i) { return { txt: txt, t: lines[i] && lines[i].txt === txt ? lines[i].t : null }; });
+    renderLines();
+    renderOutput();
+  });
+
+  function renderLines() {
+    var body = document.getElementById('lines-body');
+    body.innerHTML = '';
+    document.getElementById('panel-lines').style.display = lines.length ? 'block' : 'none';
+    lines.forEach(function (line, i) {
+      var tr = document.createElement('tr');
+      var tdT = document.createElement('td'); tdT.className = 't';
+      tdT.textContent = line.t == null ? '—' : fmt(line.t);
+      var tdTxt = document.createElement('td'); tdTxt.textContent = line.txt;
+      var tdBtn = document.createElement('td');
+      var btn = document.createElement('button');
+      btn.textContent = 'Marcar';
+      btn.addEventListener('click', function () {
+        if (!ready) return;
+        line.t = Math.round(player.getCurrentTime() * 10) / 10;
+        renderLines(); renderOutput();
+      });
+      tdBtn.appendChild(btn);
+      tr.appendChild(tdT); tr.appendChild(tdTxt); tr.appendChild(tdBtn);
+      body.appendChild(tr);
+    });
+  }
+
+  function renderOutput() {
+    var out = document.getElementById('out');
+    var startLine = 'startSec: ' + (startSec == null ? '81 /* <- marcar en la herramienta */' : startSec) + ',';
+    var letraLines = lines.filter(function (l) { return l.t != null; })
+      .sort(function (a, b) { return a.t - b.t; })
+      .map(function (l) { return '    { t: ' + l.t + ', txt: "' + l.txt.replace(/"/g, '\\"') + '" }'; });
+    var missing = lines.filter(function (l) { return l.t == null; }).length;
+    var txt = startLine + '\n  letra: [\n' + letraLines.join(',\n') + '\n  ]';
+    if (missing) txt += '\n\n// ⚠ ' + missing + ' verso(s) sin marcar todavía.';
+    out.textContent = txt;
+  }
+
+  document.getElementById('btn-copy').addEventListener('click', function () {
+    navigator.clipboard.writeText(document.getElementById('out').textContent);
+  });
+</script>
+</body>
+</html>

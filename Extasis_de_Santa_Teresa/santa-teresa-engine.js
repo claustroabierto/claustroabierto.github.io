@@ -7,7 +7,8 @@
  *   2. REVERSO crece SIN texto dentro del óvalo blanco del rayos X.
  *   3. Se mueve a la IZQUIERDA y allí se cruza a su versión CON texto (panel).
  *   4. Derecha: título MICROSCOPÍA y luego las 3 tarjetas una por una.
- *   5. Estático: tocar una microscopía la amplía. Sin aros; aviso abajo.
+ *   5. Estático: cada microscopía trae su aro de color (como escapulario), que se
+ *      enciende cuando las 3 ya aparecieron; tocarla la amplía.
  *  + slider de transparencia del rayos X + botón Repetir.
  */
 import * as THREE from "three";
@@ -54,6 +55,19 @@ async function start() {
     const p = plane(m, 0.02 + i * 0.001, 10 + i); p.data = m; return p;
   });
 
+  // Anillo visible del color de cada microscopía (mismo patrón que escapulario),
+  // para que se note dónde tocar. Solo se enciende cuando `staticReady` (las 3
+  // tarjetas ya terminaron de aparecer).
+  const ringGeo = new THREE.RingGeometry(0.05, 0.07, 40);
+  const hotMeshes = micros.map((p, i) => {
+    const mat = new THREE.MeshBasicMaterial({ color: p.data.color || "#ffffff", transparent: true, opacity: 0, side: THREE.DoubleSide, depthTest: false });
+    const ring = new THREE.Mesh(ringGeo, mat);
+    ring.position.set(p.cfg.x, p.cfg.y, 0.03 + i * 0.001); ring.renderOrder = 20 + i;
+    ring.userData = { idx: i };
+    anchor.group.add(ring);
+    return ring;
+  });
+
   // --- Estado / UI ---
   // rxAlpha arranca en 0.5: el rayos X se ve semitransparente y la pintura real
   // se nota por detrás (pedido del equipo).
@@ -72,6 +86,7 @@ async function start() {
   // --- Zoom al tocar una microscopía ---
   function openCard(i) {
     const m = micros[i].data;
+    const cc = $("card-color"); if (cc) cc.style.background = m.color || "#c9a24b";
     $("card-titulo").textContent = m.titulo || "";
     $("card-pigmento").textContent = m.pigmento || "";
     $("card-formula").textContent = m.formula || "";
@@ -140,6 +155,12 @@ async function start() {
       p.mat.opacity = o; p.mesh.scale.setScalar(lerp(0.85, 1, o)); if (o > 0.6) shown++;
     });
     staticReady = micros.length > 0 && shown >= micros.length;
+
+    hotMeshes.forEach((m) => {
+      const pulse = 1 + Math.sin(t * 3 + m.userData.idx) * 0.12;
+      m.scale.set(pulse, pulse, pulse);
+      m.material.opacity += ((staticReady ? 0.9 : 0) - m.material.opacity) * 0.15;
+    });
 
     if (t < T_RV[0]) setCaption("Rayos X: el soporte de piedra bajo la pintura…");
     else if (t < T_MOVE[1]) setCaption("El reverso de piedra, con su inscripción");

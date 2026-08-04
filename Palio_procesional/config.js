@@ -13,9 +13,9 @@
  */
 window.MUSEO_CONFIG = {
   id: "Palio_procesional",
-  titulo: "Mantón de Manila",
-  subtitulo: "Los bordados cobran vida",
-  ficha: "Mantón de seda bordado (textil filipino) · insectos · fluorescencia UV y microscopía 10x",
+  titulo: "Palio de Filipinas",
+  subtitulo: "Los insectos cobran vida",
+  ficha: "Palio de Filipinas (textil de seda bordada) · insectos RA · fluorescencia UV y microscopía 10x",
 
   targetSrc: "assets/targets.mind",
   targetPreview: "assets/target.jpg",

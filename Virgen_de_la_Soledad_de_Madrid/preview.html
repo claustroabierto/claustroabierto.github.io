@@ -3,19 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <title>RA · La Inmaculada — Museo Ayacucho</title>
+  <title>RA · Virgen Dolorosa — Museo Ayacucho</title>
   <link rel="stylesheet" href="../shared/styles.css?v=8" />
+  <style>
+    /* Dolorosa no usa slider ni tarjeta: el panel lleva el texto narrativo y
+       los dos controles (velas / repetir). */
+    #caption{font-size:13px;line-height:1.4;min-height:1.4em;margin-bottom:10px;
+      text-shadow:0 1px 6px #000a;}
+    #panel .row{justify-content:flex-end;gap:8px;}
+    #panel .row button{background:var(--gold);color:#1a1206;border:0;border-radius:10px;
+      padding:10px 14px;font-weight:700;font-size:13px;}
+    #btn-repeat{background:#ffffff26;color:var(--ink);}
+  </style>
   <script type="importmap">
   {
     "imports": {
       "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
-      "mindar-image-three": "https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
+      "mindar-image-three": "../shared/preview-stub.js"
     }
   }
   </script>
 </head>
 <body>
+  <div id="preview-banner" style="position:fixed;left:0;right:0;top:0;z-index:999;background:#c9a24b;color:#1a1206;text-align:center;font:700 12px system-ui,sans-serif;padding:6px 10px">MODO PREVISUALIZACIÓN (sin cámara) · <a href="index.html" style="color:#1a1206">ir a la versión real</a></div>
   <div id="ar"></div>
 
   <div id="topbar">
@@ -25,30 +36,16 @@
 
   <div id="scan">
     <div class="frame"></div>
-    <p>Apunta la cámara a <b>la pintura completa</b> para revelar el análisis.</p>
-  </div>
-
-  <div id="card">
-    <button id="card-close">×</button>
-    <div class="head">
-      <div id="card-color"></div>
-      <div>
-        <div id="card-titulo"></div>
-        <div id="card-pigmento"></div>
-        <div id="card-formula"></div>
-      </div>
-    </div>
-    <div id="card-nota"></div>
-    <img id="card-img" alt="Microscopía del pigmento" />
-    <div id="card-imghint" class="hint">Toca la microscopía para agrandarla</div>
+    <p>Apunta la cámara a <b>la Virgen Dolorosa</b> y mantén la obra encuadrada.</p>
   </div>
 
   <div id="panel">
+    <div id="caption"></div>
     <div class="row">
-      <input id="reveal" type="range" min="0" max="100" value="0" />
-      <button id="btn-toggle">Revelar</button>
+      <button id="btn-repeat">↻ Repetir</button>
+      <button id="btn-lado">Ver de lado</button>
+      <button id="btn-velas">Apagar velas</button>
     </div>
-    <div class="hint">Desliza para revelar los pigmentos · toca cada círculo ● para ver el detalle</div>
     <div id="ficha-txt"></div>
   </div>
 
@@ -67,13 +64,9 @@
            alt="Embajada de los Estados Unidos de América en Lima" />
     </div>
   </div>
-  <!-- Lightbox: microscopía a pantalla completa (tocar la miniatura la agranda) -->
-  <div id="zoom"><img id="zoom-img" alt="Microscopía ampliada" /></div>
   <div id="error"></div>
 
-  <!-- config de la pieza (define window.MUSEO_CONFIG) -->
-  <script src="config.js?v=12"></script>
-  <!-- motor reutilizable -->
-  <script type="module" src="../shared/ar-engine.js?v=10"></script>
+  <script src="config.js?v=16"></script>
+  <script type="module" src="dolorosa-engine.js?v=16"></script>
 </body>
 </html>

@@ -91,9 +91,10 @@ async function start() {
   (CFG.hotspots || []).forEach((h, i) => {
     const lx = ov.offsetX + (h.x - 0.5) * ov.width;
     const ly = ov.offsetY + (0.5 - h.y) * ov.height; // y invertida
-    const mat = new THREE.MeshBasicMaterial({ color: h.color || "#ffffff", transparent: true, opacity: 0.95, side: THREE.DoubleSide });
+    const mat = new THREE.MeshBasicMaterial({ color: h.color || "#ffffff", transparent: true, opacity: 0.95, side: THREE.DoubleSide, depthTest: false, depthWrite: false });
     const ring = new THREE.Mesh(ringGeo, mat);
     ring.position.set(lx, ly, 0.006);
+    ring.renderOrder = 30 + i; // por encima de los reveals secuenciales (hasta renderOrder 8) y del overlay
     ring.userData = { idx: i, base: 1 };
     anchor.group.add(ring);
     hotMeshes.push(ring);
@@ -107,6 +108,7 @@ async function start() {
 
   // --- Estado de detección + UI ---
   let visible = false;
+  let seqReady = false; // modo seq: true recién cuando terminaron todos los reveals
   let seqStart = 0;   // instante en que arrancó el revelado secuencial
   anchor.onTargetFound = () => { visible = true; $("scan").style.display = "none"; $("panel").classList.add("on"); if (seq) seqStart = performance.now(); };
   anchor.onTargetLost = () => { visible = false; $("scan").style.display = "flex"; $("panel").classList.remove("on"); closeCard(); };
@@ -132,6 +134,7 @@ async function start() {
   const _wp = new THREE.Vector3();
   function handleTap(clientX, clientY, target) {
     if (!visible) return;
+    if (seq && !seqReady) return; // esperar a que termine el revelado uno por uno
     // ignorar toques sobre la UI (panel, tarjeta, barra)
     if (target && target.closest && target.closest("#panel, #card, #topbar, #zoom")) return;
     let best = -1, bestD = Infinity;
@@ -218,11 +221,16 @@ async function start() {
         m.opacity += (o - m.opacity) * 0.3;
         if (o > 0.5) shown++;
       });
-      // Los círculos ya se dibujan en los recortes → ocultamos los anillos (evita
-      // el doble círculo); los discos de toque invisibles siguen activos.
-      const prog = seqMats.length ? shown / seqMats.length : 0;
-      hotMeshes.forEach((m) => { m.material.opacity = 0; });
-      void prog;
+      // Los círculos tocables se encienden recién cuando TODOS los recortes ya
+      // terminaron de aparecer (pedido del equipo, pg13 "Modificaciones de Texto
+      // RA"): antes de eso los discos de toque invisibles ya existen pero el
+      // aro visual (pulsando) permanece apagado para no adelantar la sorpresa.
+      seqReady = seqMats.length > 0 && shown >= seqMats.length;
+      hotMeshes.forEach((m) => {
+        const pulse = 1 + Math.sin(t * 3 + m.userData.idx) * 0.12;
+        m.scale.set(pulse, pulse, pulse);
+        m.material.opacity += ((seqReady ? 0.9 : 0) - m.material.opacity) * 0.15;
+      });
     } else {
       // fade de todas las capas según revelado
       fadeMats.forEach((m) => { m.opacity += (reveal - m.opacity) * 0.15; });

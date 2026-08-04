@@ -8,7 +8,8 @@
  *   3. Se mueve a la IZQUIERDA y allí pasa a su versión CON texto (panel REVERSO).
  *   4. A la DERECHA: primero el título MICROSCOPÍA, luego las 3 microscopías una
  *      por una (Dorado arriba → Carnación → Azurita), cada una con su texto.
- *   5. Estático: tocar una microscopía la amplía (zoom). Sin aros; aviso abajo.
+ *   5. Estático: cada microscopía trae su aro de color (como escapulario); tocarla
+ *      la amplía (zoom).
  *  + slider de transparencia (opacidad del rayos X) + botón Repetir.
  *
  *  Unidades: ancho de la pintura = 1, centro (0,0), y hacia arriba. Las posiciones
@@ -40,11 +41,14 @@ window.MUSEO_CONFIG = {
   // (0.41 entre cada una): Dorado 0.41 · Carnación 0.00 · Azurita -0.41.
   microTitulo: { src: "assets/micro-titulo.webp", aspect: 6.255, width: 0.60, x: 0.85, y: 0.656 },
   intervaloReveal: 0.8,
+  // `color` = color del círculo interactivo sobre la microscopía y del punto en
+  // la tarjeta (pedido del equipo: Carnación crema/naranja suave, Azurita azul
+  // oscuro; Dorado se queda dorado).
   microscopias: [
     // `src` = tarjeta del análisis (con su texto) que se ve en el AR.
     // `zoom` = la foto INDIVIDUAL original (sin texto), que es la que se amplía al tocar.
-    { src: "assets/micro-dorado.webp",    zoom: "assets/zoom-dorado.webp",    aspect: 1.920, width: 0.62, x: 0.92, y:  0.41, titulo: "Dorado",    pigmento: "Oro",     formula: "Au",             nota: "Detalles en pan de oro (Au); en el rayos X aparecen opacos." },
-    { src: "assets/micro-carnacion.webp", zoom: "assets/zoom-carnacion.webp", aspect: 1.851, width: 0.62, x: 0.92, y:  0.00, titulo: "Carnación", pigmento: "Plomo",   formula: "Pb",             nota: "La carnación se construye con blanco de plomo (Pb)." },
-    { src: "assets/micro-azurita.webp",   zoom: "assets/zoom-azurita.webp",   aspect: 1.817, width: 0.62, x: 0.92, y: -0.41, titulo: "Azurita",   pigmento: "Azurita", formula: "Cu₃(CO₃)₂(OH)₂", nota: "Azul mineral de azurita, carbonato básico de cobre." }
+    { src: "assets/micro-dorado.webp",    zoom: "assets/zoom-dorado.webp",    aspect: 1.920, width: 0.62, x: 0.92, y:  0.41, titulo: "Dorado",    pigmento: "Oro",     formula: "Au",             nota: "Detalles en pan de oro (Au); en el rayos X aparecen opacos.", color: "#c9a24b" },
+    { src: "assets/micro-carnacion.webp", zoom: "assets/zoom-carnacion.webp", aspect: 1.851, width: 0.62, x: 0.92, y:  0.00, titulo: "Carnación", pigmento: "Plomo",   formula: "Pb",             nota: "La carnación se construye con blanco de plomo (Pb).", color: "#eab676" },
+    { src: "assets/micro-azurita.webp",   zoom: "assets/zoom-azurita.webp",   aspect: 1.817, width: 0.62, x: 0.92, y: -0.41, titulo: "Azurita",   pigmento: "Azurita", formula: "Cu₃(CO₃)₂(OH)₂", nota: "Azul mineral de azurita, carbonato básico de cobre.", color: "#26456e" }
   ]
 };

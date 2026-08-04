@@ -106,7 +106,7 @@ async function start() {
   const setCaption = (t) => { $("caption").textContent = t || ""; };
   const normalCap = () => (mode === "enjambre"
     ? "Los bordados vuelan por todo el mantón"
-    : "Los insectos nacen del centro y revolotean · toca el mantón para que vuelen más");
+    : "Los insectos salen del textil y revolotean. Toca la pantalla para hacerlos volar.");
   function refreshCaption() {
     setCaption(uvOn ? "Bajo luz UV el medallón fluoresce"
       : micOn ? "Microscopía 10x del hilo bordado"
