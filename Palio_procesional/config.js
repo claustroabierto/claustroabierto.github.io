@@ -14,7 +14,7 @@
 window.MUSEO_CONFIG = {
   id: "Palio_procesional",
   titulo: "Palio de Filipinas",
-  subtitulo: "Los insectos cobran vida",
+  subtitulo: "Textil de seda bordada - Siglo XVIII · Los insectos cobran vida",
   ficha: "Palio de Filipinas (textil de seda bordada, Siglo XVIII) · insectos RA · fluorescencia UV y microscopía 10x",
 
   targetSrc: "assets/targets.mind",

@@ -10,7 +10,7 @@
 window.MUSEO_CONFIG = {
   id: "candelabros",
   titulo: "Candelabros",
-  subtitulo: "Fluorescencia bajo luz ultravioleta UV",
+  subtitulo: "Cristal de Uranio U - mediados del Siglo XX · Fluorescencia bajo luz ultravioleta UV",
   ficha: "Cristal de Uranio, mediados del Siglo XX · emite niveles bajos de radiación · fluoresce verde intenso brillante al recibir luz UV",
 
   targetSrc: "assets/targets.mind?v=2",

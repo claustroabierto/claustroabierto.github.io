@@ -15,7 +15,7 @@
 window.MUSEO_CONFIG = {
   id: "salvilla",
   titulo: "Salvilla de plata",
-  subtitulo: "imagen de Rayos X - composición química FRX",
+  subtitulo: "plata repujada - Siglo XVII · imagen de Rayos X - composición química FRX",
   ficha: "Salvilla, Siglo XVII, plata repujada · Fluorescencia de rayos X (FRX): Plata 90% · Cobre 7% · Oro 1%",
 
   targetSrc: "assets/targets.mind?v=2",    // MARCADOR RA7 (letras)

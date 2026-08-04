@@ -19,7 +19,7 @@
 window.MUSEO_CONFIG = {
   id: "florero",
   titulo: "Florero",
-  subtitulo: "Rayos X y composición química con FRX",
+  subtitulo: "Cerámica vidriada - Siglo XVIII · Esmalte melado a base de plomo y sílice, junto a óxidos metálicos (amarillo de antimonio) · Rayos X y composición química con FRX",
   ficha: "Cerámica vidriada, Siglo XVIII · Esmalte melado a base de plomo y sílice, junto a óxidos metálicos (amarillo de antimonio) · Rayos X: Plomo 66% · Silicio 20% · Estaño 11%",
 
   targetSrc: "assets/targets.mind?v=3",    // MARCADOR RA8 (letras, compilado)

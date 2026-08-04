@@ -20,7 +20,7 @@
 window.MUSEO_CONFIG = {
   id: "relicario",
   titulo: "Relicario",
-  subtitulo: "imagen de Rayos X - Microscopía",
+  subtitulo: "plata dorada - Siglo XVIII · imagen de Rayos X - Microscopía",
   ficha: "Relicario, Siglo XVIII, plata dorada, pigmentos, papel y plumas.",
 
   targetSrc: "assets/targets.mind?v=2",   // MARCADOR RA6 (letras)
