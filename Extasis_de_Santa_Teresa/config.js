@@ -43,7 +43,11 @@ window.MUSEO_CONFIG = {
   // 4) Columna de microscopía a la DERECHA (título + 3 tarjetas, en orden).
   // Las 3 comparten x (columna alineada) y el espaciado vertical es idéntico
   // (0.41 entre cada una): Dorado 0.41 · Carnación 0.00 · Azurita -0.41.
-  microTitulo: { src: "assets/micro-titulo.webp", aspect: 6.255, width: 0.60, x: 0.85, y: 0.656 },
+  // aspect bajó de 6.255 a 4.804 porque el lienzo del título creció hacia abajo
+  // para meter "10x de aumento" (mismo ancho, más alto) — como queda anclado
+  // por el centro, el bloque entero se corrió ~0.015 hacia abajo, por eso las
+  // 3 tarjetas de abajo también se bajan esa misma distancia (ver microscopias).
+  microTitulo: { src: "assets/micro-titulo.webp", aspect: 4.804, width: 0.60, x: 0.85, y: 0.656 },
   intervaloReveal: 0.8,
   // `color` = color del círculo interactivo sobre la microscopía y del punto en
   // la tarjeta (pedido del equipo: Carnación crema/naranja suave, Azurita azul
@@ -63,8 +67,8 @@ window.MUSEO_CONFIG = {
   microscopias: [
     // `src` = tarjeta del análisis (con su texto) que se ve en el AR.
     // `zoom` = la foto INDIVIDUAL original (sin texto), que es la que se amplía al tocar.
-    { src: "assets/micro-dorado.webp",    zoom: "assets/zoom-dorado.webp",    aspect: 1.920, width: 0.62, x: 0.90, y:  0.415, hotX: 1.0, hotY:  0.394, size: 0.07, titulo: "Aureola", pigmento: "Oro",     formula: "Au",             nota: "Aplicado a pincel.", color: "#c9a24b" },
-    { src: "assets/micro-carnacion.webp", zoom: "assets/zoom-carnacion.webp", aspect: 1.851, width: 0.62, x: 0.90, y:  0.005, hotX: 1.0, hotY:  0.005, size: 0.07, titulo: "Rostro",  pigmento: "Pigmento a base de Plomo Pb",  formula: "2PbCO₃ · Pb(OH)₂", nota: "Blanco de plomo o albayalde.", color: "#eab676" },
-    { src: "assets/micro-azurita.webp",   zoom: "assets/zoom-azurita.webp",   aspect: 1.817, width: 0.62, x: 0.90, y: -0.405, hotX: 1.0, hotY: -0.355, size: 0.07, titulo: "Alas",    pigmento: "Pigmento azul a base de Cobre Cu", formula: "Cu₃(CO₃)₂(OH)₂", nota: "Azurita.", color: "#26456e" }
+    { src: "assets/micro-dorado.webp",    zoom: "assets/zoom-dorado.webp",    aspect: 1.920, width: 0.62, x: 0.90, y:  0.400, hotX: 1.0, hotY:  0.379, size: 0.07, titulo: "Aureola", pigmento: "Oro",     formula: "Au",             nota: "Aplicado a pincel.", color: "#c9a24b" },
+    { src: "assets/micro-carnacion.webp", zoom: "assets/zoom-carnacion.webp", aspect: 1.851, width: 0.62, x: 0.90, y: -0.010, hotX: 1.0, hotY: -0.010, size: 0.07, titulo: "Rostro",  pigmento: "Pigmento a base de Plomo Pb",  formula: "2PbCO₃ · Pb(OH)₂", nota: "Blanco de plomo o albayalde.", color: "#eab676" },
+    { src: "assets/micro-azurita.webp",   zoom: "assets/zoom-azurita.webp",   aspect: 1.817, width: 0.62, x: 0.90, y: -0.420, hotX: 1.0, hotY: -0.370, size: 0.07, titulo: "Alas",    pigmento: "Pigmento azul a base de Cobre Cu", formula: "Cu₃(CO₃)₂(OH)₂", nota: "Azurita.", color: "#26456e" }
   ]
 };

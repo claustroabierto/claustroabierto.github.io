@@ -35,7 +35,7 @@ window.MUSEO_CONFIG = {
   // (con el encabezado "Fluorescencia de Rayos X"), foto2, recuadro2, foto3,
   // recuadro3.
   microReveals: [
-    "assets/reveal/microtitulo.webp",
+    "assets/reveal/microtitulo.webp?v=2",
     "assets/reveal/detalle1-foto.webp",
     "assets/reveal/detalle1-box.webp",
     "assets/reveal/detalle2-foto.webp",
