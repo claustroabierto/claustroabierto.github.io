@@ -1,4 +1,4 @@
-/*  CONFIG DE PIEZA — Palio_procesional (mantón de Manila bordado)
+/*  CONFIG DE PIEZA — Palio_de_Filipinas (mantón de Manila bordado)
  *  Los insectos bordados "cobran vida": EMERGEN creciendo DESDE EL CENTRO del
  *  mantón y vuelan hacia su sitio, en bucle. Motor propio (bichos-engine.js).
  *
@@ -12,7 +12,7 @@
  *  no tantear. `size` = ancho del overlay en unidades del mantón (1 = ancho de la obra).
  */
 window.MUSEO_CONFIG = {
-  id: "Palio_procesional",
+  id: "Palio_de_Filipinas",
   titulo: "Palio de Filipinas",
   subtitulo: "Textil de seda bordada - Siglo XVIII · Los insectos cobran vida",
   ficha: "Palio de Filipinas (textil de seda bordada, Siglo XVIII) · insectos RA · fluorescencia UV y microscopía 10x",
@@ -27,7 +27,7 @@ window.MUSEO_CONFIG = {
   mantonReg:   { x: -0.036, y: -0.024, size: 0.959, rot: 0.0419 },   // solo UV
   microReg:    { x: -0.028, y: 0.024, size: 1, rot: -0.0209 },      // microscopía (ajustada a mano)
   uvManton:    { src: "assets/uv-manton.webp",    aspect: 1.389 },
-  microManton: { src: "assets/micro-manton.webp?v=2", aspect: 1.389 },
+  microManton: { src: "assets/micro-manton.webp?v=3", aspect: 1.389 },
 
   // 15 insectos: nacen en el CENTRO (0,0) diminutos y vuelan hacia estas posiciones.
   // spread = cuánto revolotea al llegar · flap = aleteo.

@@ -1,4 +1,4 @@
-/*  MOTOR RA — Palio_procesional / mantón de Manila (insectos que cobran vida)
+/*  MOTOR RA — Palio_de_Filipinas / mantón de Manila (insectos que cobran vida)
  *  MindAR (image tracking) + three.js.
  *
  *  Experiencia:
@@ -109,7 +109,7 @@ async function start() {
     : "Los insectos salen del textil y revolotean. Toca la pantalla para hacerlos volar.");
   function refreshCaption() {
     setCaption(uvOn ? "Bajo luz UV el medallón fluoresce"
-      : micOn ? "Microscopía 10x del hilo bordado"
+      : micOn ? "Microscopía de los bordados en hilos de seda (10×)"
       : normalCap());
   }
 
