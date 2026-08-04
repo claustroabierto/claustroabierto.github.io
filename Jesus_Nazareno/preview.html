@@ -26,79 +26,6 @@
     #topbar{top:26px !important}
     #scan{padding-top:26px !important}
   </style>
-  <button id="pv-coords-btn" style="position:fixed;right:8px;bottom:8px;z-index:99998;background:#171320e6;color:#f4efe6;border:1px solid #c9a24b88;border-radius:20px;padding:8px 12px;font:700 11px system-ui,sans-serif">📍 Coordenadas</button>
-  <div id="pv-coords-panel" style="display:none;position:fixed;inset:0;z-index:99997;background:#0d0b12f2;color:#f4efe6;overflow:auto;padding:16px;font:11px/1.5 ui-monospace,Consolas,monospace">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-family:system-ui,sans-serif">
-      <b style="font-size:13px">Coordenadas de botones · tocá la pantalla para marcar puntos</b>
-      <div style="display:flex;gap:8px">
-        <button id="pv-copy" style="background:#c9a24b;color:#1a1206;border:0;border-radius:8px;padding:7px 12px;font:700 11px system-ui,sans-serif">Copiar todo</button>
-        <button id="pv-clear" style="background:#2a2438;color:#f4efe6;border:0;border-radius:8px;padding:7px 12px;font:700 11px system-ui,sans-serif">Borrar puntos</button>
-        <button id="pv-close" style="background:#2a2438;color:#f4efe6;border:0;border-radius:8px;padding:7px 12px;font:700 11px system-ui,sans-serif">Cerrar</button>
-      </div>
-    </div>
-    <pre id="pv-list" style="white-space:pre-wrap;word-break:break-all"></pre>
-  </div>
-  <script>
-  (function(){
-    var btn = document.getElementById('pv-coords-btn');
-    var panel = document.getElementById('pv-coords-panel');
-    var list = document.getElementById('pv-list');
-    var marks = [];
-    var active = false;
-
-    function dumpButtons(){
-      var els = document.querySelectorAll(
-        '#panel button, #ficha-bar button, #item-pop-close, #music-btn, .sec button, #card-close, #ficha-rescan'
-      );
-      var seen = new Set();
-      return Array.prototype.slice.call(els).filter(function(el){
-        if (seen.has(el)) return false; seen.add(el); return true;
-      }).map(function(el){
-        var r = el.getBoundingClientRect();
-        if (!r.width || !r.height) return null;
-        var label = (el.textContent || el.id || el.className || '?').trim().replace(/\s+/g,' ').slice(0,28);
-        var cx = r.left + r.width/2, cy = r.top + r.height/2;
-        return label.padEnd(22) + ' centro=(' + (cx/innerWidth*100).toFixed(1) + '%, ' + (cy/innerHeight*100).toFixed(1) +
-          '%)  px=(' + Math.round(cx) + ',' + Math.round(cy) + ')  tam=' + Math.round(r.width) + 'x' + Math.round(r.height);
-      }).filter(Boolean);
-    }
-
-    function render(){
-      var lines = ['Pantalla: ' + innerWidth + 'x' + innerHeight, '', '-- Botones detectados --'];
-      var btns = dumpButtons();
-      lines = lines.concat(btns.length ? btns : ['(ninguno con este layout)']);
-      lines.push(''); lines.push('-- Puntos marcados (clic) --');
-      lines = lines.concat(marks.length ? marks.map(function(m,i){
-        return '#' + (i+1) + '  px=(' + m.x + ',' + m.y + ')  %=(' + m.nx + '%, ' + m.ny + '%)';
-      }) : ['(tocá la pantalla para marcar)']);
-      list.textContent = lines.join('\n');
-    }
-
-    btn.addEventListener('click', function(){
-      active = !active;
-      panel.style.display = active ? 'block' : 'none';
-      btn.style.background = active ? '#c9a24b' : '';
-      btn.style.color = active ? '#1a1206' : '';
-      render();
-    });
-    document.getElementById('pv-close').addEventListener('click', function(){
-      active = false; panel.style.display = 'none'; btn.style.background = ''; btn.style.color = '';
-    });
-    document.getElementById('pv-clear').addEventListener('click', function(){ marks = []; render(); });
-    document.getElementById('pv-copy').addEventListener('click', function(){
-      navigator.clipboard && navigator.clipboard.writeText(list.textContent);
-    });
-    window.addEventListener('pointerdown', function(e){
-      if (!active) return;
-      if (e.target.closest && e.target.closest('#pv-coords-panel, #pv-coords-btn')) return;
-      marks.push({
-        x: Math.round(e.clientX), y: Math.round(e.clientY),
-        nx: (e.clientX / innerWidth * 100).toFixed(1), ny: (e.clientY / innerHeight * 100).toFixed(1)
-      });
-      render();
-    }, true);
-  })();
-  </script>
 
   <div id="ar"></div>
 
@@ -139,6 +66,5 @@
 
   <script src="config.js?v=6"></script>
   <script type="module" src="nazareno-engine.js?v=4"></script>
-  <script type="module" src="../shared/preview-editor.js?v=4"></script>
 </body>
 </html>

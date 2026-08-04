@@ -116,13 +116,19 @@ async function start() {
   $("ip-rx").src = layers[0] || ""; $("ip-frx").src = layers[1] || "";
   const popPZ = PanZoom(popView, popStage, CW, CH, { skipSel: "#item-pop-head", pad: 0.92 });
   let popItem = null;
+  // #topbar va por encima del pop-up (ver index.html) para no perderse al
+  // congelar la ficha, pero eso hace que choque con el título propio del
+  // pop-up ("item-pop-title") apenas se abre un detalle — se oculta el topbar
+  // SOLO mientras el pop-up está abierto, y vuelve al cerrarlo.
+  const topbar = $("topbar");
   function openItem(it) {
     popItem = it;
     $("item-pop-title").textContent = it.label || "Detalle";
     pop.classList.add("on");
+    if (topbar) topbar.style.display = "none";
     popPZ.fitBox(it.bbox);         // encuadra el elemento (el contenedor ya está visible)
   }
-  function closeItem() { pop.classList.remove("on"); popItem = null; }
+  function closeItem() { pop.classList.remove("on"); popItem = null; if (topbar) topbar.style.display = ""; }
   $("item-pop-close").addEventListener("click", (e) => { e.stopPropagation(); closeItem(); });
   pop.addEventListener("click", (e) => { if (e.target === pop) closeItem(); });
 
@@ -141,8 +147,8 @@ async function start() {
   function reveal() {
     revealT.forEach(clearTimeout); revealT = [];
     rxImg.style.opacity = 0; frxImg.style.opacity = 0;
-    revealT.push(setTimeout(() => { rxImg.style.opacity = 1; }, 150));
-    revealT.push(setTimeout(() => { frxImg.style.opacity = 1; }, 480));
+    revealT.push(setTimeout(() => { rxImg.style.opacity = 1; }, 250));
+    revealT.push(setTimeout(() => { frxImg.style.opacity = 1; }, 950));
   }
   function freeze() {
     if (frozen) return; frozen = true;

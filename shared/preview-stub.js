@@ -77,7 +77,6 @@ export class MindARThree {
     }, { passive: false });
     this._resize();
 
-    // Expuesto para la herramienta de edición de círculos (shared/preview-editor.js).
     window.__previewMindAR = this;
   }
 
