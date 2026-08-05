@@ -20,7 +20,12 @@ function fatal(msg) { const el = $("error"); el.textContent = "⚠ " + msg; el.s
 async function start() {
   if (!CFG || !CFG.objeto) return fatal("No se cargó la configuración de la pieza.");
   $("titulo").textContent = CFG.titulo;
-  $("subtitulo").textContent = CFG.subtitulo || "";
+  // El subtitulo trae varios datos sueltos separados por un punto medio.
+  // Se muestran UNO POR LINEA (el CSS usa white-space:pre-line): en un
+  // celular, todo seguido en una sola linea se parte a mitad de dato y
+  // se lee mal.
+  $("subtitulo").textContent = (CFG.subtitulo || "")
+    .replace(/\s*\u00B7\s*/g, "\n");
   $("ficha-txt").textContent = CFG.ficha || "";
 
   let renderer, scene, camera, content;

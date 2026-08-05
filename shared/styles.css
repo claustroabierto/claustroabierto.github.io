@@ -10,7 +10,10 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
 #topbar{position:fixed;top:0;left:0;right:0;padding:12px 16px calc(12px + env(safe-area-inset-top));
   background:linear-gradient(#000c 0%, #0000 100%);z-index:5;pointer-events:none;}
 #titulo{font-size:17px;font-weight:700;letter-spacing:.2px;}
-#subtitulo{font-size:12px;opacity:.8;margin-top:2px;}
+/* pre-line: el motor convierte los puntos medios del subtítulo en saltos de
+   línea reales, así cada dato (material · época · qué muestra la RA) queda en
+   su propio renglón en vez de una tira larga que se parte a mitad de dato. */
+#subtitulo{font-size:12px;opacity:.8;margin-top:2px;white-space:pre-line;}
 
 /* Estado de escaneo */
 #scan{position:fixed;inset:0;z-index:4;display:flex;flex-direction:column;
@@ -108,7 +111,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
    ancha y baja al lado del bloque largo de UTEC: se le da ~1.2x para que pese
    parecido. Comparar tamaños en demo-creditos.html antes de cambiar esto. */
 .creditos .l-utec{height:clamp(20px, 6.2vw, 25px);}
-.creditos .l-embajada{height:clamp(24px, 7.4vw, 30px);}
+.creditos .l-embajada{height:clamp(28px, 8.7vw, 35px);}
 
 /* Créditos del equipo en la pantalla de carga (solo ahí: la placa de logos se
    clona a #scan, este bloque no). Va justo arriba de la placa institucional,
