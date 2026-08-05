@@ -17,7 +17,7 @@ import * as THREE from "three";
 export async function initFixedAR({ container, fov = 45, camZ = 2.5 } = {}) {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 3));
   renderer.setSize(innerWidth, innerHeight);
   renderer.domElement.style.cssText = "position:fixed;inset:0;";
   container.appendChild(renderer.domElement);

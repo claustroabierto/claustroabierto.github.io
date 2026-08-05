@@ -13,7 +13,7 @@
  *  (registrados entre sí), así que comparten la geometría `overlay`.
  */
 import * as THREE from "three";
-import { initFixedAR, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js?v=2";
+import { initFixedAR, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js?v=3";
 
 const CFG = window.MUSEO_CONFIG;
 const $ = (id) => document.getElementById(id);
@@ -31,11 +31,12 @@ async function start() {
   try {
     ({ renderer, scene, camera, content } = await initFixedAR({ container: $("ar") }));
   } catch (e) { return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")"); }
-  mountCalibPanel(content, { scale: 1, x: 0, y: 0 });
+  // Calibrado a mano en celular real (2026-08-04) con ?calib=1.
+  mountCalibPanel(content, { scale: 0.38, x: -0.42, y: 0.56 });
 
   const manager = new THREE.LoadingManager();
   const loader = new THREE.TextureLoader(manager);
-  const tx = (s) => { const t = loader.load(s); t.colorSpace = THREE.SRGBColorSpace; return t; };
+  const tx = (s) => { const t = loader.load(s); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); return t; };
 
   const OV = CFG.overlay;
   // Todas las capas son el mismo marco (full-frame) -> misma geometría.

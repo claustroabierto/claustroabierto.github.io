@@ -13,7 +13,7 @@
  *  a color registrada con el disco de rayos X), así que comparten `overlay`.
  */
 import * as THREE from "three";
-import { initFixedAR, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js?v=2";
+import { initFixedAR, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js?v=3";
 
 const CFG = window.MUSEO_CONFIG;
 const $ = (id) => document.getElementById(id);
@@ -31,15 +31,12 @@ async function start() {
   try {
     ({ renderer, scene, camera, content } = await initFixedAR({ container: $("ar") }));
   } catch (e) { return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")"); }
-  // Valores heredados de la última calibración manual en iPhone real (cuando
-  // el contenido todavía colgaba del marcador RA7) -- de partida son tan
-  // válidos como cualquier otro para el espacio fijo nuevo; recalibrar con
-  // ?calib=1 si no calzan.
-  mountCalibPanel(content, { scale: 2.80, x: -0.90, y: 1.05 });
+  // Calibrado a mano en celular real (2026-08-04) con ?calib=1.
+  mountCalibPanel(content, { scale: 0.37, x: -0.40, y: 0.57 });
 
   const manager = new THREE.LoadingManager();
   const loader = new THREE.TextureLoader(manager);
-  const tx = (s) => { const t = loader.load(s); t.colorSpace = THREE.SRGBColorSpace; return t; };
+  const tx = (s) => { const t = loader.load(s); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); return t; };
 
   const OV = CFG.overlay;
   // Todas las capas son el mismo marco (full-frame) -> misma geometría.

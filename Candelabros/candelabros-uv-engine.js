@@ -7,7 +7,7 @@
  *  three.js. Base: relicario/marcador-engine.
  */
 import * as THREE from "three";
-import { initFixedAR, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js?v=2";
+import { initFixedAR, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js?v=3";
 
 const CFG = window.MUSEO_CONFIG;
 const $ = (id) => document.getElementById(id);
@@ -27,11 +27,12 @@ async function start() {
   try {
     ({ renderer, scene, camera, content } = await initFixedAR({ container: $("ar") }));
   } catch (e) { return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")"); }
-  mountCalibPanel(content, { scale: 1, x: 0, y: 0 });
+  // Calibrado a mano en celular real (2026-08-04) con ?calib=1.
+  mountCalibPanel(content, { scale: 0.23, x: -0.29, y: 0.48 });
 
   const manager = new THREE.LoadingManager();
   const loader = new THREE.TextureLoader(manager);
-  const tx = (s) => { const t = loader.load(s); t.colorSpace = THREE.SRGBColorSpace; return t; };
+  const tx = (s) => { const t = loader.load(s); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); return t; };
 
   // --- Glow verde radial (halo de fluorescencia) ---
   function makeGlow() {
@@ -47,13 +48,18 @@ async function start() {
   // --- Etiqueta en ARIAL, color SÓLIDO (mismo gris que "CON LUZ UV"), sin contorno ---
   function makeLabel(text, w, color) {
     color = color || "#b4b4b4";
-    const size = 96, c = document.createElement("canvas"), ctx = c.getContext("2d");
+    // size en px del canvas -- no cambia el tamaño en pantalla (eso lo define
+    // `w`, en unidades de mundo), solo cuánto detalle real tiene la textura.
+    // El contenido ahora se ve más grande que antes (ya no depende de un
+    // marcador chico), así que se sube para que el título no se vea pixelado.
+    const size = 192, c = document.createElement("canvas"), ctx = c.getContext("2d");
     const font = `700 ${size}px Arial, "Helvetica Neue", Helvetica, sans-serif`;
     ctx.font = font; const pad = size * 0.5;
     c.width = Math.ceil(ctx.measureText(text).width) + pad * 2; c.height = size + pad;
     ctx.font = font; ctx.textAlign = "center"; ctx.textBaseline = "middle";
     ctx.fillStyle = color; ctx.fillText(text, c.width/2, c.height/2);
-    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
     const h = w * c.height / c.width;
     const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h),
       new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0, depthTest: false, depthWrite: false }));
