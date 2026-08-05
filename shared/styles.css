@@ -102,8 +102,11 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
   box-shadow:0 6px 22px #0008;max-width:100%;}
 .creditos img{display:block;width:auto;flex:0 0 auto;}
 .creditos .l-carmelitas{height:clamp(36px, 11vw, 44px);}
+/* Los dos logos van a la MISMA altura: ambos archivos tienen el dibujo
+   ocupando ~100% de su alto, así que igualar la altura CSS los deja
+   ópticamente parejos (antes la embajada iba ~8% más baja). */
 .creditos .l-utec{height:clamp(20px, 6.2vw, 25px);}
-.creditos .l-embajada{height:clamp(19px, 5.8vw, 23px);}
+.creditos .l-embajada{height:clamp(20px, 6.2vw, 25px);}
 
 /* En el escaneo va anclada al pie: centrada competiría con el marco de
    encuadre, que es lo que el visitante tiene que mirar. Se va sola al detectar

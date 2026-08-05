@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Demo · Créditos del equipo en la pantalla de carga</title>
+  <link rel="stylesheet" href="shared/styles.css?v=9" />
+  <style>
+    /* --- Marco del demo (esto NO va en la pieza real, es solo para comparar) --- */
+    html,body{overflow:auto;}
+    body{padding:0 0 40px;}
+    .demo-head{padding:18px 16px 12px;text-align:center;background:#0b0910;
+      position:sticky;top:0;z-index:50;border-bottom:1px solid #ffffff1a;}
+    .demo-head h1{font-size:16px;margin:0 0 4px;}
+    .demo-head p{font-size:12px;opacity:.7;margin:0 0 12px;line-height:1.5;}
+    .tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+    .tabs button{background:#221c30;color:#f4efe6;border:1px solid #ffffff33;
+      border-radius:9px;padding:9px 13px;font-size:13px;font-weight:600;}
+    .tabs button.on{background:var(--gold);color:#1a1206;border-color:var(--gold);}
+    .rot{font-size:11px;opacity:.55;margin-top:10px;}
+
+    /* La pantalla de carga real, embebida en un "celular" para poder verla */
+    .fono{width:min(360px, 92vw);aspect-ratio:.462;margin:22px auto 0;
+      border:6px solid #2a2436;border-radius:32px;overflow:hidden;position:relative;
+      box-shadow:0 10px 40px #000a;}
+    .fono #loading{position:absolute;}
+    .nota{width:min(360px,92vw);margin:12px auto 0;font-size:12px;line-height:1.55;
+      opacity:.75;text-align:center;}
+    .nota b{color:var(--gold);}
+
+    /* ---------- LO QUE SE PROPONE AGREGAR ---------- */
+    /* A) Línea de equipo suelta, arriba de la placa de logos */
+    .equipo{font-size:10.5px;line-height:1.6;opacity:.55;max-width:300px;
+      letter-spacing:.2px;}
+    .equipo .rol{color:var(--gold);opacity:.85;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.1px;font-size:9px;}
+
+    /* B) Créditos DENTRO de la placa clara, arriba de los logos */
+    .creditos.con-equipo{flex-direction:column;gap:9px;padding-top:10px;}
+    .creditos .equipo-placa{color:#5a5348;font-size:9.5px;line-height:1.55;
+      text-align:center;max-width:270px;}
+    .creditos .equipo-placa .rol{display:block;color:#9a8348;font-weight:700;
+      text-transform:uppercase;letter-spacing:1.1px;font-size:8.5px;margin-bottom:1px;}
+    .creditos .equipo-placa .sep{display:block;height:1px;background:#0000001a;
+      margin:7px auto;width:70%;}
+    .creditos .fila-logos{display:flex;align-items:center;justify-content:center;
+      gap:clamp(10px,4vw,18px);}
+
+    /* C) Al pie, separado del bloque principal */
+    .equipo-pie{position:absolute;left:0;right:0;
+      bottom:calc(8px + env(safe-area-inset-bottom));
+      font-size:9.5px;line-height:1.5;opacity:.42;text-align:center;padding:0 16px;}
+
+    [hidden]{display:none !important;}
+  </style>
+</head>
+<body>
+  <div class="demo-head">
+    <h1>¿Dónde poner los créditos del equipo?</h1>
+    <p>Tres opciones sobre la pantalla de carga real. Elegí una y me decís.</p>
+    <div class="tabs">
+      <button data-v="a" class="on">A · Sobre los logos</button>
+      <button data-v="b">B · Dentro de la placa</button>
+      <button data-v="c">C · Al pie</button>
+    </div>
+    <div class="rot">Los nombres son de ejemplo — pasame los 5 reales y los pongo.</div>
+  </div>
+
+  <div class="fono">
+    <div id="loading">
+      <div class="centro">
+        <div class="sello">RA</div>
+        <div class="expo">Un claustro abierto al mundo a través del arte</div>
+        <div class="sede">Monasterio de Carmelitas Descalzas de Santa Teresa · Ayacucho</div>
+        <div class="barra"><i></i></div>
+        <div class="estado">Preparando la realidad aumentada…</div>
+      </div>
+
+      <!-- A) línea de equipo suelta, justo arriba de la placa -->
+      <div class="equipo" id="v-a">
+        <span class="rol">Realización</span><br>
+        Nombre Apellido · Nombre Apellido<br>
+        <span class="rol" style="display:inline-block;margin-top:5px">Asesoría</span><br>
+        Prof. Nombre Apellido · Prof. Nombre Apellido · Prof. Nombre Apellido
+      </div>
+
+      <div class="creditos" id="placa">
+        <!-- B) créditos dentro de la placa (se muestra solo en la opción B) -->
+        <div class="equipo-placa" id="v-b" hidden>
+          <span class="rol">Realización</span>
+          Nombre Apellido · Nombre Apellido
+          <span class="sep"></span>
+          <span class="rol">Asesoría</span>
+          Prof. Nombre Apellido · Prof. Nombre Apellido · Prof. Nombre Apellido
+        </div>
+        <div class="fila-logos">
+          <img class="l-utec" src="shared/logos/utec.webp" width="555" height="126"
+               alt="UTEC · Centro de Investigación y Conservación del Patrimonio" />
+          <img class="l-embajada" src="shared/logos/embajada.webp" width="303" height="114"
+               alt="Embajada de los Estados Unidos de América en Lima" />
+        </div>
+      </div>
+
+      <!-- C) al pie, despegado del bloque -->
+      <div class="equipo-pie" id="v-c" hidden>
+        Realización: Nombre Apellido · Nombre Apellido<br>
+        Asesoría: Prof. Nombre Apellido · Prof. Nombre Apellido · Prof. Nombre Apellido
+      </div>
+    </div>
+  </div>
+
+  <div class="nota" id="nota"></div>
+
+<script>
+  const notas = {
+    a: "<b>A · Sobre los logos.</b> Los nombres quedan junto a la placa institucional, que es donde el ojo ya busca créditos. Es la que menos rompe el diseño actual y la que recomiendo.",
+    b: "<b>B · Dentro de la placa.</b> El más formal: los nombres comparten el fondo claro con los logos, como una ficha impresa. Ocupa más alto y en celulares chicos aprieta el bloque de arriba.",
+    c: "<b>C · Al pie.</b> El más discreto, no toca nada del bloque central. Contra: al estar tan tenue y lejos, casi no se lee — y la carga dura pocos segundos."
+  };
+  const placa = document.getElementById('placa');
+  function ver(v){
+    document.getElementById('v-a').hidden = v !== 'a';
+    document.getElementById('v-b').hidden = v !== 'b';
+    document.getElementById('v-c').hidden = v !== 'c';
+    placa.classList.toggle('con-equipo', v === 'b');
+    document.getElementById('nota').innerHTML = notas[v];
+    document.querySelectorAll('.tabs button').forEach(b =>
+      b.classList.toggle('on', b.dataset.v === v));
+  }
+  document.querySelectorAll('.tabs button').forEach(b =>
+    b.addEventListener('click', () => ver(b.dataset.v)));
+  ver('a');
+</script>
+</body>
+</html>
