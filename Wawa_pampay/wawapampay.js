@@ -1,7 +1,9 @@
 /*  Wawapampay — visor 3D + música de fondo (YouTube) + letra corriendo.
  *  model-viewer muestra el diorama (auto-rotate). Un reproductor de YouTube oculto
- *  da la música de fondo (arranca al tocar "Música", por la política de autoplay).
- *  Si CFG.letra tiene líneas {t,txt}, se muestran sincronizadas con la canción.
+ *  da la música de fondo (arranca al tocar ▶, por la política de autoplay).
+ *  El usuario puede MOVER la música con la barra de tiempo (#seek). Si CFG.letra
+ *  tiene líneas {t,txt}, se muestran sincronizadas; las líneas con txt vacío limpian
+ *  el subtítulo en los intervalos solo-instrumentales.
  */
 (function () {
   var CFG = window.MUSEO_CONFIG || {};
@@ -13,20 +15,33 @@
   if (mv) mv.addEventListener("load", hideLoading);
   setTimeout(hideLoading, 12000);
 
-  // --- Música de fondo (YouTube IFrame API, oculto) ---
-  var player = null, ready = false, playing = false;
-  var btn = $("music-btn");
+  // --- Reproductor ---
+  var player = null, ready = false, playing = false, duration = 0, seeking = false;
+  var btn = $("music-btn"), seek = $("seek"), timeEl = $("time");
+  var START = CFG.startSec || 0;
 
-  var START = CFG.startSec || 0;   // 1:21 = 81 s
+  function fmt(s) {
+    s = Math.max(0, Math.floor(s || 0));
+    var m = Math.floor(s / 60), r = s % 60;
+    return m + ":" + (r < 10 ? "0" : "") + r;
+  }
+  function setBtn() { if (btn) btn.textContent = playing ? "⏸" : "▶"; }
+  function grabDuration() {
+    if (!duration && player && player.getDuration) {
+      duration = player.getDuration() || 0;
+      if (seek && duration) seek.max = duration;
+    }
+  }
+
   window.onYouTubeIframeAPIReady = function () {
     player = new YT.Player("yt", {
       videoId: CFG.youtubeId,
       playerVars: { controls: 0, disablekb: 1, playsinline: 1, rel: 0, start: START },
       events: {
-        onReady: function () { ready = true; },
+        onReady: function () { ready = true; grabDuration(); },
         onStateChange: function (e) {
           playing = (e.data === YT.PlayerState.PLAYING);
-          if (btn) btn.textContent = playing ? "⏸ Música" : "🎵 Música";
+          setBtn(); grabDuration();
           // Repetir desde el minuto de inicio (no desde 0).
           if (e.data === YT.PlayerState.ENDED) { player.seekTo(START, true); player.playVideo(); }
         }
@@ -45,20 +60,44 @@
     else player.playVideo();   // el gesto del toque habilita el audio
   });
 
-  // --- Letra corriendo (subtítulos sincronizados con la música) ---
+  // --- Barra de tiempo: el usuario arrastra para mover la música ---
+  // El mínimo es el inicio de la música (START): no se puede reproducir lo de antes.
+  if (seek) {
+    seek.min = START;
+    seek.max = START + 600;   // tope provisional hasta saber la duración real
+    seek.value = START;
+    seek.addEventListener("input", function () {
+      seeking = true;
+      var v = Math.max(START, Number(seek.value));
+      if (timeEl) timeEl.textContent = fmt(v) + " / " + fmt(duration);
+    });
+    var commit = function () {
+      if (ready && player) player.seekTo(Math.max(START, Number(seek.value)), true);
+      seeking = false;
+    };
+    seek.addEventListener("change", commit);
+  }
+
+  // --- Bucle: actualiza barra/tiempo + letra ---
   var letra = (CFG.letra || []).slice().sort(function (a, b) { return a.t - b.t; });
-  var box = $("letra"), lastIdx = -1;
-  if (letra.length) {
-    setInterval(function () {
-      if (!player || !playing || !player.getCurrentTime) return;
-      var t = player.getCurrentTime();
+  var box = $("letra"), lastIdx = -2;
+  setInterval(function () {
+    if (!player || !player.getCurrentTime) return;
+    grabDuration();
+    var t = player.getCurrentTime();
+    if (seek && !seeking && duration) seek.value = t;
+    if (timeEl && !seeking) timeEl.textContent = fmt(t) + " / " + fmt(duration);
+
+    if (box && letra.length) {
+      // Última línea cuyo tiempo ya pasó (según la posición actual, arrastrable).
       var i = -1;
       for (var k = 0; k < letra.length; k++) { if (letra[k].t <= t) i = k; else break; }
       if (i !== lastIdx) {
         lastIdx = i;
-        if (i >= 0) { box.textContent = letra[i].txt; box.classList.add("on"); }
-        else { box.classList.remove("on"); }
+        var txt = (i >= 0) ? letra[i].txt : "";
+        if (txt) { box.textContent = txt; box.classList.add("on"); }
+        else { box.classList.remove("on"); }   // vacío / instrumental → sin letra
       }
-    }, 200);
-  }
+    }
+  }, 200);
 })();
