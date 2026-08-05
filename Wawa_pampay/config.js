@@ -18,7 +18,9 @@ window.MUSEO_CONFIG = {
 
   // Letra en español ("Entierro de niño", traducción del canto tradicional andino),
   // sincronizada con TIEMPOS REALES del video (segundos absolutos, del documento del
-  // equipo). Los { txt: "" } limpian el subtítulo en los intervalos instrumentales.
+  // equipo). Los { txt: "" } LIMPIAN el subtítulo en los intervalos SOLO instrumentales
+  // (2:19-2:24, 2:48-2:52, el largo 3:15-3:48, 4:11-4:15 y el final tras 4:43): ahí no
+  // hay canto, así que no debe verse ninguna letra.
   letra: [
     { t: 115, txt: "Con mi niño que ha partido al cielo," },
     { t: 118, txt: "¿en dónde ya te has encontrado?" },
@@ -26,12 +28,14 @@ window.MUSEO_CONFIG = {
     { t: 125, txt: "¿en dónde ya te has encontrado?" },
     { t: 128, txt: "Ya lo encontré en el caminito a la gloria," },
     { t: 134, txt: "ya lo encontré ingresando a la gloria." },
+    { t: 140, txt: "" },
     { t: 144, txt: "Con mi niño que ha partido al cielo," },
     { t: 147, txt: "¿en dónde ya te has encontrado?" },
     { t: 151, txt: "Con mi niño que ha partido al cielo," },
     { t: 154, txt: "¿en dónde ya te has encontrado?" },
     { t: 157, txt: "Ya lo encontré en el caminito a la gloria," },
     { t: 162, txt: "ya lo encontré ingresando a la gloria." },
+    { t: 169, txt: "" },
     { t: 172, txt: "Mi florecita, mis rositas, ahora ya me estoy yendo." },
     { t: 178, txt: "Mi florecita, mis rositas, ahora ya me estoy marchando." },
     { t: 184, txt: "Tú nada más cuida a mi madre," },
@@ -47,6 +51,7 @@ window.MUSEO_CONFIG = {
     { t: 243, txt: "tapándome bien mi cuerpito." },
     { t: 245, txt: "Sólo esas me llevo," },
     { t: 248, txt: "tapándome bien mi cuerpito." },
+    { t: 252, txt: "" },
     { t: 255, txt: "De mi madre, de mi padre," },
     { t: 258, txt: "la ropita que me han comprado." },
     { t: 261, txt: "De mi madre, de mi padre," },
@@ -55,6 +60,6 @@ window.MUSEO_CONFIG = {
     { t: 271, txt: "en la perchita se las he dejado." },
     { t: 275, txt: "En el colgadorcito se las he dejado," },
     { t: 279, txt: "en la perchita se las he dejado." },
-    { t: 285, txt: "" }
+    { t: 284, txt: "" }
   ]
 };
