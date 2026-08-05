@@ -77,14 +77,25 @@ async function start() {
   function rescan() {
     activated = false;
     stopSway();
+    const a = $("bienvenida"); if (a) { a.pause(); a.currentTime = 0; }   // corta la bienvenida
     $("viewer").classList.remove("on");
     startScan();
   }
   anchor.onTargetFound = () => activate();
 
   // El usuario toma control del giro al tocar el visor (se corta el vaivén).
-  $("viewer").addEventListener("pointerdown", (e) => { if (e.target.closest && e.target.closest("#back3d")) return; stopSway(); });
+  $("viewer").addEventListener("pointerdown", (e) => { if (e.target.closest && e.target.closest("#back3d, #audio-btn")) return; stopSway(); });
   $("back3d").addEventListener("click", (e) => { e.stopPropagation(); rescan(); });
+
+  // Audio de bienvenida: el botón lo reproduce/pausa (el toque habilita el audio).
+  const audio = $("bienvenida"), abtn = $("audio-btn");
+  const abtnLabel = (on) => { if (abtn) abtn.textContent = on ? "⏸ Pausar bienvenida" : "🔊 Escuchar bienvenida"; };
+  if (audio && abtn) {
+    abtn.addEventListener("click", (e) => { e.stopPropagation(); if (audio.paused) audio.play().catch(() => {}); else audio.pause(); });
+    audio.addEventListener("play", () => abtnLabel(true));
+    audio.addEventListener("pause", () => abtnLabel(false));
+    audio.addEventListener("ended", () => abtnLabel(false));
+  }
 
   await startScan();
   const placa = $("loading").querySelector(".creditos");
