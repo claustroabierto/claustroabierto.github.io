@@ -6,33 +6,11 @@
   <title>RA · Florero — Museo Ayacucho</title>
   <link rel="stylesheet" href="../shared/styles.css?v=8" />
   <style>
-    /* El visor congelado (#ficha, z-index 40) y el pop-up de detalle (#item-pop,
-       z-index 50) son pantalla completa y tapaban el título/subtítulo de #topbar
-       (z-index 5 en shared/styles.css) apenas se detecta el marcador -> "no se
-       nota" (PDF de cambios). Se sube #topbar por encima de ambos, solo en esta
-       pieza (tiene pointer-events:none, así que no estorba el pellizco/arrastre). */
-    #topbar { z-index: 55; }
+    #panel .row button{background:var(--gold);color:#1a1206;border:0;border-radius:10px;padding:10px 14px;font-weight:700;font-size:13px;}
 
-    /* Visor congelable: al detectar el RA8 el infográfico se fija y se explora
-       con los dedos (pellizcar/arrastrar). La tarjeta ya no necesita estar a la vista. */
-    #ficha { position: fixed; inset: 0; z-index: 40; overflow: hidden; opacity: 0;
-      pointer-events: none; transition: opacity .9s ease;
-      touch-action: none; -webkit-user-select: none; user-select: none;
-      background: radial-gradient(circle at 50% 38%, #17131fef, #0b0910f8); }
-    #ficha.on { opacity: 1; pointer-events: auto; }
-    #ficha-stage { position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform; }
-    #ficha-stage img { position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      opacity: 0; transition: opacity .9s ease; pointer-events: none; -webkit-user-drag: none; }
-    #ficha-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 41;
-      display: flex; align-items: center; justify-content: space-between; gap: 12px;
-      padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-      background: linear-gradient(#0000, #0b0910dd 45%); }
-    #ficha-bar .hint { font-size: 12px; line-height: 1.35; color: #e6dfd0; opacity: .9; }
-    #ficha-rescan { background: #c9a24b; color: #1a1206; border: 0; border-radius: 11px;
-      padding: 11px 15px; font-size: 14px; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 10px #0007; }
-    #ficha-rescan:active { filter: brightness(.9); }
-
-    /* Pop-up de detalle por elemento */
+    /* Pop-up de detalle por elemento: al tocar una región del infográfico
+       anclado se abre esto a pantalla completa, para leer de cerca sin
+       depender de mantener el marcador (débil, letras RA8) en cuadro. */
     #item-pop { position: fixed; inset: 0; z-index: 50; display: none; flex-direction: column;
       touch-action: none; -webkit-user-select: none; user-select: none;
       background: #0b0910f5; }
@@ -80,16 +58,12 @@
     <p>Apunta la cámara al <b>RA</b> para revelar su análisis.</p>
   </div>
 
-  <!-- Infográfico congelado (rayos X + cara + tabla FRX apilados) -->
-  <div id="ficha">
-    <div id="ficha-stage">
-      <img id="ficha-rx" alt="Rayos X de la cerámica" />
-      <img id="ficha-frx" alt="Cara y composición elemental (FRX)" />
+  <div id="panel">
+    <div class="row">
+      <button id="btn-repeat">↻ Repetir</button>
     </div>
-    <div id="ficha-bar">
-      <div class="hint">Toca cada imagen o la tabla para verla en detalle<br>Pellizca para acercar · arrastra para mover</div>
-      <button id="ficha-rescan">↻ Volver a escanear</button>
-    </div>
+    <div class="hint">Toca cada imagen o la tabla para verla en detalle</div>
+    <div id="ficha-txt"></div>
   </div>
 
   <!-- Pop-up de detalle: el elemento tocado, ampliado y explorable -->
@@ -124,7 +98,7 @@
   </div>
   <div id="error"></div>
 
-  <script src="config.js?v=8"></script>
-  <script type="module" src="ceramica-engine.js?v=4"></script>
+  <script src="config.js?v=9"></script>
+  <script type="module" src="ceramica-engine.js?v=6"></script>
 </body>
 </html>

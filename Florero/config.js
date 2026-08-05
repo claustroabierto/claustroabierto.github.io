@@ -25,11 +25,10 @@ window.MUSEO_CONFIG = {
   targetSrc: "assets/targets.mind?v=3",    // MARCADOR RA8 (letras, compilado)
   targetPreview: "assets/ra8-target.jpg",
 
-  // ⚠ MODO CONGELAR (ceramica-engine.js): el infográfico es muy ancho para anclarlo
-  // al RA8 (al acercarse a leer, el marcador sale de cuadro y se pierde el tracking).
-  // Por eso MindAR solo DETECTA el RA8 y el motor CONGELA el infográfico en pantalla
-  // (visor 2D con pellizco/arrastre). La geometría `overlay` de abajo YA NO se usa
-  // (se conserva por si se vuelve al modo anclado + align.html).
+  // Geometría del infográfico anclado al RA8 (medida con align.html). El marcador
+  // es débil (letras solas) y el infográfico es ancho, así que para leer el
+  // detalle de cerca sin perder tracking, cada región (CFG.items) se abre en un
+  // pop-up de pantalla completa en vez de exigir mantener el RA8 en cuadro.
   overlay: {
     src: "assets/frx.webp?v=2",
     width: 3.11, height: 1.238, offsetX: -0.393, offsetY: 0.058
