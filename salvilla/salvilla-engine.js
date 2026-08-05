@@ -41,73 +41,21 @@ async function start() {
   // tamaño de la pieza está en unidades "ancho del target = 1", el análisis
   // salía chico en pantalla. Se probaron dos cálculos automáticos (distancia
   // fija y luego geometría de cámara/FOV) y ninguno dio el tamaño correcto
-  // en el celular real, así que se pasa a CALIBRACIÓN MANUAL: todo el
-  // contenido vive en un grupo aparte (`content`) escalado por una sola
-  // constante fija (no cambia con la distancia). SCALE=1 = tamaño de diseño
-  // original, sin agrandar — arranca así a propósito para medir desde una
-  // base conocida. OFFSET_X/OFFSET_Y = corrimiento opcional (no hace falta
-  // que quede centrado con el target). AJUSTAR PROBANDO EN EL CELULAR REAL.
+  // en el celular real, así que quedó en CALIBRACIÓN MANUAL: todo el
+  // contenido vive en un grupo aparte (`content`) escalado/corrido por estos
+  // 3 valores fijos, calibrados a mano en un iPhone real (pantalla 7.1cm de
+  // ancho) con el panel de ajuste en vivo (?calib=1, ver historial de git si
+  // hace falta recalibrar — se sacó del código una vez encontrado el número
+  // final). No se ajusta por ancho de pantalla de cada celular: el navegador
+  // no expone el tamaño físico real de forma confiable, y lo que más varía
+  // entre modelos es el FOV de la cámara (no el ancho de pantalla), así que
+  // perseguir eso no daría más precisión — este valor fijo es la mejor
+  // aproximación práctica para todos los celulares.
   const content = new THREE.Group();
   anchor.group.add(content);
-  let SCALE = 1, OFFSET_X = 0, OFFSET_Y = 0;
+  const SCALE = 2.80, OFFSET_X = -0.90, OFFSET_Y = 1.05;
   content.scale.setScalar(SCALE);
   content.position.set(OFFSET_X, OFFSET_Y, 0);
-
-  // Panel de calibración EN VIVO (solo con ?calib=1 en la URL, no aparece en
-  // uso normal): +/- para SCALE/OFFSET_X/OFFSET_Y mientras se ve la cámara
-  // real y el target real, con lectura de los valores en pantalla — así se
-  // ajusta con los dedos mirando el resultado real, en vez de medir con
-  // regla. También oculta el título/subtítulo (ocupan espacio de pantalla
-  // que hace falta ver completo para calibrar) y bloquea que un toque en el
-  // panel se filtre como gesto de zoom nativo del navegador hacia la cámara
-  // de atrás (fondo sólido + touch-action:none + stopPropagation en todo el
-  // panel, no solo en los botones).
-  if (new URLSearchParams(location.search).has("calib")) {
-    if ($("topbar")) $("topbar").style.display = "none";
-
-    const box = document.createElement("div");
-    box.style.cssText = "position:fixed;left:8px;top:8px;z-index:99998;background:#171320;color:#f4efe6;border:1px solid #c9a24b88;border-radius:12px;padding:10px;font:12px/1.6 ui-monospace,Consolas,monospace;touch-action:none;-webkit-user-select:none;user-select:none";
-    box.innerHTML = `
-      <div>SCALE: <b id="calScaleVal">1.00</b>
-        <button id="calScaleHalf" style="margin-left:6px">÷2</button>
-        <button id="calScaleDown">−</button>
-        <button id="calScaleUp">+</button>
-        <button id="calScaleDouble">×2</button></div>
-      <div style="margin-top:4px">OFFSET_X: <b id="calOffXVal">0.00</b>
-        <button id="calOffXDown" style="margin-left:6px">−</button>
-        <button id="calOffXUp">+</button></div>
-      <div style="margin-top:4px">OFFSET_Y: <b id="calOffYVal">0.00</b>
-        <button id="calOffYDown" style="margin-left:6px">−</button>
-        <button id="calOffYUp">+</button></div>
-      <button id="calCopy" style="margin-top:6px;width:100%;background:#c9a24b;color:#1a1206;border:0;border-radius:8px;padding:6px;font-weight:700">Copiar valores</button>
-    `;
-    document.body.appendChild(box);
-    // Ningún toque/click dentro del panel debe llegar al resto de la página
-    // (ni al zoom nativo del navegador, ni a los handlers de la escena).
-    ["pointerdown", "pointerup", "touchstart", "touchend", "click"].forEach((ev) => {
-      box.addEventListener(ev, (e) => e.stopPropagation());
-    });
-
-    const scaleVal = box.querySelector("#calScaleVal"), offXVal = box.querySelector("#calOffXVal"), offYVal = box.querySelector("#calOffYVal");
-    const refresh = () => {
-      scaleVal.textContent = SCALE.toFixed(2); offXVal.textContent = OFFSET_X.toFixed(2); offYVal.textContent = OFFSET_Y.toFixed(2);
-      content.scale.setScalar(SCALE); content.position.set(OFFSET_X, OFFSET_Y, 0);
-    };
-    box.querySelector("#calScaleUp").addEventListener("click", () => { SCALE = Math.round((SCALE + 0.2) * 100) / 100; refresh(); });
-    box.querySelector("#calScaleDown").addEventListener("click", () => { SCALE = Math.max(0.1, Math.round((SCALE - 0.2) * 100) / 100); refresh(); });
-    box.querySelector("#calScaleDouble").addEventListener("click", () => { SCALE = Math.round(SCALE * 2 * 100) / 100; refresh(); });
-    box.querySelector("#calScaleHalf").addEventListener("click", () => { SCALE = Math.max(0.1, Math.round(SCALE / 2 * 100) / 100); refresh(); });
-    box.querySelector("#calOffXUp").addEventListener("click", () => { OFFSET_X = Math.round((OFFSET_X + 0.05) * 100) / 100; refresh(); });
-    box.querySelector("#calOffXDown").addEventListener("click", () => { OFFSET_X = Math.round((OFFSET_X - 0.05) * 100) / 100; refresh(); });
-    box.querySelector("#calOffYUp").addEventListener("click", () => { OFFSET_Y = Math.round((OFFSET_Y + 0.05) * 100) / 100; refresh(); });
-    box.querySelector("#calOffYDown").addEventListener("click", () => { OFFSET_Y = Math.round((OFFSET_Y - 0.05) * 100) / 100; refresh(); });
-    box.querySelector("#calCopy").addEventListener("click", () => {
-      const txt = `SCALE = ${SCALE.toFixed(2)}, OFFSET_X = ${OFFSET_X.toFixed(2)}, OFFSET_Y = ${OFFSET_Y.toFixed(2)}`;
-      navigator.clipboard && navigator.clipboard.writeText(txt);
-      box.querySelector("#calCopy").textContent = "Copiado ✓";
-      setTimeout(() => { box.querySelector("#calCopy").textContent = "Copiar valores"; }, 1200);
-    });
-  }
 
   const OV = CFG.overlay;
   // Todas las capas son el mismo marco (full-frame) -> misma geometría.
