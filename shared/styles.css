@@ -124,8 +124,12 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
 #loading .equipo .rol{color:var(--gold);opacity:.85;font-weight:700;
   text-transform:uppercase;letter-spacing:1.1px;font-size:9px;}
 #loading .equipo .rol.rol2{display:inline-block;margin-top:6px;}
-/* En pantallas bajas no entra: manda la portada + los logos institucionales. */
-@media (max-height:700px){ #loading .equipo{display:none;} }
+/* Solo se ocultan cuando de verdad no entran. Medido en el navegador: la
+   portada completa (centro 211 + equipo 111 + logos 57 + separaciones) pide
+   ~491px de alto. El umbral anterior era 700px y los escondía en cualquier
+   celular normal (un iPhone 13 mini con la barra de Safari deja ~693px de
+   viewport), que es por qué "no se veían". A 520px solo caen en apaisado. */
+@media (max-height:520px){ #loading .equipo{display:none;} }
 
 /* En el escaneo va anclada al pie: centrada competiría con el marco de
    encuadre, que es lo que el visitante tiene que mirar. Se va sola al detectar
