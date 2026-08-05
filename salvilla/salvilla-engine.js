@@ -28,15 +28,12 @@ async function start() {
   let mindar;
   try {
     // filterMinCF/filterBeta controlan el suavizado de la pose trackeada
-    // (OneEuroFilter). Los valores por defecto de MindAR son 0.001/1000; acá
-    // estaban en 0.0001/0.001 -- ese beta casi cero deja el filtro sin
-    // compensar el movimiento, así que el contenido queda con mucho retraso
-    // (lag) respecto al target real y se ve "torcido" mientras se pone al
-    // día apenas el celular se mueve un poco (imposible tenerlo perfecto
-    // quieto). Se prueba con el ejemplo de la propia doc de MindAR
-    // (filterMinCF:0.1, filterBeta:10) como punto medio, ni el extremo
-    // anterior ni el default completo. https://hiukim.github.io/mind-ar-js-doc/quick-start/tracking-config/
-    mindar = new MindARThree({ container: $("ar"), imageTargetSrc: CFG.targetSrc, uiScanning: "no", uiLoading: "no", filterMinCF: 0.1, filterBeta: 10 });
+    // (OneEuroFilter). Se probó subir filterBeta (de 0.001 a 10) para reducir
+    // el retraso que hacía ver el contenido "torcido" al mover el celular,
+    // pero en el celular real un beta alto genera vibración visible del
+    // contenido -- ese es justo el motivo por el que había quedado tan bajo
+    // originalmente. Se revierte a los valores probados que no vibran.
+    mindar = new MindARThree({ container: $("ar"), imageTargetSrc: CFG.targetSrc, uiScanning: "no", uiLoading: "no", filterMinCF: 0.0001, filterBeta: 0.001 });
   } catch (e) { return fatal("No se pudo iniciar MindAR: " + e.message); }
 
   const { renderer, scene, camera } = mindar;
