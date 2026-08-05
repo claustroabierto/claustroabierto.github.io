@@ -61,13 +61,18 @@
   });
 
   // --- Barra de tiempo: el usuario arrastra para mover la música ---
+  // El mínimo es el inicio de la música (START): no se puede reproducir lo de antes.
   if (seek) {
+    seek.min = START;
+    seek.max = START + 600;   // tope provisional hasta saber la duración real
+    seek.value = START;
     seek.addEventListener("input", function () {
       seeking = true;
-      if (timeEl) timeEl.textContent = fmt(seek.value) + " / " + fmt(duration);
+      var v = Math.max(START, Number(seek.value));
+      if (timeEl) timeEl.textContent = fmt(v) + " / " + fmt(duration);
     });
     var commit = function () {
-      if (ready && player) player.seekTo(Number(seek.value), true);
+      if (ready && player) player.seekTo(Math.max(START, Number(seek.value)), true);
       seeking = false;
     };
     seek.addEventListener("change", commit);
