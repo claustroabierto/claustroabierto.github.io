@@ -13,7 +13,7 @@
  *  a color registrada con el disco de rayos X), así que comparten `overlay`.
  */
 import * as THREE from "three";
-import { initFixedAR, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js?v=3";
+import { initFixedAR, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js?v=4";
 
 const CFG = window.MUSEO_CONFIG;
 const $ = (id) => document.getElementById(id);

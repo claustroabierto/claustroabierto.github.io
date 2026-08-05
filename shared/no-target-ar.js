@@ -41,7 +41,14 @@ export async function initFixedAR({ container, fov = 45, camZ = 2.5 } = {}) {
     video.autoplay = true; video.muted = true; video.playsInline = true;
     video.style.cssText = "position:fixed;inset:0;width:100%;height:100%;object-fit:cover;background:#000;";
     container.insertBefore(video, container.firstChild);
+    // El "cargando" institucional se queda pegado en su mensaje genérico
+    // mientras el navegador espera que el visitante responda el permiso de
+    // cámara -- eso puede tardar (o pasar desapercibido). Este texto avisa
+    // específicamente qué está esperando, en vez de parecer trabado.
+    const estado = document.querySelector("#loading .estado");
+    if (estado) estado.textContent = "Esperando permiso de cámara…";
     const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+    if (estado) estado.textContent = "Preparando la realidad aumentada…";
     video.srcObject = stream;
     await video.play();
   }
