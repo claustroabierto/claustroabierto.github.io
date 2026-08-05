@@ -39,21 +39,19 @@ async function start() {
 
   // El target RA7 se imprimió más chico de lo previsto (3cm) y, como todo el
   // tamaño de la pieza está en unidades "ancho del target = 1", el análisis
-  // salía chico en pantalla. En vez de tocar cada medida a mano (y que quede
-  // atado a ESTE tamaño de impresión en particular), todo el contenido vive
-  // en un grupo aparte (`content`) al que se le recalcula la escala cada
-  // cuadro para que su ancho ocupe SIEMPRE el ancho completo de la pantalla,
-  // sin importar la distancia real cámara↔target (a diferencia de un factor
-  // fijo, esto se autoajusta solo: más escala cuando el target se ve chico
-  // en cámara, menos cuando se ve grande — nunca hay que "calibrar a mano").
-  // Geometría de la cámara en el frustum: a distancia `d`, lo que se ve de
-  // ancho es `2*d*tan(fov/2)*aspect`; dividir eso entre el ancho de diseño
-  // del contenido (`OV.width`) da el factor de escala exacto.
+  // salía chico en pantalla. Se probaron dos cálculos automáticos (distancia
+  // fija y luego geometría de cámara/FOV) y ninguno dio el tamaño correcto
+  // en el celular real, así que se pasa a CALIBRACIÓN MANUAL: todo el
+  // contenido vive en un grupo aparte (`content`) escalado por una sola
+  // constante fija (no cambia con la distancia). SCALE=1 = tamaño de diseño
+  // original, sin agrandar — arranca así a propósito para medir desde una
+  // base conocida. OFFSET_Y = corrimiento vertical opcional (no hace falta
+  // que quede centrado con el target). AJUSTAR PROBANDO EN EL CELULAR REAL.
   const content = new THREE.Group();
   anchor.group.add(content);
-  const FILL = 0.96;           // deja un pequeño margen (4%) para no pegar al borde
-  const MIN_SCALE = 0.2, MAX_SCALE = 8; // solo de resguardo ante saltos de tracking
-  const _camPos = new THREE.Vector3(), _ancPos = new THREE.Vector3();
+  const SCALE = 1, OFFSET_Y = 0;
+  content.scale.setScalar(SCALE);
+  content.position.y = OFFSET_Y;
 
   const OV = CFG.overlay;
   // Todas las capas son el mismo marco (full-frame) -> misma geometría.
@@ -142,22 +140,6 @@ async function start() {
 
   renderer.setAnimationLoop(() => {
     const t = clock.getElapsedTime() - startT;
-
-    // Ancho visible a la distancia real cámara↔target (ver comentario más
-    // arriba) → escala exacta para que el contenido llene ese ancho.
-    // No aplica en el preview sin cámara: ahí la "distancia" es un número
-    // inventado por la cámara falsa para encuadrar bonito, no una medida
-    // real, así que compensarla solo lo desencuadra sin decir nada del
-    // tamaño real de impresión — este ajuste hay que probarlo en el celular.
-    if (visible && !window.__previewMindAR) {
-      camera.getWorldPosition(_camPos);
-      content.getWorldPosition(_ancPos);
-      const dist = _camPos.distanceTo(_ancPos);
-      const halfV = THREE.MathUtils.degToRad(camera.fov) / 2;
-      const visibleWidth = 2 * dist * Math.tan(halfV) * camera.aspect;
-      const scaleFactor = (visibleWidth * FILL) / OV.width;
-      content.scale.setScalar(THREE.MathUtils.clamp(scaleFactor, MIN_SCALE, MAX_SCALE));
-    }
 
     const appO = visible ? step(T_ORIG[0], T_ORIG[1], t) : 0;
     const appR = visible ? step(T_RX[0], T_RX[1], t) : 0;
