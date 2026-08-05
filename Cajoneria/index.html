@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>RA · Cajonería — Museo Ayacucho</title>
+  <link rel="stylesheet" href="../shared/styles.css?v=14" />
+  <style>
+    /* Aviso de "todavía no está lista". Se muestra en vez del análisis. */
+    #proxima { position: fixed; inset: 0; z-index: 6; display: none;
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px; text-align: center; padding: 24px;
+      background: radial-gradient(120% 70% at 50% 45%, #0b0910cc, #0b0910f2); }
+    #proxima.on { display: flex; }
+    #proxima .sello { width: 54px; height: 54px; border-radius: 50%;
+      border: 1px solid #c9a24b55; display: flex; align-items: center;
+      justify-content: center; color: var(--gold); font-size: 15px; font-weight: 700; }
+    #proxima h2 { font-size: 18px; font-weight: 700; margin: 0; max-width: 300px; }
+    #proxima p { font-size: 13px; line-height: 1.5; opacity: .75; max-width: 300px; margin: 0; }
+    #proxima a { color: var(--gold); font-size: 13px; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <div id="ar"></div>
+
+  <div id="topbar">
+    <div id="titulo">…</div>
+    <div id="subtitulo"></div>
+  </div>
+
+  <!-- Aviso provisional: esta pieza aún no tiene su realidad aumentada -->
+  <div id="proxima">
+    <div class="sello">RA</div>
+    <h2>Esta pieza estará disponible muy pronto</h2>
+    <p>Su análisis en realidad aumentada está en preparación. Volvé a escanear
+       este mismo código más adelante para verlo.</p>
+    <a href="../">Ver las demás piezas</a>
+  </div>
+
+  <div id="loading">
+    <div class="centro">
+      <div class="sello">RA</div>
+      <div class="expo">Un claustro abierto al mundo a través del arte</div>
+      <div class="sede">Monasterio de Carmelitas Descalzas de Santa Teresa · Ayacucho</div>
+      <div class="barra"><i></i></div>
+      <div class="estado">Preparando la realidad aumentada…</div>
+    </div>
+    <div class="equipo">
+      <span class="rol">Investigaci&oacute;n cient&iacute;fica</span><br>
+      Andr&eacute;s De Leo<br>
+      Diana Castillo Cerf<br>
+      Jimena Caridad Tello Hijar<br>
+      <span class="rol rol2">Realidad aumentada</span><br>
+      Carlos Raith Bravo Valdivia<br>
+      Giancarlo Kaqui Valenzuela
+    </div>
+    <div class="creditos">
+      <img class="l-utec" src="../shared/logos/utec.webp" width="555" height="126"
+           alt="UTEC · Centro de Investigación y Conservación del Patrimonio" />
+      <img class="l-embajada" src="../shared/logos/embajada.webp" width="303" height="114"
+           alt="Embajada de los Estados Unidos de América en Lima" />
+    </div>
+  </div>
+  <div id="error"></div>
+
+  <script src="config.js?v=1"></script>
+  <script src="../shared/proxima-pieza.js?v=2"></script>
+</body>
+</html>
