@@ -32,7 +32,7 @@ async function start() {
     ({ renderer, scene, camera, content } = await initFixedAR({ container: $("ar") }));
   } catch (e) { return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")"); }
   // Calibrado a mano en celular real (2026-08-04) con ?calib=1.
-  mountCalibPanel(content, { scale: 0.38, x: -0.42, y: 0.56 });
+  mountCalibPanel(content, { scale: 0.24, x: -0.46, y: 0.70 });
 
   const manager = new THREE.LoadingManager();
   const loader = new THREE.TextureLoader(manager);
