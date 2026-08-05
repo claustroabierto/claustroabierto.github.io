@@ -7,7 +7,7 @@
  *  three.js. Base: relicario/marcador-engine.
  */
 import * as THREE from "three";
-import { initFixedAR, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js";
+import { initFixedAR, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js?v=2";
 
 const CFG = window.MUSEO_CONFIG;
 const $ = (id) => document.getElementById(id);

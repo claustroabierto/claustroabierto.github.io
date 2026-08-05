@@ -89,10 +89,10 @@ export function mountCalibPanel(content, defaults) {
   panel.addEventListener("click", (e) => {
     const b = e.target.closest("button"); if (!b) return;
     const a = b.dataset.a, d = Number(b.dataset.d);
-    if (a === "s") S = Math.max(0.05, S + d * 0.05);
+    if (a === "s") S = Math.max(0.02, S + d * 0.02);
     if (a === "s2") S = d > 0 ? S * 2 : S / 2;
-    if (a === "x") X += d * 0.05;
-    if (a === "y") Y += d * 0.05;
+    if (a === "x") X += d * 0.02;
+    if (a === "y") Y += d * 0.02;
     apply();
   });
   const copyBtn = panel.querySelector("#cv-copy");
