@@ -13,7 +13,7 @@
  *  (registrados entre sí), así que comparten la geometría `overlay`.
  */
 import * as THREE from "three";
-import { initFixedAR, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js?v=5";
+import { initFixedAR, fitContentToScreen, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js?v=6";
 
 const CFG = window.MUSEO_CONFIG;
 const $ = (id) => document.getElementById(id);
@@ -31,10 +31,6 @@ async function start() {
   try {
     ({ renderer, scene, camera, content } = await initFixedAR({ container: $("ar") }));
   } catch (e) { return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")"); }
-  // Calibrado a mano en celular real (2026-08-04) con ?calib=1.
-  const CALIB = { scale: 0.24, x: -0.46, y: 0.70 };
-  mountCalibPanel(content, CALIB);
-
   const manager = new THREE.LoadingManager();
   const loader = new THREE.TextureLoader(manager);
   const tx = (s) => { const t = loader.load(s); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); return t; };
@@ -55,18 +51,13 @@ async function start() {
   // + anillo visible del color de cada muestra (mismo patrón que escapulario), para
   // que se note dónde tocar. El anillo solo se enciende cuando `ready` (las 4
   // microscopías ya terminaron de aparecer) — antes de eso no hay nada que tocar.
-  // El SCALE de calibración achica TODO el contenido (incluidos estos aros) --
-  // sin compensar, con un SCALE chico los aros quedan casi invisibles/imposibles
-  // de ver. Se les aplica la escala inversa para que midan siempre lo mismo en
-  // pantalla, sin importar qué tan chico esté el resto.
-  const RING_SCALE = 1 / CALIB.scale;
   const hotMeshes = [];
   const hits = (CFG.hotspots || []).map((h, i) => {
     const lx = OV.offsetX + (h.x - 0.5) * OV.width;
     const ly = OV.offsetY + (0.5 - h.y) * OV.height;
     const size = h.size || 0.08; // radio del aro (ajustable con el editor de círculos del preview)
     const m = new THREE.Mesh(new THREE.CircleGeometry(size * 2, 20), new THREE.MeshBasicMaterial({ visible: false }));
-    m.position.set(lx, ly, 0.02); m.scale.setScalar(RING_SCALE); m.userData = { idx: i, data: h }; content.add(m);
+    m.position.set(lx, ly, 0.02); m.userData = { idx: i, data: h }; content.add(m);
 
     const ringMat = new THREE.MeshBasicMaterial({ color: h.color || "#ffffff", transparent: true, opacity: 0, side: THREE.DoubleSide, depthTest: false, depthWrite: false });
     const ring = new THREE.Mesh(new THREE.RingGeometry(size * 0.75, size, 40), ringMat);
@@ -75,6 +66,10 @@ async function start() {
 
     return m;
   });
+
+  // Tamaño: se calcula solo para llenar la pantalla (ver shared/no-target-ar.js).
+  const fitter = fitContentToScreen(content, camera);
+  mountCalibPanel(fitter);
 
   // --- Estado / UI ---
   let visible = false, startT = 0, rxAlpha = 0.5, ready = false;
@@ -157,7 +152,7 @@ async function start() {
     // Anillos: pulsan solo cuando ya se puede tocar (las 4 microscopías completas).
     hotMeshes.forEach((m) => {
       const pulse = 1 + Math.sin(t * 3) * 0.12;
-      m.scale.setScalar(RING_SCALE * pulse);
+      m.scale.setScalar(pulse);
       m.material.opacity += ((ready ? 0.9 : 0) - m.material.opacity) * 0.15;
     });
 

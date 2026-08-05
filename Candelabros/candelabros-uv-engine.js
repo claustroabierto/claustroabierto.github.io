@@ -7,7 +7,7 @@
  *  three.js. Base: relicario/marcador-engine.
  */
 import * as THREE from "three";
-import { initFixedAR, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js?v=5";
+import { initFixedAR, fitContentToScreen, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js?v=6";
 
 const CFG = window.MUSEO_CONFIG;
 const $ = (id) => document.getElementById(id);
@@ -27,9 +27,6 @@ async function start() {
   try {
     ({ renderer, scene, camera, content } = await initFixedAR({ container: $("ar") }));
   } catch (e) { return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")"); }
-  // Calibrado a mano en celular real (2026-08-04) con ?calib=1.
-  mountCalibPanel(content, { scale: 0.15, x: -0.38, y: 0.66 });
-
   const manager = new THREE.LoadingManager();
   const loader = new THREE.TextureLoader(manager);
   const tx = (s) => { const t = loader.load(s); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); return t; };
@@ -96,6 +93,14 @@ async function start() {
   const title = makeLabel((L.text || "").toUpperCase(), L.width || 1.15, L.color);
   title.position.set(0, (o.size / o.aspect) * 0.5 + 0.12, 0.05);   // arriba del candelabro
   content.add(title);
+
+  // Tamaño: se calcula solo para llenar la pantalla (ver shared/no-target-ar.js).
+  // `fill` más bajo que el resto a propósito: el candelabro se ADELANTA hacia la
+  // cámara durante la animación (z 0 -> 0.22) y por perspectiva termina ~10% más
+  // grande de lo que mide la caja acá quieto; sin este margen el título de arriba
+  // queda cortado fuera de pantalla.
+  const fitter = fitContentToScreen(content, camera, { fill: 0.80 });
+  mountCalibPanel(fitter);
 
   const DARK = new THREE.Color(0.16, 0.20, 0.16);   // candelabro "apagado" (antes del UV)
   const setCaption = (t) => { $("caption").textContent = t || ""; };

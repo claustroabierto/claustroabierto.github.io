@@ -11,7 +11,7 @@
  *  ampliada y explorable (pellizco/arrastre).
  */
 import * as THREE from "three";
-import { initFixedAR, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js?v=5";
+import { initFixedAR, fitContentToScreen, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js?v=6";
 
 const CFG = window.MUSEO_CONFIG;
 const $ = (id) => document.getElementById(id);
@@ -89,9 +89,6 @@ async function start() {
   try {
     ({ renderer, scene, camera, content } = await initFixedAR({ container: $("ar") }));
   } catch (e) { return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")"); }
-  // Calibrado a mano en celular real (2026-08-04) con ?calib=1.
-  mountCalibPanel(content, { scale: 0.12, x: -0.32, y: 0.66 });
-
   const manager = new THREE.LoadingManager();
   const loader = new THREE.TextureLoader(manager);
   const tx = (s) => { const t = loader.load(s); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); return t; };
@@ -110,6 +107,10 @@ async function start() {
   }
   const rxL = layer(layers[0], 0.001, 1);
   const frxL = layer(layers[1], 0.002, 2);
+
+  // Tamaño: se calcula solo para llenar la pantalla (ver shared/no-target-ar.js).
+  const fitter = fitContentToScreen(content, camera);
+  mountCalibPanel(fitter);
 
   // --- Pop-up de detalle por item (2D, pantalla completa, independiente del tracking) ---
   const pop = $("item-pop"), popView = $("item-pop-view"), popStage = $("item-pop-stage");

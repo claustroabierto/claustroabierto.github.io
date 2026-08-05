@@ -13,7 +13,7 @@
  *  a color registrada con el disco de rayos X), así que comparten `overlay`.
  */
 import * as THREE from "three";
-import { initFixedAR, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js?v=5";
+import { initFixedAR, fitContentToScreen, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js?v=6";
 
 const CFG = window.MUSEO_CONFIG;
 const $ = (id) => document.getElementById(id);
@@ -31,9 +31,6 @@ async function start() {
   try {
     ({ renderer, scene, camera, content } = await initFixedAR({ container: $("ar") }));
   } catch (e) { return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")"); }
-  // Calibrado a mano en celular real (2026-08-04) con ?calib=1.
-  mountCalibPanel(content, { scale: 0.25, x: -0.46, y: 0.69 });
-
   const manager = new THREE.LoadingManager();
   const loader = new THREE.TextureLoader(manager);
   const tx = (s) => { const t = loader.load(s); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); return t; };
@@ -57,6 +54,10 @@ async function start() {
     const m = new THREE.Mesh(new THREE.CircleGeometry(0.16, 20), new THREE.MeshBasicMaterial({ visible: false }));
     m.position.set(lx, ly, 0.02); m.userData = { idx: i, data: h }; content.add(m); return m;
   });
+
+  // Tamaño: se calcula solo para llenar la pantalla (ver shared/no-target-ar.js).
+  const fitter = fitContentToScreen(content, camera);
+  mountCalibPanel(fitter);
 
   // --- Estado / UI ---
   let visible = false, startT = 0, rxAlpha = 0.5, ready = false;
