@@ -59,13 +59,22 @@ export async function initFixedAR({ container, fov = 45, camZ = 2.5 } = {}) {
   return { renderer, scene, camera, content, video };
 }
 
+// Aplica SIEMPRE los valores calibrados (scale/x/y) al contenido fijo -- esto
+// es lo que realmente posiciona/dimensiona la pieza en pantalla, tenga o no
+// el panel de ajuste abierto.
+function applyCalib(content, S, X, Y) {
+  content.scale.setScalar(S);
+  content.position.set(X, Y, 0);
+}
+
 // Panel de calibración en vivo (agregar ?calib=1 a la URL): ajusta a mano el
 // tamaño y la posición del contenido fijo, sin depender de marcador ni regla
 // -- copia los valores para pegarlos como los defaults de cada pieza. Queda
 // disponible siempre (no se saca del código) por si algo no calza bien.
 export function mountCalibPanel(content, defaults) {
-  if (!new URLSearchParams(location.search).has("calib")) return;
   let S = defaults.scale, X = defaults.x, Y = defaults.y;
+  applyCalib(content, S, X, Y);
+  if (!new URLSearchParams(location.search).has("calib")) return;
 
   const panel = document.createElement("div");
   panel.style.cssText = "position:fixed;left:8px;bottom:8px;z-index:999;max-width:calc(100vw - 16px);"
@@ -92,7 +101,7 @@ export function mountCalibPanel(content, defaults) {
     panel.querySelector("#cv-x").textContent = X.toFixed(2);
     panel.querySelector("#cv-y").textContent = Y.toFixed(2);
   };
-  const apply = () => { content.scale.setScalar(S); content.position.set(X, Y, 0); readout(); };
+  const apply = () => { applyCalib(content, S, X, Y); readout(); };
   panel.addEventListener("click", (e) => {
     const b = e.target.closest("button"); if (!b) return;
     const a = b.dataset.a, d = Number(b.dataset.d);

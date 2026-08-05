@@ -13,7 +13,7 @@
  *  (registrados entre sí), así que comparten la geometría `overlay`.
  */
 import * as THREE from "three";
-import { initFixedAR, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js?v=4";
+import { initFixedAR, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js?v=5";
 
 const CFG = window.MUSEO_CONFIG;
 const $ = (id) => document.getElementById(id);
