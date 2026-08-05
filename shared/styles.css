@@ -102,11 +102,23 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
   box-shadow:0 6px 22px #0008;max-width:100%;}
 .creditos img{display:block;width:auto;flex:0 0 auto;}
 .creditos .l-carmelitas{height:clamp(36px, 11vw, 44px);}
-/* Los dos logos van a la MISMA altura: ambos archivos tienen el dibujo
-   ocupando ~100% de su alto, así que igualar la altura CSS los deja
-   ópticamente parejos (antes la embajada iba ~8% más baja). */
+/* Las alturas NO son iguales a propósito. El archivo de UTEC trae aire arriba
+   y abajo (su elemento más alto ocupa 84% de la caja), el de la embajada llega
+   al borde (100%). Aun así la embajada se leía chica, porque es una bandera
+   ancha y baja al lado del bloque largo de UTEC: se le da ~1.2x para que pese
+   parecido. Comparar tamaños en demo-creditos.html antes de cambiar esto. */
 .creditos .l-utec{height:clamp(20px, 6.2vw, 25px);}
-.creditos .l-embajada{height:clamp(20px, 6.2vw, 25px);}
+.creditos .l-embajada{height:clamp(24px, 7.4vw, 30px);}
+
+/* Créditos del equipo en la pantalla de carga (solo ahí: la placa de logos se
+   clona a #scan, este bloque no). Va justo arriba de la placa institucional,
+   que es donde el ojo ya busca créditos. */
+#loading .equipo{font-size:10.5px;line-height:1.6;opacity:.55;max-width:300px;
+  letter-spacing:.2px;}
+#loading .equipo .rol{color:var(--gold);opacity:.85;font-weight:700;
+  text-transform:uppercase;letter-spacing:1.1px;font-size:9px;}
+#loading .equipo .rol.rol2{display:inline-block;margin-top:5px;}
+@media (max-height:620px){ #loading .equipo{display:none;} }
 
 /* En el escaneo va anclada al pie: centrada competiría con el marco de
    encuadre, que es lo que el visitante tiene que mirar. Se va sola al detectar
