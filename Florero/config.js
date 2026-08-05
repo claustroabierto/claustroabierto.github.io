@@ -1,19 +1,11 @@
-/*  CONFIG DE PIEZA — Cerámica (RA8) · revelado científico
- *  Vasija-cara vidriada (objeto de volumen): no rastrea como imagen, así que el
- *  target es el MARCADOR RA8 (letras "RA⁸", assets/ra8-target.jpg). ⚠ Mide DÉBIL
- *  (letras solas, ~647 como RA7): IMPRIMIRLO GRANDE para que enganche a distancia.
- *
- *  Al escanear el RA8, el análisis del equipo flota anclado a él (infográfico
- *  horizontal), en secuencia:
+/*  CONFIG DE PIEZA — Cerámica / Florero · revelado científico, SIN marcador
+ *  Ya no depende de detectar ningún target (antes RA8, letras, medía débil):
+ *  el análisis del equipo flota FIJO sobre la cámara en vivo, en secuencia:
  *    1) IMAGEN DE RAYOS X — perfil + frente (rx.webp), a la izquierda
  *    2) Cara a color + tabla FRX (frx.webp): Plomo 66% / Silicio 20% / Estaño 11%
+ *  Calibrar tamaño/posición en pantalla con el celular real: abrir con
+ *  `?calib=1` en la URL (ver shared/no-target-ar.js).
  *
- *  El RA8 son solo letras (no hay nada que "alinear"): la cara del composite se
- *  centra sobre el marcador por PREFERENCIA (la pieza queda sobre la tarjeta, los
- *  rayos X a la izquierda y la tabla FRX a la derecha). Mover con align.html.
- *
- *  Antes se usó un marcador DENSO (foto de la cara + "RA8", detección 2020) y la
- *  cara caía exacta sobre él; se conserva marcador.jpg/.mind por si se vuelve.
  *  Sin microscopías (el análisis solo trae rayos X + FRX).
  */
 window.MUSEO_CONFIG = {
@@ -22,20 +14,15 @@ window.MUSEO_CONFIG = {
   subtitulo: "Cerámica vidriada - Siglo XVIII · Esmalte melado a base de plomo y sílice, junto a óxidos metálicos (amarillo de antimonio) · Rayos X y composición química con FRX",
   ficha: "Cerámica vidriada, Siglo XVIII · Esmalte melado a base de plomo y sílice, junto a óxidos metálicos (amarillo de antimonio) · Rayos X: Plomo 66% · Silicio 20% · Estaño 11%",
 
-  targetSrc: "assets/targets.mind?v=3",    // MARCADOR RA8 (letras, compilado)
-  targetPreview: "assets/ra8-target.jpg",
-
-  // Geometría del infográfico anclado al RA8 (medida con align.html). El marcador
-  // es débil (letras solas) y el infográfico es ancho, así que para leer el
-  // detalle de cerca sin perder tracking, cada región (CFG.items) se abre en un
-  // pop-up de pantalla completa en vez de exigir mantener el RA8 en cuadro.
+  // Geometría relativa entre las capas del infográfico (medida con align.html;
+  // ya no es relativa a ningún marcador, solo entre sí).
   overlay: {
     src: "assets/frx.webp?v=2",
     width: 3.11, height: 1.238, offsetX: -0.393, offsetY: 0.058
   },
 
-  // Las dos capas del mismo marco (1226x488) que apila el visor congelado, en orden
-  // de aparición: primero los rayos X, luego la cara a color + tabla FRX.
+  // Las dos capas del mismo marco (1226x488), apiladas en orden de aparición:
+  // primero los rayos X, luego la cara a color + tabla FRX.
   reveals: [
     "assets/rx.webp?v=2",                 // 1) rayos X perfil + frente + título
     "assets/frx.webp?v=2"                 // 2) cara a color + tabla FRX + flecha

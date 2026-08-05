@@ -1,18 +1,17 @@
-/*  MOTOR RA — Cerámica / Florero (motor propio). MindAR (marcador RA8) + three.js.
+/*  MOTOR RA — Cerámica / Florero (motor propio). SIN marcador + three.js.
  *
- *  El análisis del equipo (rayos X + cara a color + tabla FRX) flota ANCLADO al
- *  marcador, como en el resto de las piezas: cámara siempre en vivo, contenido
- *  vive en un `content` que sigue al RA8. Las dos capas (rx.webp / frx.webp) son
- *  el MISMO marco 1226x488, apiladas: primero aparecen los rayos X, luego la
- *  cara a color + tabla FRX.
+ *  Ya no depende de detectar ningún target (antes RA8, letras, débil): el
+ *  análisis del equipo (rayos X + cara a color + tabla FRX) flota FIJO sobre
+ *  la cámara en vivo, calibrado a mano una vez (ver shared/no-target-ar.js).
+ *  Las dos capas (rx.webp / frx.webp) son el MISMO marco 1226x488, apiladas:
+ *  primero aparecen los rayos X, luego la cara a color + tabla FRX.
  *
  *  Cada región del infográfico (definida en CFG.items con su `bbox`) es
  *  tocable: al tocarla se abre un POP-UP a pantalla completa con esa parte
- *  ampliada y explorable (pellizco/arrastre) — así se puede leer el detalle de
- *  cerca sin depender de mantener el marcador (débil, letras RA8) en cuadro.
+ *  ampliada y explorable (pellizco/arrastre).
  */
 import * as THREE from "three";
-import { MindARThree } from "mindar-image-three";
+import { initFixedAR, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js";
 
 const CFG = window.MUSEO_CONFIG;
 const $ = (id) => document.getElementById(id);
@@ -86,14 +85,14 @@ async function start() {
   $("subtitulo").textContent = CFG.subtitulo || "";
   $("ficha-txt").textContent = CFG.ficha || "";
 
-  let mindar;
+  let renderer, scene, camera, content;
   try {
-    mindar = new MindARThree({ container: $("ar"), imageTargetSrc: CFG.targetSrc, uiScanning: "no", uiLoading: "no", filterMinCF: 0.0001, filterBeta: 0.001 });
-  } catch (e) { return fatal("No se pudo iniciar MindAR: " + e.message); }
-  const { renderer, scene, camera } = mindar;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  const anchor = mindar.addAnchor(0);
-  const loader = new THREE.TextureLoader();
+    ({ renderer, scene, camera, content } = await initFixedAR({ container: $("ar") }));
+  } catch (e) { return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")"); }
+  mountCalibPanel(content, { scale: 1, x: 0, y: 0 });
+
+  const manager = new THREE.LoadingManager();
+  const loader = new THREE.TextureLoader(manager);
   const tx = (s) => { const t = loader.load(s); t.colorSpace = THREE.SRGBColorSpace; return t; };
 
   const CW = CFG.fichaW || 1226, CH = CFG.fichaH || 488;
@@ -101,9 +100,7 @@ async function start() {
   const items = CFG.items || [];
   const OV = CFG.overlay;
 
-  // --- Infográfico anclado al marcador (las dos capas apiladas, en vivo) ---
-  const content = new THREE.Group();
-  anchor.group.add(content);
+  // --- Infográfico fijo (las dos capas apiladas, en vivo) ---
   function layer(src, z, ro) {
     const mat = new THREE.MeshBasicMaterial({ map: tx(src), transparent: true, opacity: 0, depthTest: false, depthWrite: false });
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(OV.width, OV.height), mat);
@@ -151,23 +148,18 @@ async function start() {
   window.addEventListener("pointerdown", (e) => handleTap(e.clientX, e.clientY, e.target));
   window.addEventListener("touchstart", (e) => { const t = e.touches && e.touches[0]; if (t) handleTap(t.clientX, t.clientY, e.target); }, { passive: true });
 
-  // --- Estado: escaneo / detectado ---
+  // --- Estado ---
   let visible = false, startT = 0;
   const clock = new THREE.Clock();
-  anchor.onTargetFound = () => { visible = true; startT = clock.getElapsedTime(); $("scan").style.display = "none"; $("panel").classList.add("on"); };
-  // No se cierra el pop-up de detalle al perder tracking: es pantalla completa
-  // e independiente de la cámara, justo para poder leer de cerca sin necesitar
-  // el marcador (débil) en cuadro.
-  anchor.onTargetLost = () => { visible = false; $("scan").style.display = "flex"; $("panel").classList.remove("on"); };
   const rb = $("btn-repeat"); if (rb) rb.addEventListener("click", (e) => { e.stopPropagation(); if (visible) startT = clock.getElapsedTime(); });
   window.addEventListener("resize", () => { if (pop.classList.contains("on") && popItem) popPZ.fitBox(popItem.bbox); });
 
-  // --- Arranque de cámara ---
-  try { await mindar.start(); }
-  catch (e) { return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")"); }
-  const placa = $("loading").querySelector(".creditos");
-  if (placa) $("scan").appendChild(placa.cloneNode(true));
+  // Se muestra apenas terminan de bajar las imágenes (+ colchón fijo), sin
+  // esperar a detectar nada.
+  await waitAssets(manager);
   $("loading").style.display = "none";
+  $("panel").classList.add("on");
+  visible = true; startT = clock.getElapsedTime();
 
   const T_RX = [0.2, 0.9], T_FRX = [1.1, 1.8];
   renderer.setAnimationLoop(() => {

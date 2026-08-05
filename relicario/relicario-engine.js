@@ -1,6 +1,8 @@
-/*  MOTOR RA — Relicario (motor propio). MindAR (marcador RA6) + three.js.
+/*  MOTOR RA — Relicario (motor propio). SIN marcador + three.js.
  *
- *  El target es el CUBO RA6 (letras), así que el análisis flota anclado a él:
+ *  Ya no depende de detectar ningún target (antes RA6, letras, medía débil):
+ *  el análisis flota FIJO sobre la cámara en vivo, calibrado a mano una vez
+ *  (ver shared/no-target-ar.js):
  *   1. Aparece el RELICARIO ORIGINAL (foto a color).
  *   2. Encima, la RADIOGRAFÍA — con opacidad controlada por el usuario (slider):
  *      de 0 (solo original) a 1 (solo rayos X). Arranca a 50% = crossfade.
@@ -11,7 +13,7 @@
  *  (registrados entre sí), así que comparten la geometría `overlay`.
  */
 import * as THREE from "three";
-import { MindARThree } from "mindar-image-three";
+import { initFixedAR, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js";
 
 const CFG = window.MUSEO_CONFIG;
 const $ = (id) => document.getElementById(id);
@@ -25,16 +27,14 @@ async function start() {
   $("subtitulo").textContent = CFG.subtitulo || "";
   $("ficha-txt").textContent = CFG.ficha || "";
 
-  let mindar;
+  let renderer, scene, camera, content;
   try {
-    mindar = new MindARThree({ container: $("ar"), imageTargetSrc: CFG.targetSrc, uiScanning: "no", uiLoading: "no", filterMinCF: 0.0001, filterBeta: 0.001 });
-  } catch (e) { return fatal("No se pudo iniciar MindAR: " + e.message); }
+    ({ renderer, scene, camera, content } = await initFixedAR({ container: $("ar") }));
+  } catch (e) { return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")"); }
+  mountCalibPanel(content, { scale: 1, x: 0, y: 0 });
 
-  const { renderer, scene, camera } = mindar;
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  const anchor = mindar.addAnchor(0);
-  const loader = new THREE.TextureLoader();
+  const manager = new THREE.LoadingManager();
+  const loader = new THREE.TextureLoader(manager);
   const tx = (s) => { const t = loader.load(s); t.colorSpace = THREE.SRGBColorSpace; return t; };
 
   const OV = CFG.overlay;
@@ -42,7 +42,7 @@ async function start() {
   function layer(src, z, ro) {
     const mat = new THREE.MeshBasicMaterial({ map: tx(src), transparent: true, opacity: 0, depthTest: false, depthWrite: false });
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(OV.width, OV.height), mat);
-    mesh.position.set(OV.offsetX, OV.offsetY, z); mesh.renderOrder = ro; anchor.group.add(mesh);
+    mesh.position.set(OV.offsetX, OV.offsetY, z); mesh.renderOrder = ro; content.add(mesh);
     return { mesh, mat };
   }
   const original = layer(CFG.original, 0.001, 1);
@@ -59,12 +59,12 @@ async function start() {
     const ly = OV.offsetY + (0.5 - h.y) * OV.height;
     const size = h.size || 0.08; // radio del aro (ajustable con el editor de círculos del preview)
     const m = new THREE.Mesh(new THREE.CircleGeometry(size * 2, 20), new THREE.MeshBasicMaterial({ visible: false }));
-    m.position.set(lx, ly, 0.02); m.userData = { idx: i, data: h }; anchor.group.add(m);
+    m.position.set(lx, ly, 0.02); m.userData = { idx: i, data: h }; content.add(m);
 
     const ringMat = new THREE.MeshBasicMaterial({ color: h.color || "#ffffff", transparent: true, opacity: 0, side: THREE.DoubleSide, depthTest: false, depthWrite: false });
     const ring = new THREE.Mesh(new THREE.RingGeometry(size * 0.75, size, 40), ringMat);
     ring.position.set(lx, ly, 0.021); ring.renderOrder = 20 + i; ring.userData = { idx: i };
-    anchor.group.add(ring); hotMeshes.push(ring);
+    content.add(ring); hotMeshes.push(ring);
 
     return m;
   });
@@ -73,8 +73,6 @@ async function start() {
   let visible = false, startT = 0, rxAlpha = 0.5, ready = false;
   const clock = new THREE.Clock();
   const INTER = CFG.intervaloReveal || 0.9;
-  anchor.onTargetFound = () => { visible = true; startT = clock.getElapsedTime(); $("scan").style.display = "none"; $("panel").classList.add("on"); };
-  anchor.onTargetLost = () => { visible = false; $("scan").style.display = "flex"; $("panel").classList.remove("on"); closeCard(); };
 
   // Slider de rayos X: arranca a 50% (crossfade). "Revelar" alterna 100%/0% a
   // partir de ahí (100 → 0 → 100 → ...); "Repetir" es aparte y reinicia toda
@@ -123,12 +121,14 @@ async function start() {
   window.addEventListener("pointerdown", (e) => handleTap(e.clientX, e.clientY, e.target));
   window.addEventListener("touchstart", (e) => { const t = e.touches && e.touches[0]; if (t) handleTap(t.clientX, t.clientY, e.target); }, { passive: true });
 
-  try { await mindar.start(); }
-  catch (e) { return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")"); }
-  const placa = $("loading").querySelector(".creditos"); if (placa) $("scan").appendChild(placa.cloneNode(true));
+  // Se muestra apenas terminan de bajar las imágenes (+ colchón fijo), sin
+  // esperar a detectar nada.
+  await waitAssets(manager);
   $("loading").style.display = "none";
+  $("panel").classList.add("on");
+  visible = true; startT = clock.getElapsedTime();
 
-  // Tiempos (s desde la detección): PRIMERO el original (y sostiene), LUEGO el
+  // Tiempos (s desde el arranque): PRIMERO el original (y sostiene), LUEGO el
   // rayos X entra a su opacidad de slider, y recién después las microscopías.
   const T_ORIG = [0.2, 1.0];   // original aparece
   const T_RX   = [1.5, 2.2];   // rayos X entra (a su opacidad de slider)

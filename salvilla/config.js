@@ -1,16 +1,12 @@
-/*  CONFIG DE PIEZA — Salvilla de plata (RA7)
- *  El target es el CUBO RA7 (letras "RA⁷", assets/ra7-target.jpg). ⚠ Mide débil
- *  (detección 647): IMPRIMIRLO GRANDE para que enganche a distancia de visita.
- *  El análisis del equipo (rayos X de la salvilla + tabla FRX) flota anclado al
- *  RA7, en secuencia: primero el rayos X con su nombre, luego la composición.
+/*  CONFIG DE PIEZA — Salvilla de plata, SIN marcador
+ *  Ya no depende de detectar ningún target (antes RA7, letras, medía débil e
+ *  imprimió más chico de lo previsto). El análisis del equipo (rayos X de la
+ *  salvilla + tabla FRX) flota FIJO sobre la cámara en vivo, en secuencia:
+ *  primero el rayos X con su nombre, luego la composición. Calibrar
+ *  tamaño/posición con el celular real: abrir con `?calib=1` en la URL.
  *
  *  ⚠ NOMBRE PROVISIONAL: "Salvilla_de_plata" no está confirmado contra el Excel
  *  (TAREAS.xlsx, col "Nombres oficiales"). Confirmar y renombrar si difiere.
- *
- *  Antes se usaba la foto de la salvilla como image-target (midió 3793) y el
- *  disco caía sobre la pieza real; se conserva target.jpg + marcador.jpg/.mind
- *  por si se vuelve. La posición del análisis sobre el RA7 es preferencia (no hay
- *  nada que "alinear" en las letras): moverla con align.html.
  */
 window.MUSEO_CONFIG = {
   id: "salvilla",
@@ -18,12 +14,8 @@ window.MUSEO_CONFIG = {
   subtitulo: "plata repujada - Siglo XVII · imagen de Rayos X - composición química FRX",
   ficha: "Salvilla, Siglo XVII, plata repujada · Fluorescencia de rayos X (FRX): Plata 90% · Cobre 7% · Oro 1%",
 
-  targetSrc: "assets/targets.mind?v=2",    // MARCADOR RA7 (letras)
-  targetPreview: "assets/ra7-target.jpg",
-
-  // El análisis (rayos X + FRX) anclado al RA7: el disco centrado sobre el
-  // marcador y la tabla FRX al costado. Elegido con render (opción B).
-  // `overlay` define la geometría (y es lo que muestra align.html).
+  // Geometría relativa entre las capas del análisis (medida con align.html;
+  // ya no es relativa a ningún marcador, solo entre sí).
   overlay: {
     src: "assets/original.webp?v=3",     // lo que muestra align.html
     width: 1.70,

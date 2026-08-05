@@ -1,7 +1,9 @@
-/*  MOTOR RA — Salvilla de plata (motor propio). MindAR (marcador RA7) + three.js.
+/*  MOTOR RA — Salvilla de plata (motor propio). SIN marcador + three.js.
  *  Igual que relicario-engine.js (base + slider + reveals + zoom), reutilizado.
  *
- *  El target es el CUBO RA7 (letras), así que el análisis flota anclado a él:
+ *  Ya no depende de detectar ningún target (antes RA7, letras, medía débil e
+ *  imprimió más chico de lo previsto): el análisis flota FIJO sobre la cámara
+ *  en vivo, calibrado a mano una vez (ver shared/no-target-ar.js):
  *   1. Aparece la SALVILLA ORIGINAL (foto a color).
  *   2. Encima, la RADIOGRAFÍA — con opacidad controlada por el usuario (slider):
  *      de 0 (solo original) a 1 (solo rayos X). Arranca a 50% = crossfade.
@@ -11,7 +13,7 @@
  *  a color registrada con el disco de rayos X), así que comparten `overlay`.
  */
 import * as THREE from "three";
-import { MindARThree } from "mindar-image-three";
+import { initFixedAR, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js";
 
 const CFG = window.MUSEO_CONFIG;
 const $ = (id) => document.getElementById(id);
@@ -25,43 +27,19 @@ async function start() {
   $("subtitulo").textContent = CFG.subtitulo || "";
   $("ficha-txt").textContent = CFG.ficha || "";
 
-  let mindar;
+  let renderer, scene, camera, content;
   try {
-    // filterMinCF/filterBeta controlan el suavizado de la pose trackeada
-    // (OneEuroFilter). Se probó subir filterBeta (de 0.001 a 10) para reducir
-    // el retraso que hacía ver el contenido "torcido" al mover el celular,
-    // pero en el celular real un beta alto genera vibración visible del
-    // contenido -- ese es justo el motivo por el que había quedado tan bajo
-    // originalmente. Se revierte a los valores probados que no vibran.
-    mindar = new MindARThree({ container: $("ar"), imageTargetSrc: CFG.targetSrc, uiScanning: "no", uiLoading: "no", filterMinCF: 0.0001, filterBeta: 0.001 });
-  } catch (e) { return fatal("No se pudo iniciar MindAR: " + e.message); }
+    ({ renderer, scene, camera, content } = await initFixedAR({ container: $("ar") }));
+  } catch (e) { return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")"); }
+  // Valores heredados de la última calibración manual en iPhone real (cuando
+  // el contenido todavía colgaba del marcador RA7) -- de partida son tan
+  // válidos como cualquier otro para el espacio fijo nuevo; recalibrar con
+  // ?calib=1 si no calzan.
+  mountCalibPanel(content, { scale: 2.80, x: -0.90, y: 1.05 });
 
-  const { renderer, scene, camera } = mindar;
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  const anchor = mindar.addAnchor(0);
-  const loader = new THREE.TextureLoader();
+  const manager = new THREE.LoadingManager();
+  const loader = new THREE.TextureLoader(manager);
   const tx = (s) => { const t = loader.load(s); t.colorSpace = THREE.SRGBColorSpace; return t; };
-
-  // El target RA7 se imprimió más chico de lo previsto (3cm) y, como todo el
-  // tamaño de la pieza está en unidades "ancho del target = 1", el análisis
-  // salía chico en pantalla. Se probaron dos cálculos automáticos (distancia
-  // fija y luego geometría de cámara/FOV) y ninguno dio el tamaño correcto
-  // en el celular real, así que quedó en CALIBRACIÓN MANUAL: todo el
-  // contenido vive en un grupo aparte (`content`) escalado/corrido por estos
-  // 3 valores fijos, calibrados a mano en un iPhone real (pantalla 7.1cm de
-  // ancho) con el panel de ajuste en vivo (?calib=1, ver historial de git si
-  // hace falta recalibrar — se sacó del código una vez encontrado el número
-  // final). No se ajusta por ancho de pantalla de cada celular: el navegador
-  // no expone el tamaño físico real de forma confiable, y lo que más varía
-  // entre modelos es el FOV de la cámara (no el ancho de pantalla), así que
-  // perseguir eso no daría más precisión — este valor fijo es la mejor
-  // aproximación práctica para todos los celulares.
-  const content = new THREE.Group();
-  anchor.group.add(content);
-  const SCALE = 2.80, OFFSET_X = -0.90, OFFSET_Y = 1.05;
-  content.scale.setScalar(SCALE);
-  content.position.set(OFFSET_X, OFFSET_Y, 0);
 
   const OV = CFG.overlay;
   // Todas las capas son el mismo marco (full-frame) -> misma geometría.
@@ -87,8 +65,6 @@ async function start() {
   let visible = false, startT = 0, rxAlpha = 0.5, ready = false;
   const clock = new THREE.Clock();
   const INTER = CFG.intervaloReveal || 0.9;
-  anchor.onTargetFound = () => { visible = true; startT = clock.getElapsedTime(); $("scan").style.display = "none"; $("panel").classList.add("on"); };
-  anchor.onTargetLost = () => { visible = false; $("scan").style.display = "flex"; $("panel").classList.remove("on"); closeCard(); };
 
   // Slider de rayos X: arranca a 50% (crossfade). "Revelar" alterna 100%/0% a
   // partir de ahí (100 → 0 → 100 → ...); "Repetir" es aparte y reinicia toda
@@ -137,12 +113,14 @@ async function start() {
   window.addEventListener("pointerdown", (e) => handleTap(e.clientX, e.clientY, e.target));
   window.addEventListener("touchstart", (e) => { const t = e.touches && e.touches[0]; if (t) handleTap(t.clientX, t.clientY, e.target); }, { passive: true });
 
-  try { await mindar.start(); }
-  catch (e) { return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")"); }
-  const placa = $("loading").querySelector(".creditos"); if (placa) $("scan").appendChild(placa.cloneNode(true));
+  // Se muestra apenas terminan de bajar las imágenes (+ colchón fijo), sin
+  // esperar a detectar nada.
+  await waitAssets(manager);
   $("loading").style.display = "none";
+  $("panel").classList.add("on");
+  visible = true; startT = clock.getElapsedTime();
 
-  // Tiempos (s desde la detección): PRIMERO el original (y sostiene), LUEGO el
+  // Tiempos (s desde el arranque): PRIMERO el original (y sostiene), LUEGO el
   // rayos X entra a su opacidad de slider, y recién después las microscopías.
   const T_ORIG = [0.2, 1.0];   // original aparece
   const T_RX   = [1.5, 2.2];   // rayos X entra (a su opacidad de slider)

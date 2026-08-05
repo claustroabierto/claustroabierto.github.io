@@ -1,13 +1,13 @@
-/*  MOTOR RA — candelabros (vidrio de uranio) con MARCADOR RA.
- *  El candelabro es vidrio brilloso 3D que NO rastrea como imagen y se mueve en
- *  vitrina → el target es un MARCADOR impreso (foto del candelabro + "RA2"), no
- *  la pieza. Al escanearlo, el candelabro "sale" del marcador, flota, y SE
+/*  MOTOR RA — candelabros (vidrio de uranio), SIN marcador.
+ *  Ya no depende de detectar ningún target (antes RA2, letras+foto, medía
+ *  débil y el tracking temblaba). El candelabro "sale" y flota FIJO sobre la
+ *  cámara en vivo, calibrado a mano una vez (ver shared/no-target-ar.js), y SE
  *  ENCIENDE: una luz UV lo prende y fluoresce verde con un glow que late.
  *
- *  MindAR (image tracking del marcador) + three.js. Base: relicario/marcador-engine.
+ *  three.js. Base: relicario/marcador-engine.
  */
 import * as THREE from "three";
-import { MindARThree } from "mindar-image-three";
+import { initFixedAR, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js";
 
 const CFG = window.MUSEO_CONFIG;
 const $ = (id) => document.getElementById(id);
@@ -23,19 +23,14 @@ async function start() {
   $("subtitulo").textContent = CFG.subtitulo || "";
   $("ficha-txt").textContent = CFG.ficha || "";
 
-  let mindar;
+  let renderer, scene, camera, content;
   try {
-    mindar = new MindARThree({
-      container: $("ar"), imageTargetSrc: CFG.targetSrc,
-      uiScanning: "no", uiLoading: "no", filterMinCF: 0.0001, filterBeta: 0.001
-    });
-  } catch (e) { return fatal("No se pudo iniciar MindAR: " + e.message); }
+    ({ renderer, scene, camera, content } = await initFixedAR({ container: $("ar") }));
+  } catch (e) { return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")"); }
+  mountCalibPanel(content, { scale: 1, x: 0, y: 0 });
 
-  const { renderer, scene, camera } = mindar;
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  const anchor = mindar.addAnchor(0);
-  const loader = new THREE.TextureLoader();
+  const manager = new THREE.LoadingManager();
+  const loader = new THREE.TextureLoader(manager);
   const tx = (s) => { const t = loader.load(s); t.colorSpace = THREE.SRGBColorSpace; return t; };
 
   // --- Glow verde radial (halo de fluorescencia) ---
@@ -65,20 +60,20 @@ async function start() {
     m.renderOrder = 8; return m;
   }
 
-  // --- El candelabro que sale del marcador y se enciende ---
+  // --- El candelabro que aparece y se enciende ---
   const o = CFG.objeto;
   const H = o.size / o.aspect;
   const mat = new THREE.MeshBasicMaterial({ map: tx(o.src), transparent: true, opacity: 0, depthTest: false, depthWrite: false });
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(o.size, H), mat);
-  mesh.renderOrder = 6; anchor.group.add(mesh);
+  mesh.renderOrder = 6; content.add(mesh);
   // halo de glow detrás
   const glowMat = new THREE.SpriteMaterial({ map: makeGlow(), transparent: true, blending: THREE.AdditiveBlending, depthTest: false, depthWrite: false, opacity: 0 });
   const glow = new THREE.Sprite(glowMat);
-  glow.scale.set(o.size * 1.7, H * 1.15, 1); glow.renderOrder = 5; anchor.group.add(glow);
+  glow.scale.set(o.size * 1.7, H * 1.15, 1); glow.renderOrder = 5; content.add(glow);
   // sombra suave
   const shadow = new THREE.Mesh(new THREE.PlaneGeometry(o.size * 0.8, o.size * 0.8 * 0.28),
     new THREE.MeshBasicMaterial({ map: makeGlow(), color: 0x000000, transparent: true, opacity: 0, depthTest: false, depthWrite: false }));
-  shadow.renderOrder = 4; anchor.group.add(shadow);
+  shadow.renderOrder = 4; content.add(shadow);
 
   // --- Comparativas del cristal (sin / con UV) a los costados ---
   // Las comparativas (sinuv/conuv) YA traen su rótulo ("SIN LUZ UV"/"CON LUZ UV")
@@ -86,7 +81,7 @@ async function start() {
   const comps = (CFG.comparativas || []).map((c) => {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(c.size, c.size / c.aspect),
       new THREE.MeshBasicMaterial({ map: tx(c.src), transparent: true, opacity: 0, depthTest: false, depthWrite: false }));
-    m.position.set(c.x, c.y, 0.02); m.renderOrder = 7; anchor.group.add(m);
+    m.position.set(c.x, c.y, 0.02); m.renderOrder = 7; content.add(m);
     return { m };
   });
 
@@ -94,45 +89,28 @@ async function start() {
   const L = CFG.label || { text: "REFLEXIÓN POR RADIACIÓN DE LUZ UV", color: "#eafff0" };
   const title = makeLabel((L.text || "").toUpperCase(), L.width || 1.15, L.color);
   title.position.set(0, (o.size / o.aspect) * 0.5 + 0.12, 0.05);   // arriba del candelabro
-  anchor.group.add(title);
+  content.add(title);
 
   const DARK = new THREE.Color(0.16, 0.20, 0.16);   // candelabro "apagado" (antes del UV)
   const setCaption = (t) => { $("caption").textContent = t || ""; };
 
   let visible = false, startT = 0;
   const clock = new THREE.Clock();
-  anchor.onTargetFound = () => { visible = true; startT = clock.getElapsedTime(); $("scan").style.display = "none"; $("panel").classList.add("on"); };
-  anchor.onTargetLost = () => { visible = false; $("scan").style.display = "flex"; $("panel").classList.remove("on"); };
   const replay = () => { if (visible) startT = clock.getElapsedTime(); };
   const rb = $("btn-repeat"); if (rb) rb.addEventListener("click", (e) => { e.stopPropagation(); replay(); });
   window.addEventListener("pointerdown", (e) => { if (visible && e.target && e.target.closest && !e.target.closest("#panel,#topbar,#error")) replay(); });
 
-  try { await mindar.start(); }
-  catch (e) { return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")"); }
-  const placa = $("loading").querySelector(".creditos");
-  if (placa) $("scan").appendChild(placa.cloneNode(true));
+  // Se muestra apenas terminan de bajar las imágenes (+ colchón fijo), sin
+  // esperar a detectar nada.
+  await waitAssets(manager);
   $("loading").style.display = "none";
-
-  // Suavizado del pose: el marcador RA2 es débil (pocas features) → el tracking
-  // tiembla y la ESCALA oscila (agrande/achique = ruido en la distancia Z). Se
-  // suaviza SOLO la POSICIÓN; la rotación y la escala van CRUDAS (si se suaviza la
-  // rotación, se atrasa y el plano se "chuequea"). Así baja el temblor/agrande sin
-  // torcerse. Un poco de lag de traslación es aceptable porque el candelabro flota.
-  const _p = new THREE.Vector3(), _q = new THREE.Quaternion(), _s = new THREE.Vector3();
-  const sp = new THREE.Vector3(), ss = new THREE.Vector3();
-  let sInit = false;
+  $("panel").classList.add("on");
+  visible = true; startT = clock.getElapsedTime();
 
   renderer.setAnimationLoop(() => {
     const now = clock.getElapsedTime();
     const t = now - startT;
-    if (visible) {
-      anchor.group.matrix.decompose(_p, _q, _s);
-      if (!sInit) { sp.copy(_p); ss.copy(_s); sInit = true; }
-      else { sp.lerp(_p, 0.22); ss.lerp(_s, 0.22); }
-      anchor.group.matrix.compose(sp, _q, ss);   // rotación CRUDA → no se chuequea; posición+escala suavizadas
-      anchor.group.matrixWorldNeedsUpdate = true;
-    } else sInit = false;
-    const appear = visible ? step(0.0, 0.6, t) : 0;     // sale del marcador
+    const appear = visible ? step(0.0, 0.6, t) : 0;     // aparece
     const rise = visible ? step(0.2, 1.1, t) : 0;       // se adelanta/eleva
     const uv = visible ? step(0.9, 2.3, t) : 0;         // la luz UV se "prende"
     const bob = Math.sin(now * 1.1) * 0.02 * appear;
@@ -155,7 +133,7 @@ async function start() {
     title.material.opacity = appear;
     for (const c of comps) { c.m.material.opacity = step(1.4, 2.2, t) * (visible ? 1 : 0); }
 
-    setCaption(t < 0.9 ? "El candelabro sale del marcador…"
+    setCaption(t < 0.9 ? "El candelabro aparece…"
       : uv < 0.99 ? "Encendiendo la luz UV…"
       : "Toca para repetir la fluorescencia");
     renderer.render(scene, camera);

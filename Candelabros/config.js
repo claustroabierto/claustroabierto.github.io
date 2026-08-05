@@ -1,20 +1,14 @@
-/*  CONFIG DE PIEZA — candelabros (vidrio de uranio) · MARCADOR RA
- *  El candelabro es vidrio brilloso 3D que NO rastrea como imagen y se mueve en
- *  vitrina → el target es un MARCADOR impreso (assets/marcador.jpg = foto del
- *  candelabro a cover + "RA2"), no la pieza. Al escanearlo, el candelabro sale
- *  del marcador, flota y SE ENCIENDE en UV (fluorescencia verde con glow).
- *
- *  Marcador preliminar (generado con la foto que ya teníamos) — Jimena lo pule
- *  para imprimir, como el del relicario.
+/*  CONFIG DE PIEZA — candelabros (vidrio de uranio), SIN marcador
+ *  Ya no depende de detectar ningún target (antes RA2, letras+foto, medía
+ *  débil y el tracking temblaba). El candelabro flota FIJO sobre la cámara en
+ *  vivo y SE ENCIENDE en UV (fluorescencia verde con glow). Calibrar
+ *  tamaño/posición con el celular real: abrir con `?calib=1` en la URL.
  */
 window.MUSEO_CONFIG = {
   id: "candelabros",
   titulo: "Candelabros",
   subtitulo: "Cristal de Uranio U - mediados del Siglo XX · Fluorescencia bajo luz ultravioleta UV",
   ficha: "Cristal de Uranio, mediados del Siglo XX · emite niveles bajos de radiación · fluoresce verde intenso brillante al recibir luz UV",
-
-  targetSrc: "assets/targets.mind?v=2",
-  targetPreview: "assets/marcador.png",   // RA2 sobre fondo BLANCO (aplanado) — probado: detecta a ~0.5 m (chico) / ~1 m (grande)
 
   // Título de la pieza (Arial, se muestra en MAYÚSCULAS). Color = el MISMO gris
   // sólido de "CON LUZ UV" de las comparativas (#b4b4b4), sin contorno.

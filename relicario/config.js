@@ -1,21 +1,21 @@
-/*  CONFIG DE PIEZA — Relicario (RA6) · motor propio (relicario-engine.js)
- *  El target es el CUBO RA6 (letras "RA⁶", assets/ra6-target.jpg). ⚠ Mide débil
- *  (detección 651): IMPRIMIRLO GRANDE para que enganche a distancia de visita.
- *  El marcador denso (foto + RA6) NO enganchó en el museo -> se usa el RA6 pelado.
+/*  CONFIG DE PIEZA — Relicario, SIN marcador · motor propio (relicario-engine.js)
+ *  Ya no depende de detectar ningún target (antes RA6, letras, medía débil):
  *
- *  Experiencia (anclada al RA6, motor propio):
  *   1. Aparece el RELICARIO ORIGINAL (foto a color).
  *   2. Encima, la RADIOGRAFÍA con opacidad por SLIDER (0 = original, 1 = rayos X;
  *      arranca a 50% = crossfade). El usuario mezcla original ↔ rayos X.
  *   3. Las 4 MICROSCOPÍAS aparecen una por una, cada una con su flecha.
  *   4. Tocar una microscopía la amplía (zoom).
  *
+ *  Todo flota FIJO sobre la cámara en vivo. Calibrar tamaño/posición con el
+ *  celular real: abrir con `?calib=1` en la URL.
+ *
  *  original.webp y rx.webp = RELICARIOORIGINAL/RX (registrados entre sí, fondo
  *  transparente) colocados donde estaba el rayos X del composite, así las flechas
  *  de las microscopías (micro1..4, recortes del composite del equipo) apuntan bien.
  *
  *  Textos de cada microscopía confirmados por el equipo (2026-08-03, "Modificaciones
- *  de Texto RA"). Posición sobre el RA6 = preferencia (mover con align.html).
+ *  de Texto RA"). Geometría de las capas (full-frame) medida/movida con align.html.
  */
 window.MUSEO_CONFIG = {
   id: "relicario",
@@ -23,11 +23,6 @@ window.MUSEO_CONFIG = {
   subtitulo: "plata dorada - Siglo XVIII · imagen de Rayos X - Microscopía",
   ficha: "Relicario, Siglo XVIII, plata dorada, pigmentos, papel y plumas.",
 
-  targetSrc: "assets/targets.mind?v=2",   // MARCADOR RA6 (letras)
-  targetPreview: "assets/ra6-target.jpg",
-
-  // Geometría de las capas (full-frame) sobre el RA6. Todo se posiciona igual.
-  // Como el RA6 son solo letras, la posición es preferencia -> align.html.
   overlay: {
     src: "assets/original.webp?v=7",      // lo que muestra align.html
     width: 1.55,

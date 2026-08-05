@@ -9,8 +9,7 @@
     #panel .row button{background:var(--gold);color:#1a1206;border:0;border-radius:10px;padding:10px 14px;font-weight:700;font-size:13px;}
 
     /* Pop-up de detalle por elemento: al tocar una región del infográfico
-       anclado se abre esto a pantalla completa, para leer de cerca sin
-       depender de mantener el marcador (débil, letras RA8) en cuadro. */
+       fijo se abre esto a pantalla completa, para leer de cerca. */
     #item-pop { position: fixed; inset: 0; z-index: 50; display: none; flex-direction: column;
       touch-action: none; -webkit-user-select: none; user-select: none;
       background: #0b0910f5; }
@@ -32,8 +31,7 @@
   {
     "imports": {
       "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
-      "mindar-image-three": "https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
     }
   }
   </script>
@@ -44,11 +42,6 @@
   <div id="topbar">
     <div id="titulo">…</div>
     <div id="subtitulo"></div>
-  </div>
-
-  <div id="scan">
-    <div class="frame"></div>
-    <p>Apunta la cámara al <b>RA</b> para revelar su análisis.</p>
   </div>
 
   <div id="panel">
@@ -91,7 +84,7 @@
   </div>
   <div id="error"></div>
 
-  <script src="config.js?v=9"></script>
-  <script type="module" src="ceramica-engine.js?v=6"></script>
+  <script src="config.js?v=10"></script>
+  <script type="module" src="ceramica-engine.js?v=7"></script>
 </body>
 </html>

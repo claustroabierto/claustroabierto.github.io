@@ -12,18 +12,17 @@
   {
     "imports": {
       "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
-      "mindar-image-three": "../shared/preview-stub.js?v=3"
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
     }
   }
   </script>
 </head>
 <body>
+  <script>window.MUSEO_PREVIEW = true;</script>
   <div id="preview-banner" style="position:fixed;left:0;right:0;top:0;z-index:999;background:#c9a24b;color:#1a1206;text-align:center;font:700 11px system-ui,sans-serif;padding:4px 8px">MODO PREVISUALIZACIÓN (sin cámara) <a href="index.html" style="color:#1a1206">real</a></div>
   <style>
     /* La franja de arriba no debe tapar el titulo/subtitulo real de la pieza. */
     #topbar{top:26px !important}
-    #scan{padding-top:26px !important}
   </style>
 
   <div id="ar"></div>
@@ -31,11 +30,6 @@
   <div id="topbar">
     <div id="titulo">…</div>
     <div id="subtitulo"></div>
-  </div>
-
-  <div id="scan">
-    <div class="frame"></div>
-    <p>Apunta la cámara al <b>marcador RA</b> junto al relicario.</p>
   </div>
 
   <div id="card">
@@ -81,7 +75,7 @@
   <div id="zoom"><img id="zoom-img" alt="Microscopía ampliada" /></div>
   <div id="error"></div>
 
-  <script src="config.js?v=17"></script>
-  <script type="module" src="relicario-engine.js?v=6"></script>
+  <script src="config.js?v=18"></script>
+  <script type="module" src="relicario-engine.js?v=7"></script>
 </body>
 </html>
