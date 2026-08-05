@@ -41,16 +41,18 @@ async function start() {
   // tamaño de la pieza está en unidades "ancho del target = 1", el análisis
   // salía chico en pantalla. En vez de tocar cada medida a mano (y que quede
   // atado a ESTE tamaño de impresión en particular), todo el contenido vive
-  // en un grupo aparte (`content`) al que se le compensa la escala cada
-  // cuadro según la distancia real cámara↔target: MindAR no sabe de
-  // centímetros, solo mide esa distancia en sus propias unidades, así que
-  // "target chico" y "cámara lejos" son exactamente lo mismo para este
-  // cálculo. `REF` = la distancia a la que el tamaño queda "normal" (1x) —
-  // ajustar probando con el target real hasta que cubra bien la pantalla a
-  // la distancia en que la gente sostiene el celular.
+  // en un grupo aparte (`content`) al que se le recalcula la escala cada
+  // cuadro para que su ancho ocupe SIEMPRE el ancho completo de la pantalla,
+  // sin importar la distancia real cámara↔target (a diferencia de un factor
+  // fijo, esto se autoajusta solo: más escala cuando el target se ve chico
+  // en cámara, menos cuando se ve grande — nunca hay que "calibrar a mano").
+  // Geometría de la cámara en el frustum: a distancia `d`, lo que se ve de
+  // ancho es `2*d*tan(fov/2)*aspect`; dividir eso entre el ancho de diseño
+  // del contenido (`OV.width`) da el factor de escala exacto.
   const content = new THREE.Group();
   anchor.group.add(content);
-  const REF = 1.4, MIN_SCALE = 1, MAX_SCALE = 4;
+  const FILL = 0.96;           // deja un pequeño margen (4%) para no pegar al borde
+  const MIN_SCALE = 0.2, MAX_SCALE = 8; // solo de resguardo ante saltos de tracking
   const _camPos = new THREE.Vector3(), _ancPos = new THREE.Vector3();
 
   const OV = CFG.overlay;
@@ -141,10 +143,8 @@ async function start() {
   renderer.setAnimationLoop(() => {
     const t = clock.getElapsedTime() - startT;
 
-    // Compensación de escala por distancia (ver comentario más arriba):
-    // multiplicar por la distancia real cancela la división por distancia
-    // que hace la proyección en pantalla, así el tamaño aparente queda
-    // igual sin importar qué tan lejos/cerca esté el celular del target.
+    // Ancho visible a la distancia real cámara↔target (ver comentario más
+    // arriba) → escala exacta para que el contenido llene ese ancho.
     // No aplica en el preview sin cámara: ahí la "distancia" es un número
     // inventado por la cámara falsa para encuadrar bonito, no una medida
     // real, así que compensarla solo lo desencuadra sin decir nada del
@@ -153,7 +153,10 @@ async function start() {
       camera.getWorldPosition(_camPos);
       content.getWorldPosition(_ancPos);
       const dist = _camPos.distanceTo(_ancPos);
-      content.scale.setScalar(THREE.MathUtils.clamp(dist / REF, MIN_SCALE, MAX_SCALE));
+      const halfV = THREE.MathUtils.degToRad(camera.fov) / 2;
+      const visibleWidth = 2 * dist * Math.tan(halfV) * camera.aspect;
+      const scaleFactor = (visibleWidth * FILL) / OV.width;
+      content.scale.setScalar(THREE.MathUtils.clamp(scaleFactor, MIN_SCALE, MAX_SCALE));
     }
 
     const appO = visible ? step(T_ORIG[0], T_ORIG[1], t) : 0;
