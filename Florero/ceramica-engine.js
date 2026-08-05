@@ -150,8 +150,18 @@ async function start() {
     revealT.push(setTimeout(() => { rxImg.style.opacity = 1; }, 250));
     revealT.push(setTimeout(() => { frxImg.style.opacity = 1; }, 950));
   }
+  // Foto del último frame de cámara, para que el fondo del visor congelado
+  // muestre el entorno real (museo) en vez de una pantalla apagada.
+  const snap = $("ficha-snap");
+  function grabSnapshot() {
+    const video = $("ar").querySelector("video");
+    if (!video || !video.videoWidth) return;
+    snap.width = video.videoWidth; snap.height = video.videoHeight;
+    snap.getContext("2d").drawImage(video, 0, 0);
+  }
   function freeze() {
     if (frozen) return; frozen = true;
+    grabSnapshot();
     $("scan").style.display = "none";
     ficha.classList.add("on");
     viewPZ.fitBox(null);

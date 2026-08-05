@@ -14,12 +14,19 @@
     #topbar { z-index: 55; }
 
     /* Visor congelable: al detectar el RA8 el infográfico se fija y se explora
-       con los dedos (pellizcar/arrastrar). La tarjeta ya no necesita estar a la vista. */
+       con los dedos (pellizcar/arrastrar). La tarjeta ya no necesita estar a la vista.
+       El fondo, en vez de un gradiente oscuro plano, es una FOTO congelada de lo
+       que veía la cámara en ese instante (#ficha-snap) -- así se sigue viendo el
+       entorno real detrás del infográfico, no una pantalla apagada. */
     #ficha { position: fixed; inset: 0; z-index: 40; overflow: hidden; opacity: 0;
       pointer-events: none; transition: opacity .9s ease;
       touch-action: none; -webkit-user-select: none; user-select: none;
-      background: radial-gradient(circle at 50% 38%, #17131fef, #0b0910f8); }
+      background: #0b0910; }
     #ficha.on { opacity: 1; pointer-events: auto; }
+    #ficha-snap { position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; filter: brightness(.55) blur(1.5px); }
+    #ficha-tint { position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(circle at 50% 38%, #17131f80, #0b0910c2); }
     #ficha-stage { position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform; }
     #ficha-stage img { position: absolute; top: 0; left: 0; width: 100%; height: 100%;
       opacity: 0; transition: opacity .9s ease; pointer-events: none; -webkit-user-drag: none; }
@@ -75,6 +82,8 @@
 
   <!-- Infográfico congelado (rayos X + cara + tabla FRX apilados) -->
   <div id="ficha">
+    <canvas id="ficha-snap"></canvas>
+    <div id="ficha-tint"></div>
     <div id="ficha-stage">
       <img id="ficha-rx" alt="Rayos X de la cerámica" />
       <img id="ficha-frx" alt="Cara y composición elemental (FRX)" />
@@ -118,6 +127,6 @@
   <div id="error"></div>
 
   <script src="config.js?v=8"></script>
-  <script type="module" src="ceramica-engine.js?v=4"></script>
+  <script type="module" src="ceramica-engine.js?v=5"></script>
 </body>
 </html>
