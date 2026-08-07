@@ -1,21 +1,18 @@
 /*  CONFIG DE PIEZA — San Francisco de Borja · 3D por fotogrametría
- *  La experiencia se ACTIVA escaneando la imagen (foto de la escultura,
- *  assets/sfb-target.jpg, detección 1833). Al detectarla, MindAR se detiene y
- *  aparece un visor 3D (<model-viewer>) con el modelo.
+ *  El modelo 3D aparece DIRECTO al abrir (ya no se activa con un target). Un botón
+ *  "Escuchar bienvenida" abre un pop-up con el video de bienvenida.
  *
  *  El mesh solo está bien resuelto por el FRENTE (la parte de atrás de la
  *  fotogrametría quedó incompleta), así que el giro se LIMITA a un arco frontal
- *  (±55° en azimut). Un vaivén suave dentro de ese arco da vida; el usuario toma
- *  control al tocar.
+ *  (±55° en azimut). Un vaivén suave da vida; el usuario toma control al tocar.
  */
 window.MUSEO_CONFIG = {
-  id: "borja",
+  id: "san_francisco_de_borja",
   titulo: "San Francisco de Borja",
-  subtitulo: "Escultura en 3D · escanea la imagen para activar",
+  subtitulo: "Escultura policromada · modelo 3D (fotogrametría)",
 
-  targetSrc: "assets/targets.mind?v=1",       // la foto de la escultura (image target)
-  targetPreview: "assets/sfb-target.jpg",
   modelo: "assets/borja.glb?v=2",             // modelo 3D texturizado (unlit)
+  video: "assets/bienvenida.mp4?v=1",         // video de bienvenida (pop-up)
 
   // Giro limitado al frente (la parte de atrás del mesh no está terminada).
   orbit: {
