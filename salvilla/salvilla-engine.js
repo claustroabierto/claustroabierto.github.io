@@ -11,9 +11,16 @@
  *
  *  original.webp / rx.webp / frx.webp son full-frame del mismo marco (la salvilla
  *  a color registrada con el disco de rayos X), así que comparten `overlay`.
+ *
+ *  Además, cada zona del análisis (CFG.items con su `bbox`) es tocable: abre un
+ *  POP-UP a pantalla completa con esa parte ampliada y explorable (pellizco/
+ *  arrastre), como el Florero. La diferencia con el Florero es que aquí NO se
+ *  separan las capas: el pop-up mantiene el sobrepuesto y lleva la misma
+ *  barrita de rayos X, sincronizada, para cruzar original↔rayos X ya ampliado.
  */
 import * as THREE from "three";
 import { initFixedAR, fitContentToScreen, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js?v=6";
+import { PanZoom } from "../shared/panzoom.js?v=1";
 
 const CFG = window.MUSEO_CONFIG;
 const $ = (id) => document.getElementById(id);
@@ -72,13 +79,22 @@ async function start() {
   // Slider de rayos X: arranca a 50% (crossfade). "Revelar" alterna 100%/0% a
   // partir de ahí (100 → 0 → 100 → ...); "Repetir" es aparte y reinicia toda
   // la coreografía (original → rayos X → microscopías), sin tocar el slider.
-  const slider = $("reveal");
-  if (slider) { slider.value = 50; slider.addEventListener("input", () => { rxAlpha = slider.value / 100; }); }
+  // Hay DOS barritas (la del panel y la del pop-up de detalle) sobre el mismo
+  // valor: `setRx` es el único sitio que lo cambia, así no se desincronizan.
+  const slider = $("reveal"), popSlider = $("ip-reveal"), popRxImg = $("ip-rx");
+  const popSliderRow = $("item-pop-foot");
+  function setRx(v, from) {
+    rxAlpha = clamp01(v);
+    if (slider && from !== slider) slider.value = rxAlpha * 100;
+    if (popSlider && from !== popSlider) popSlider.value = rxAlpha * 100;
+    if (popRxImg) popRxImg.style.opacity = rxAlpha;
+  }
+  if (slider) { slider.value = 50; slider.addEventListener("input", () => setRx(slider.value / 100, slider)); }
+  if (popSlider) popSlider.addEventListener("input", () => setRx(popSlider.value / 100, popSlider));
   const toggleBtn = $("btn-toggle");
   if (toggleBtn) toggleBtn.addEventListener("click", (e) => {
     e.stopPropagation();
-    rxAlpha = rxAlpha > 0.5 ? 0 : 1;
-    if (slider) slider.value = rxAlpha * 100;
+    setRx(rxAlpha > 0.5 ? 0 : 1);
   });
   const rb = $("btn-repeat"); if (rb) rb.addEventListener("click", (e) => { e.stopPropagation(); if (visible) startT = clock.getElapsedTime(); });
 
@@ -101,17 +117,77 @@ async function start() {
     cardImg.addEventListener("click", () => { if (!cardImg.getAttribute("src")) return; zoomImg.src = cardImg.src; zoom.classList.add("on"); });
     zoom.addEventListener("click", () => zoom.classList.remove("on"));
   }
+  // --- Pop-up de detalle por zona (2D, pantalla completa) ---
+  // Las tres capas van apiladas dentro del stage, con el mismo marco, así que
+  // el sobrepuesto se mantiene ampliado y la barrita del pop-up lo sigue
+  // cruzando. Sin `items` en el config, esto queda inerte.
+  const CW = CFG.fichaW || 2361, CH = CFG.fichaH || 1643;
+  const items = CFG.items || [];
+  const pop = $("item-pop"), popView = $("item-pop-view"), popStage = $("item-pop-stage");
+  const popOpen = () => pop && pop.classList.contains("on");
+  let popPZ = null, popItem = null;
+  if (pop && popView && popStage) {
+    const set = (id, src) => { const el = $(id); if (el) el.src = src || ""; };
+    set("ip-orig", CFG.original); set("ip-rx", CFG.rx); set("ip-frx", (CFG.reveals || [])[0]);
+    popPZ = PanZoom(popView, popStage, CW, CH, { skipSel: "#item-pop-head, #item-pop-foot", pad: 0.92 });
+    $("item-pop-close").addEventListener("click", (e) => { e.stopPropagation(); closeItem(); });
+    pop.addEventListener("click", (e) => { if (e.target === pop) closeItem(); });
+    window.addEventListener("resize", () => { if (popOpen() && popItem) popPZ.fitBox(popItem.bbox); });
+  }
+  const topbar = $("topbar"), panel = $("panel");
+  function openItem(it) {
+    if (!popPZ) return;
+    popItem = it;
+    $("item-pop-title").textContent = it.label || "Detalle";
+    pop.classList.add("on");
+    // El fondo del pop-up no es opaco del todo: sin esconder la barra de abajo
+    // se transparentan los botones y la barrita del panel justo detrás de los
+    // del pop-up, y se lee como una pantalla sucia.
+    if (topbar) topbar.style.display = "none";
+    if (panel) panel.style.display = "none";
+    // La tabla FRX tiene texto NEGRO sobre transparente (en la obra real va
+    // sobre la pared clara que ve la cámara): sobre el fondo oscuro del pop-up
+    // desaparecería. Los items que lo necesiten piden plancha clara.
+    pop.classList.toggle("claro", !!it.fondoClaro);
+    // Capas visibles por item: en el rayos X sobra la flecha que apunta a la
+    // tabla, y en la tabla sobra la pieza.
+    const capas = it.capas || ["orig", "rx", "frx"];
+    ["orig", "rx", "frx"].forEach((c) => { const el = $("ip-" + c); if (el) el.style.display = capas.includes(c) ? "" : "none"; });
+    if (popSliderRow) popSliderRow.style.display = capas.includes("rx") ? "" : "none";
+    setRx(rxAlpha);                       // deja la barrita del pop-up en su sitio
+    popPZ.fitBox(it.bbox);
+  }
+  function closeItem() {
+    pop.classList.remove("on"); popItem = null;
+    if (topbar) topbar.style.display = ""; if (panel) panel.style.display = "";
+  }
+
+  // Toque sobre el análisis anclado: raycast contra el marco (todas las capas
+  // comparten geometría) -> UV -> ¿cayó dentro del bbox de una zona? `1 - uv.y`
+  // porque los bbox se midieron en coordenadas de imagen (0,0 arriba-izquierda)
+  // y la UV de three.js va al revés.
+  const raycaster = new THREE.Raycaster();
+  const ndc = new THREE.Vector2();
   const _wp = new THREE.Vector3();
   function handleTap(cx, cy, target) {
-    if (!visible || !ready) return;
-    if (target && target.closest && target.closest("#panel, #card, #topbar, #zoom")) return;
+    if (!visible || !ready || popOpen()) return;
+    if (target && target.closest && target.closest("#panel, #card, #topbar, #zoom, #item-pop")) return;
     let best = -1, bd = Infinity;
     hits.forEach((m, i) => {
       m.getWorldPosition(_wp); _wp.project(camera); if (_wp.z > 1) return;
       const sx = (_wp.x * 0.5 + 0.5) * innerWidth, sy = (-_wp.y * 0.5 + 0.5) * innerHeight;
       const d = Math.hypot(sx - cx, sy - cy); if (d < bd) { bd = d; best = i; }
     });
-    if (best >= 0 && bd < Math.min(innerWidth, innerHeight) * 0.17) openCard(best);
+    if (best >= 0 && bd < Math.min(innerWidth, innerHeight) * 0.17) return openCard(best);
+    if (!items.length || !popPZ) return;
+    ndc.x = (cx / innerWidth) * 2 - 1;
+    ndc.y = -(cy / innerHeight) * 2 + 1;
+    raycaster.setFromCamera(ndc, camera);
+    const hit = raycaster.intersectObject(original.mesh)[0];
+    if (!hit || !hit.uv) return;
+    const nx = hit.uv.x, ny = 1 - hit.uv.y;
+    const it = items.find((i) => nx >= i.bbox[0] && nx <= i.bbox[2] && ny >= i.bbox[1] && ny <= i.bbox[3]);
+    if (it) openItem(it);
   }
   window.addEventListener("pointerdown", (e) => handleTap(e.clientX, e.clientY, e.target));
   window.addEventListener("touchstart", (e) => { const t = e.touches && e.touches[0]; if (t) handleTap(t.clientX, t.clientY, e.target); }, { passive: true });

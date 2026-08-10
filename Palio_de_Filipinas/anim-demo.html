@@ -98,8 +98,9 @@ function target(b,i,now,mt){
     sy=baseScale*(1+Math.sin(now*1.6+b.ph)*0.015*move);
     z=0.02+move*0.03;
   } else {
-    // insecto: revolotea + aletea
-    const ampMul = mode==="enjambre"?1.0:0.42;
+    // insecto: revolotea + aletea. Mismos multiplicadores que bichos-engine.js
+    // (enjambre bajó de 1.0 a 0.75 al acotar el revoloteo a la tela).
+    const ampMul = mode==="enjambre"?0.75:0.42;
     const amp=b.spread*ampMul;
     ox=Math.sin(now*b.fx+b.ph)*amp*move;
     oy=(Math.sin(now*b.fy+b.ph*1.3)*amp*0.55 + Math.sin(now*1.1+b.ph)*0.012)*move;
@@ -108,7 +109,13 @@ function target(b,i,now,mt){
     rot=Math.sin(now*0.6+b.ph)*0.18*move + flapv*0.025;
     z=0.02+move*(0.05+0.03*Math.sin(now*b.fx+b.ph));
   }
-  return {x:b.x+ox,y:b.y+oy,z,sx,sy,rot};
+  // Recorte a la tela (CFG.bounds), como en el motor real: esta demo tiene su
+  // propia coreografía, pero tampoco puede sacar bichos del mantón.
+  const BN=CFG.bounds;
+  if(!BN) return {x:b.x+ox,y:b.y+oy,z,sx,sy,rot};
+  const hx=Math.abs(sx)/2, hy=Math.abs(sy)/2;
+  const cl=(v,a,c)=> a<=c ? Math.min(c,Math.max(a,v)) : (a+c)/2;   // si no cabe, al medio
+  return {x:cl(b.x+ox,BN.x0+hx,BN.x1-hx), y:cl(b.y+oy,BN.y0+hy,BN.y1-hy), z,sx,sy,rot};
 }
 
 renderer.setAnimationLoop(()=>{

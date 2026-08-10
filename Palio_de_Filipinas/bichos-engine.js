@@ -69,11 +69,38 @@ async function start() {
   const micOv = makeOverlay(CFG.microManton, 0.06, 21, CFG.microReg);  // micro: centrado, sin giro
 
   // --- Insectos (nacen en el centro y vuelan a su sitio) ---
+  // NINGUNO puede salir de la tela: el campo NO es cuadrado (el marcador mide 1
+  // de ancho pero 1/aspect de alto, así que "y" llega a ±0.342 y "x" a ±0.5) y
+  // además la tela no llena el target. `CFG.bounds` es el rectángulo real de la
+  // tela; de ahí sale, por bicho, la caja donde puede estar su CENTRO (restando
+  // medio sprite ya girado y aleteando) y el tope de su revoloteo.
+  const BN = CFG.bounds || { x0: -0.5, x1: 0.5, y0: -0.5 / CFG.aspect, y1: 0.5 / CFG.aspect };
+  const ROT_MAX = 0.31;    // banqueo máximo que aplica trans()
+  const FLAP_MAX = 1.14;   // el aleteo estira el alto hasta +14%
+  const OY = 0.615;        // |oy| máximo por unidad de amplitud (0.82 * 0.75)
+  const AMP = { revolotea: 0.42, enjambre: 0.75 };   // multiplicador de `spread` por modo
+
   const bichos = CFG.bichos.map((b, i) => {
     const mat = new THREE.MeshBasicMaterial({ map: tex(b.src), transparent: true, depthTest: false, depthWrite: false });
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
     mesh.renderOrder = 2 + i; anchor.group.add(mesh);
-    return { ...b, mesh, mat, ph: i * 1.7, fx: 0.33 + i * 0.028, fy: 0.26 + i * 0.022, cur: null };
+    // media caja del sprite girado (proyección de un rectángulo rotado)
+    const hx = (b.size * b.aspect) / 2, hy = (b.size * FLAP_MAX) / 2;
+    const hxr = hx * Math.cos(ROT_MAX) + hy * Math.sin(ROT_MAX);
+    const hyr = hx * Math.sin(ROT_MAX) + hy * Math.cos(ROT_MAX);
+    // El 0 en los min/max garantiza que el centro (donde nacen) siempre entra en
+    // la caja, aunque un sprite fuera más grande que la tela.
+    const box = {
+      x0: Math.min(BN.x0 + hxr, 0), x1: Math.max(BN.x1 - hxr, 0),
+      y0: Math.min(BN.y0 + hyr, 0), y1: Math.max(BN.y1 - hyr, 0)
+    };
+    const px = clamp(b.x, box.x0, box.x1), py = clamp(b.y, box.y0, box.y1);
+    return {
+      ...b, x: px, y: py, mesh, mat, box,
+      roomX: Math.min(px - box.x0, box.x1 - px),   // sitio libre a cada lado
+      roomY: Math.min(py - box.y0, box.y1 - py),
+      ph: i * 1.7, fx: 0.33 + i * 0.028, fy: 0.26 + i * 0.022, cur: null
+    };
   });
 
   // Emergen DESDE EL CENTRO: nacen diminutos en (0,0), salen en ABANICO (arco) a
@@ -92,16 +119,27 @@ async function start() {
     const arc = Math.sin(out * Math.PI) * 0.09 * (i % 2 ? 1 : -1);
     const ax = -b.y / nrm * arc, ay = b.x / nrm * arc;
     // vagabundeo orgánico: dos frecuencias (no mecánico) alrededor del sitio.
-    const amp = b.spread * (mode === "enjambre" ? 1.0 : 0.42);
-    const ox = (Math.sin(now * b.fx + b.ph) * 0.72 + Math.sin(now * b.fx * 0.43 + b.ph * 2.1) * 0.28) * amp * move;
-    const oy = (Math.sin(now * b.fy + b.ph * 1.3) * 0.6 + Math.sin(now * b.fy * 0.37 + b.ph) * 0.22) * amp * 0.75 * move;
+    // La amplitud se recorta al sitio libre hasta el borde de la tela, por eje:
+    // pedir `spread` no alcanza para salirse, y en enjambre tampoco.
+    const want = b.spread * AMP[mode];
+    const ampX = Math.min(want, b.roomX);
+    const ampY = Math.min(want, b.roomY / OY);
+    const ox = (Math.sin(now * b.fx + b.ph) * 0.72 + Math.sin(now * b.fx * 0.43 + b.ph * 2.1) * 0.28) * ampX * move;
+    const oy = (Math.sin(now * b.fy + b.ph * 1.3) * 0.6 + Math.sin(now * b.fy * 0.37 + b.ph) * 0.22) * ampY * 0.75 * move;
     const flapv = Math.sin(now * b.flap + b.ph);
     const sy = baseScale * (1 + flapv * 0.14 * (0.35 + 0.65 * move));
     // banqueo: se inclina según hacia dónde se mueve + micro-aleteo.
     const vx = Math.cos(now * b.fx + b.ph) * b.fx;
     const rot = -clamp(vx * 0.22, -0.28, 0.28) * move + flapv * 0.03;
     const z = 0.02 + move * (0.05 + 0.03 * Math.sin(now * b.fx + b.ph));
-    return { x: bx0 + ax + ox, y: by0 + ay + oy, z, sx, sy, rot };
+    // Recorte final: cubre también el ARCO de la salida (que no depende de la
+    // amplitud). La caja es convexa, así que el suavizado por lerp del bucle
+    // tampoco puede sacar al bicho de la tela.
+    return {
+      x: clamp(bx0 + ax + ox, b.box.x0, b.box.x1),
+      y: clamp(by0 + ay + oy, b.box.y0, b.box.y1),
+      z, sx, sy, rot
+    };
   }
 
   // --- Estado ---

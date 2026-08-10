@@ -29,23 +29,34 @@ window.MUSEO_CONFIG = {
   uvManton:    { src: "assets/uv-manton.webp",    aspect: 1.389 },
   microManton: { src: "assets/micro-manton.webp?v=3", aspect: 1.389 },
 
+  // RECTÁNGULO DE LA TELA dentro del marcador. Ningún bicho puede salir de aquí
+  // (el motor recorta posición y amplitud de revoloteo contra esta caja).
+  // OJO — el campo NO es cuadrado: el marcador mide 1 de ancho pero 1/aspect de
+  // alto (0.684), así que "y" solo llega a ±0.342, la mitad que "x". Además la
+  // tela no llena el target (medido sobre target.jpg: el 6.5% derecho y el 2%
+  // de arriba son pared), por eso x1 no es 0.5 e y1 no es 0.342.
+  // Tela: x -0.500..0.435 · y -0.342..0.328. Aquí va con 0.012 de margen.
+  bounds: { x0: -0.488, x1: 0.423, y0: -0.330, y1: 0.316 },
+
   // 15 insectos: nacen en el CENTRO (0,0) diminutos y vuelan hacia estas posiciones.
   // spread = cuánto revolotea al llegar · flap = aleteo.
+  // Las posiciones están calculadas para que ni en reposo ni revoloteando el
+  // sprite (contando su giro y su aleteo) se salga de `bounds`.
   bichos: [
-    { src: "assets/sprites/mariposa.webp",         aspect: 1.311, x: -0.38, y:  0.26, size: 0.12, spread: 0.24, flap: 9.0 },
-    { src: "assets/sprites/b2-00.webp",            aspect: 0.759, x: -0.15, y:  0.28, size: 0.11, spread: 0.22, flap: 8.0 },
-    { src: "assets/sprites/b2-01.webp",            aspect: 0.750, x:  0.18, y:  0.27, size: 0.11, spread: 0.22, flap: 8.0 },
-    { src: "assets/sprites/libelula-azul.webp",    aspect: 1.379, x:  0.40, y:  0.24, size: 0.13, spread: 0.28, flap: 11.0 },
-    { src: "assets/sprites/libelula-roja.webp",    aspect: 0.707, x: -0.42, y:  0.10, size: 0.12, spread: 0.26, flap: 10.0 },
-    { src: "assets/sprites/insecto-amarillo.webp", aspect: 1.093, x:  0.42, y:  0.13, size: 0.11, spread: 0.22, flap: 8.5 },
-    { src: "assets/sprites/escarabajo-azul.webp",  aspect: 0.590, x: -0.44, y: -0.05, size: 0.10, spread: 0.20, flap: 7.0 },
-    { src: "assets/sprites/escarabajo-morado.webp",aspect: 0.623, x:  0.44, y: -0.03, size: 0.10, spread: 0.20, flap: 7.5 },
-    { src: "assets/sprites/b2-02.webp",            aspect: 0.681, x: -0.40, y: -0.16, size: 0.10, spread: 0.22, flap: 8.0 },
-    { src: "assets/sprites/b2-07.webp",            aspect: 0.866, x: -0.12, y: -0.20, size: 0.10, spread: 0.20, flap: 8.0 },
-    { src: "assets/sprites/b2-08.webp",            aspect: 0.634, x:  0.15, y: -0.18, size: 0.11, spread: 0.24, flap: 9.0 },
-    { src: "assets/sprites/b2-04.webp",            aspect: 0.798, x:  0.40, y: -0.16, size: 0.11, spread: 0.22, flap: 7.5 },
-    { src: "assets/sprites/b2-12.webp",            aspect: 1.563, x: -0.25, y: -0.28, size: 0.10, spread: 0.26, flap: 10.0 },
-    { src: "assets/sprites/b2-13.webp",            aspect: 1.338, x:  0.05, y: -0.29, size: 0.13, spread: 0.24, flap: 8.5 },
-    { src: "assets/sprites/b2-05.webp",            aspect: 0.855, x:  0.30, y: -0.28, size: 0.13, spread: 0.24, flap: 7.0 }
+    { src: "assets/sprites/mariposa.webp",         aspect: 1.311, x: -0.291, y:  0.165, size: 0.12, spread: 0.24, flap: 9.0 },
+    { src: "assets/sprites/b2-00.webp",            aspect: 0.759, x: -0.150, y:  0.187, size: 0.11, spread: 0.22, flap: 8.0 },
+    { src: "assets/sprites/b2-01.webp",            aspect: 0.750, x:  0.180, y:  0.187, size: 0.11, spread: 0.22, flap: 8.0 },
+    { src: "assets/sprites/libelula-azul.webp",    aspect: 1.379, x:  0.197, y:  0.146, size: 0.13, spread: 0.28, flap: 11.0 },
+    { src: "assets/sprites/libelula-roja.webp",    aspect: 0.707, x: -0.318, y:  0.100, size: 0.12, spread: 0.26, flap: 10.0 },
+    { src: "assets/sprites/insecto-amarillo.webp", aspect: 1.093, x:  0.254, y:  0.130, size: 0.11, spread: 0.22, flap: 8.5 },
+    { src: "assets/sprites/escarabajo-azul.webp",  aspect: 0.590, x: -0.359, y: -0.050, size: 0.10, spread: 0.20, flap: 7.0 },
+    { src: "assets/sprites/escarabajo-morado.webp",aspect: 0.623, x:  0.292, y: -0.030, size: 0.10, spread: 0.20, flap: 7.5 },
+    { src: "assets/sprites/b2-02.webp",            aspect: 0.681, x: -0.346, y: -0.160, size: 0.10, spread: 0.22, flap: 8.0 },
+    { src: "assets/sprites/b2-07.webp",            aspect: 0.866, x: -0.120, y: -0.200, size: 0.10, spread: 0.20, flap: 8.0 },
+    { src: "assets/sprites/b2-08.webp",            aspect: 0.634, x:  0.150, y: -0.180, size: 0.11, spread: 0.24, flap: 9.0 },
+    { src: "assets/sprites/b2-04.webp",            aspect: 0.798, x:  0.270, y: -0.160, size: 0.11, spread: 0.22, flap: 7.5 },
+    { src: "assets/sprites/b2-12.webp",            aspect: 1.563, x: -0.250, y: -0.185, size: 0.10, spread: 0.26, flap: 10.0 },
+    { src: "assets/sprites/b2-13.webp",            aspect: 1.338, x:  0.050, y: -0.171, size: 0.13, spread: 0.24, flap: 8.5 },
+    { src: "assets/sprites/b2-05.webp",            aspect: 0.855, x:  0.247, y: -0.180, size: 0.13, spread: 0.24, flap: 7.0 }
   ]
 };

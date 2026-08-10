@@ -19,7 +19,8 @@ html,body{height:100%;background:#0d0b12;color:#f4efe6;overflow:hidden;touch-act
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 </head><body>
 <canvas id="c"></canvas>
-<div id="hint">Toca un <b>bicho</b> para elegirlo · arrástralo a su sitio · <b>+ / −</b> tamaño · <b>Copiar</b> al terminar</div>
+<div id="hint">Toca un <b>bicho</b> · arrástralo · <b>+ / −</b> tamaño · <b>Copiar</b> al terminar<br>
+línea <b style="color:#4bd6ff">azul</b> = borde del mantón · óvalo <b>dorado</b> = hasta dónde revolotea</div>
 <div id="pill">bicho <span class="v" id="pi">–</span>/15<br>x <span class="v" id="px">–</span> · y <span class="v" id="py">–</span><br>size <span class="v" id="ps">–</span></div>
 <div class="bar">
   <button id="prev">◀ ant</button><button id="next">sig ▶</button>
@@ -49,21 +50,55 @@ const loader=new THREE.TextureLoader();const tx=s=>{const t=loader.load(s);t.col
 const manton=new THREE.Mesh(new THREE.PlaneGeometry(1,1/CFG.aspect),
   new THREE.MeshBasicMaterial({map:tx(CFG.targetPreview),depthTest:false,depthWrite:false}));
 manton.position.set(0,0,0);manton.renderOrder=0;scene.add(manton);
+// Rectángulo de la TELA (config.bounds): fuera de aquí el bicho se sale del
+// mantón. El campo NO es cuadrado — "y" solo llega a ±0.342. Se dibuja y se usa
+// para limitar el arrastre, contando medio sprite (girado) y su revoloteo.
+const BN=CFG.bounds||{x0:-0.5,x1:0.5,y0:-0.5/CFG.aspect,y1:0.5/CFG.aspect};
+const ROT_MAX=0.31,FLAP_MAX=1.14,OY=0.615,MUL_N=0.42;
+{ const g=new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(BN.x0,BN.y0,0.03),new THREE.Vector3(BN.x1,BN.y0,0.03),
+    new THREE.Vector3(BN.x1,BN.y1,0.03),new THREE.Vector3(BN.x0,BN.y1,0.03),
+    new THREE.Vector3(BN.x0,BN.y0,0.03)]);
+  const l=new THREE.Line(g,new THREE.LineBasicMaterial({color:0x4bd6ff,transparent:true,opacity:.75}));
+  l.renderOrder=49;scene.add(l); }
 // bichos (estáticos, para posicionar)
 const B=CFG.bichos.map((b,i)=>{
   const mesh=new THREE.Mesh(new THREE.PlaneGeometry(1,1),
     new THREE.MeshBasicMaterial({map:tx(b.src),transparent:true,depthTest:false,depthWrite:false}));
   mesh.renderOrder=2+i;scene.add(mesh);
-  return {x:b.x,y:b.y,size:b.size,aspect:b.aspect,mesh};
+  return {x:b.x,y:b.y,size:b.size,aspect:b.aspect,spread:b.spread,mesh};
 });
+// Caja donde puede estar el CENTRO de un bicho: tela − medio sprite girado −
+// la reserva que necesita para revolotear sin topar el borde.
+function boxOf(b){
+  const hx=b.size*b.aspect/2, hy=b.size*FLAP_MAX/2;
+  const hxr=hx*Math.cos(ROT_MAX)+hy*Math.sin(ROT_MAX);
+  const hyr=hx*Math.sin(ROT_MAX)+hy*Math.cos(ROT_MAX);
+  const rx=b.spread*MUL_N, ry=b.spread*MUL_N*OY;
+  const x0=BN.x0+hxr+rx,x1=BN.x1-hxr-rx,y0=BN.y0+hyr+ry,y1=BN.y1-hyr-ry;
+  const mx=(BN.x0+BN.x1)/2,my=(BN.y0+BN.y1)/2;
+  return x0<=x1&&y0<=y1?{x0,y0,x1,y1}:{x0:Math.min(x0,mx),x1:Math.max(x1,mx),y0:Math.min(y0,my),y1:Math.max(y1,my)};
+}
+function fit(b){const k=boxOf(b);b.x=clamp(b.x,k.x0,k.x1);b.y=clamp(b.y,k.y0,k.y1);}
+B.forEach(fit);
 const START=B.map(b=>({x:b.x,y:b.y,size:b.size}));
 // aro de selección
 const ring=new THREE.Mesh(new THREE.RingGeometry(0.5,0.56,40),
   new THREE.MeshBasicMaterial({color:0xffd24b,transparent:true,opacity:0.95,side:THREE.DoubleSide,depthTest:false}));
 ring.renderOrder=50;ring.visible=false;scene.add(ring);
+// elipse del REVOLOTEO del bicho elegido: hasta dónde llega de verdad al animar
+// (no solo dónde queda quieto). Si toca la línea azul, se sale del mantón.
+const wob=new THREE.Line(
+  new THREE.BufferGeometry().setFromPoints(new THREE.EllipseCurve(0,0,1,1,0,Math.PI*2).getPoints(48)),
+  new THREE.LineBasicMaterial({color:0xffd24b,transparent:true,opacity:.55}));
+wob.renderOrder=48;wob.visible=false;scene.add(wob);
 let sel=0;
 function drawAll(){for(const b of B){b.mesh.position.set(b.x,b.y,0.01);b.mesh.scale.set(b.size*b.aspect,b.size,1);}
-  const b=B[sel];if(b){ring.visible=true;const r=Math.max(b.size*b.aspect,b.size)*0.62;ring.position.set(b.x,b.y,0.02);ring.scale.set(r/0.53,r/0.53,1);}
+  const b=B[sel];if(b){ring.visible=true;const r=Math.max(b.size*b.aspect,b.size)*0.62;ring.position.set(b.x,b.y,0.02);ring.scale.set(r/0.53,r/0.53,1);
+    const hx=b.size*b.aspect/2,hy=b.size*FLAP_MAX/2;
+    wob.visible=true;wob.position.set(b.x,b.y,0.025);
+    wob.scale.set(b.spread*MUL_N+hx*Math.cos(ROT_MAX)+hy*Math.sin(ROT_MAX),
+                  b.spread*MUL_N*OY+hx*Math.sin(ROT_MAX)+hy*Math.cos(ROT_MAX),1);}
   document.getElementById("pi").textContent=sel+1;
   document.getElementById("px").textContent=B[sel].x.toFixed(3);
   document.getElementById("py").textContent=B[sel].y.toFixed(3);
@@ -81,14 +116,16 @@ let drag=false;
 canvas.addEventListener("pointerdown",e=>{canvas.setPointerCapture(e.pointerId);
   const i=pick(e.clientX,e.clientY);if(i>=0){sel=i;drag=true;}drawAll();});
 canvas.addEventListener("pointermove",e=>{if(!drag)return;const w=worldAt(e.clientX,e.clientY);
-  B[sel].x=clamp(w.x,-0.6,0.6);B[sel].y=clamp(w.y,-0.6,0.6);drawAll();});
+  B[sel].x=w.x;B[sel].y=w.y;fit(B[sel]);drawAll();});
 const up=()=>drag=false;canvas.addEventListener("pointerup",up);canvas.addEventListener("pointercancel",up);
-canvas.addEventListener("wheel",e=>{e.preventDefault();B[sel].size=clamp(B[sel].size*(1-e.deltaY*0.0015),0.03,0.4);drawAll();},{passive:false});
+// al cambiar el tamaño hay que re-encajar: un sprite más grande necesita más
+// sitio hasta el borde.
+canvas.addEventListener("wheel",e=>{e.preventDefault();B[sel].size=clamp(B[sel].size*(1-e.deltaY*0.0015),0.03,0.4);fit(B[sel]);drawAll();},{passive:false});
 document.querySelectorAll(".bar button[data-k]").forEach(b=>b.addEventListener("click",()=>{
-  B[sel].size=clamp(B[sel].size+ (+b.dataset.d)*0.006,0.03,0.4);drawAll();}));
+  B[sel].size=clamp(B[sel].size+ (+b.dataset.d)*0.006,0.03,0.4);fit(B[sel]);drawAll();}));
 document.getElementById("prev").addEventListener("click",()=>{sel=(sel+B.length-1)%B.length;drawAll();});
 document.getElementById("next").addEventListener("click",()=>{sel=(sel+1)%B.length;drawAll();});
-document.getElementById("reset").addEventListener("click",()=>{B.forEach((b,i)=>{b.x=START[i].x;b.y=START[i].y;b.size=START[i].size;});drawAll();});
+document.getElementById("reset").addEventListener("click",()=>{B.forEach((b,i)=>{b.x=START[i].x;b.y=START[i].y;b.size=START[i].size;fit(b);});drawAll();});
 const copyBtn=document.getElementById("copy");let ct=0;
 copyBtn.addEventListener("click",async()=>{
   const f=v=>(+v).toFixed(3).replace(/\.?0+$/,'')||'0';
