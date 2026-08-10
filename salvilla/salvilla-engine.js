@@ -145,12 +145,8 @@ async function start() {
     // del pop-up, y se lee como una pantalla sucia.
     if (topbar) topbar.style.display = "none";
     if (panel) panel.style.display = "none";
-    // La tabla FRX tiene texto NEGRO sobre transparente (en la obra real va
-    // sobre la pared clara que ve la cámara): sobre el fondo oscuro del pop-up
-    // desaparecería. Los items que lo necesiten piden plancha clara.
-    pop.classList.toggle("claro", !!it.fondoClaro);
-    // Capas visibles por item: en el rayos X sobra la flecha que apunta a la
-    // tabla, y en la tabla sobra la pieza.
+    // Capas visibles por item: en el detalle de la pieza sobra el FRX, que solo
+    // aportaría la flecha apuntando a una tabla que queda fuera del encuadre.
     const capas = it.capas || ["orig", "rx", "frx"];
     ["orig", "rx", "frx"].forEach((c) => { const el = $("ip-" + c); if (el) el.style.display = capas.includes(c) ? "" : "none"; });
     if (popSliderRow) popSliderRow.style.display = capas.includes("rx") ? "" : "none";

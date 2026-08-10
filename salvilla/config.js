@@ -37,21 +37,16 @@ window.MUSEO_CONFIG = {
   // Marco común de las tres capas, en píxeles (para el pop-up de detalle).
   fichaW: 2361, fichaH: 1643,
 
-  // Zonas tocables: al tocar cada una se abre un pop-up con esa parte ampliada
-  // y explorable con los dedos (igual que el Florero), PERO manteniendo el
+  // Zona tocable: al tocar la PIEZA se abre un pop-up con ella ampliada y
+  // explorable con los dedos (igual que el Florero), PERO manteniendo el
   // sobrepuesto: dentro del pop-up sigue la barrita original↔rayos X.
-  // `bbox` = [x0,y0,x1,y1] normalizados sobre el marco 2361x1643, medidos del
-  // contenido real de rx.webp / frx.webp (no a ojo). El bbox del FRX deja fuera
-  // la flecha a propósito: si se incluyera, el encuadre se iría a la mitad
-  // vacía del marco y la tabla quedaría chica.
-  // `capas` = qué se dibuja en ese detalle (por defecto las tres). En el rayos X
-  // sobra la flecha que apunta a la tabla; en la tabla sobra la pieza.
-  // `fondoClaro` = la capa lleva texto negro sobre transparente (en la obra real
-  // va sobre la pared que ve la cámara), así que dentro del pop-up necesita
-  // plancha clara o los números no se leen.
+  // La tabla FRX NO es tocable a pedido del museo: el acercamiento es solo a la
+  // pieza. `bbox` = [x0,y0,x1,y1] normalizados sobre el marco 2361x1643, medido
+  // del contenido real de rx.webp (no a ojo).
+  // `capas` = qué se dibuja en ese detalle (por defecto las tres): aquí se deja
+  // fuera el FRX porque si no entra la flecha que apunta a una tabla que no está.
   items: [
-    { label: "Imagen de rayos X",           bbox: [0.030, 0.080, 0.622, 0.975], capas: ["orig", "rx"] },
-    { label: "Composición elemental (FRX)", bbox: [0.674, 0.238, 0.909, 0.665], capas: ["frx"], fondoClaro: true }
+    { label: "Imagen de rayos X", bbox: [0.030, 0.080, 0.622, 0.975], capas: ["orig", "rx"] }
   ],
 
   // Sin microscopías tocables: el análisis solo trae rayos X + tabla FRX.

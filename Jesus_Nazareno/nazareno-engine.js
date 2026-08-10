@@ -41,14 +41,10 @@ async function start() {
   const tx = (s) => { const t = loader.load(s); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; };
 
   const MW = 1.0, MH = CFG.markerH || 0.88;
-  // FONDO: la pintura sin el Cristo. El marcador es SOLO el lienzo, pero el
-  // fondo es la foto entera (con marco), así que desborda el marcador -> lleva
-  // su propio plano `fondoPlano`. Sin él se dibujaría del tamaño del lienzo y
-  // la pintura quedaría encogida y descuadrada sobre la obra real.
-  const FP = CFG.fondoPlano || { w: MW, h: MH, x: 0, y: 0 };
+  // FONDO: cubre todo el marcador
   const fondoMat = new THREE.MeshBasicMaterial({ map: tx(CFG.fondo), transparent: true, opacity: 0, depthTest: false, depthWrite: false });
-  const fondo = new THREE.Mesh(new THREE.PlaneGeometry(FP.w, FP.h), fondoMat);
-  fondo.position.set(FP.x, FP.y, 0.001); fondo.renderOrder = 1; anchor.group.add(fondo);
+  const fondo = new THREE.Mesh(new THREE.PlaneGeometry(MW, MH), fondoMat);
+  fondo.position.set(0, 0, 0.001); fondo.renderOrder = 1; anchor.group.add(fondo);
   // CRISTO: plano de la figura, en su sitio sobre el marco
   const F = CFG.figura || { w: MW, h: MH, x: 0, y: 0 };
   const nazMat = new THREE.MeshBasicMaterial({ map: tx(CFG.nazareno), transparent: true, opacity: 0, side: THREE.DoubleSide, depthTest: false, depthWrite: false });
