@@ -18,7 +18,7 @@ window.MUSEO_CONFIG = {
 
   fotoSrc: "assets/ARBARRIL.png?v=1",   // infografía (contenido por defecto)
   videoSrc: "assets/barriles.mp4?v=1",  // animación (fondo verde -> chroma key)
-  cacSrc:  "assets/caceres.jpg?v=1",    // inscripción "Mariscal Cáceres" (pop-up con zoom)
+  cacSrc:  "assets/caceres.png?v=2",    // inscripción "Mariscal Cáceres" — PNG TRANSPARENTE (sin fondo)
 
   fill: 0.98,   // cuánto de la pantalla ocupa el contenido (1 = todo el ancho)
 
