@@ -1,0 +1,92 @@
+/*  MOTOR — Cajonería (experiencia interactiva 2D, sin cámara).
+ *  Dibuja el fondo (la cajonera) encajado en pantalla y coloca un botón sobre
+ *  cada cajón. Al tocar un cajón se abre un pop-up con animación suave que
+ *  muestra la foto del contenido de ese cajón, con zoom por pellizco (PanZoom).
+ */
+import { PanZoom } from "../shared/panzoom.js?v=1";
+
+const CFG = window.MUSEO_CONFIG || {};
+const $ = (id) => document.getElementById(id);
+
+function build() {
+  $("titulo").textContent = CFG.titulo || "Cajonería";
+  $("subtitulo").textContent = CFG.subtitulo || "";
+
+  const cab = $("cab");
+  const bandH = CFG.bandH != null ? CFG.bandH : 0.118;
+
+  // --- Un botón por cajón ---
+  (CFG.cajones || []).forEach((c, i) => {
+    const b = document.createElement("button");
+    b.className = "cajon" + (c.soon ? " soon" : "");
+    b.style.top = ((c.cy - bandH / 2) * 100).toFixed(2) + "%";
+    b.style.height = (bandH * 100).toFixed(2) + "%";
+    b.innerHTML = `<span class="chip"><span class="dot"></span>${c.titulo || "Cajón " + (i + 1)}</span>`;
+    b.addEventListener("click", () => c.soon ? toast("Este cajón aún no tiene contenido") : openPop(c));
+    cab.appendChild(b);
+  });
+
+  // --- Fondo: mostrar recién cuando la imagen esté lista (evita parpadeo) ---
+  const bg = new Image();
+  bg.onload = () => {
+    cab.style.backgroundImage = `url("${CFG.fondo}")`;
+    $("loading").style.display = "none";
+  };
+  bg.onerror = () => { cab.style.backgroundImage = `url("${CFG.fondo}")`; $("loading").style.display = "none"; };
+  bg.src = CFG.fondo;
+}
+
+/* ---------- Pop-up con zoom ---------- */
+const pop = () => $("pop");
+let closeT = 0;
+
+function openPop(c) {
+  clearTimeout(closeT);
+  $("pop-title").innerHTML = c.titulo + (c.sub ? `<small>${c.sub}</small>` : "");
+  const view = $("pop-view");
+  view.innerHTML = "";
+
+  // holder NUEVO en cada apertura => PanZoom no acumula listeners de aperturas previas
+  const holder = document.createElement("div"); holder.className = "pz-holder";
+  const stage = document.createElement("div"); stage.className = "pz-stage";
+  const img = document.createElement("img");
+  img.alt = c.titulo || "";
+  stage.appendChild(img); holder.appendChild(stage); view.appendChild(holder);
+
+  const hint = $("pop-hint"); hint.classList.remove("hide");
+  const hideHint = () => hint.classList.add("hide");
+  holder.addEventListener("pointerdown", hideHint, { once: true });
+
+  img.onload = () => {
+    stage.style.width = img.naturalWidth + "px";
+    stage.style.height = img.naturalHeight + "px";
+    const pz = PanZoom(holder, stage, img.naturalWidth, img.naturalHeight, { pad: 0.96 });
+    pz.fitBox(null);
+  };
+  img.src = c.src;
+
+  pop().classList.add("on");
+  pop().setAttribute("aria-hidden", "false");
+}
+
+function closePop() {
+  pop().classList.remove("on");
+  pop().setAttribute("aria-hidden", "true");
+  closeT = setTimeout(() => { $("pop-view").innerHTML = ""; }, 380);   // limpia tras la animación
+}
+
+/* ---------- Toast ---------- */
+let toastT = 0;
+function toast(msg) {
+  const t = $("toast"); t.textContent = msg; t.classList.add("on");
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 1900);
+}
+
+/* ---------- Cierre del pop-up ---------- */
+window.addEventListener("DOMContentLoaded", () => {
+  build();
+  $("pop-close").addEventListener("click", closePop);
+  // tocar el fondo oscuro (fuera de la imagen/cabecera) cierra
+  pop().addEventListener("pointerdown", (e) => { if (e.target === pop()) closePop(); });
+  window.addEventListener("keydown", (e) => { if (e.key === "Escape" && pop().classList.contains("on")) closePop(); });
+});

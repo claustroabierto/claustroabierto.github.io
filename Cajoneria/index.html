@@ -3,39 +3,96 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <title>RA · Cajonería — Museo Ayacucho</title>
+  <title>Cajonería — Museo Ayacucho</title>
   <link rel="stylesheet" href="../shared/styles.css?v=18" />
   <style>
-    /* Aviso de "todavía no está lista". Se muestra en vez del análisis. */
-    #proxima { position: fixed; inset: 0; z-index: 6; display: none;
-      flex-direction: column; align-items: center; justify-content: center;
-      gap: 14px; text-align: center; padding: 24px;
-      background: radial-gradient(120% 70% at 50% 45%, #0b0910cc, #0b0910f2); }
-    #proxima.on { display: flex; }
-    #proxima .sello { width: 54px; height: 54px; border-radius: 50%;
-      border: 1px solid #c9a24b55; display: flex; align-items: center;
-      justify-content: center; color: var(--gold); font-size: 15px; font-weight: 700; }
-    #proxima h2 { font-size: 18px; font-weight: 700; margin: 0; max-width: 300px; }
-    #proxima p { font-size: 13px; line-height: 1.5; opacity: .75; max-width: 300px; margin: 0; }
-    #proxima a { color: var(--gold); font-size: 13px; margin-top: 6px; }
+    html, body { height: 100%; margin: 0; background: #0d0b12; overflow: hidden; }
+
+    /* --- Escenario: el fondo (cajonera) encajado en pantalla (contain) --- */
+    #stage { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(120% 90% at 50% 40%, #1b1626, #0b0910 75%); }
+    #cab { position: relative; aspect-ratio: 2200 / 1650;
+      width: min(100vw, calc((100vh - 0px) * 2200 / 1650));
+      max-height: 100vh;
+      background: center / contain no-repeat; }
+
+    /* --- Un botón por cajón (banda de ancho completo + chip central) --- */
+    .cajon { position: absolute; left: 9%; width: 82%; border: 0; background: transparent;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      -webkit-tap-highlight-color: transparent; padding: 0; }
+    .cajon::before { content: ""; position: absolute; inset: 6% 0; border-radius: 8px;
+      background: #c9a24b00; transition: background .18s; }
+    .cajon:active::before { background: #c9a24b26; }
+    .chip { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 6px;
+      background: #171320d9; color: #f4efe6; border: 1px solid #c9a24b88; border-radius: 999px;
+      padding: 6px 13px; font: 600 clamp(11px, 2.6vw, 15px) system-ui, sans-serif; white-space: nowrap;
+      box-shadow: 0 2px 10px #0007; backdrop-filter: blur(2px); }
+    .chip .dot { width: 7px; height: 7px; border-radius: 50%; background: #c9a24b;
+      box-shadow: 0 0 0 0 #c9a24bcc; animation: pulse 2s ease-out infinite; }
+    .cajon.soon .chip { border-color: #ffffff33; color: #cfc8bd; opacity: .82; }
+    .cajon.soon .chip .dot { background: #8a8378; animation: none; box-shadow: none; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 #c9a24baa; } 70% { box-shadow: 0 0 0 9px #c9a24b00; } 100% { box-shadow: 0 0 0 0 #c9a24b00; } }
+    @media (prefers-reduced-motion: reduce) { .chip .dot { animation: none; } }
+
+    /* --- Pista inferior --- */
+    #tip { position: fixed; left: 0; right: 0; bottom: calc(12px + env(safe-area-inset-bottom));
+      z-index: 6; text-align: center; color: #e6dfd0; font: 13px system-ui, sans-serif;
+      opacity: .8; pointer-events: none; padding: 0 16px; }
+
+    /* --- Pop-up del contenido del cajón --- */
+    #pop { position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center;
+      background: #000000d9; padding: 0; opacity: 0; visibility: hidden; transition: opacity .28s ease, visibility .28s; }
+    #pop.on { opacity: 1; visibility: visible; }
+    #pop-card { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column;
+      opacity: 0; transform: translateY(26px) scale(.965);
+      transition: transform .36s cubic-bezier(.2,.8,.2,1), opacity .3s ease; }
+    #pop.on #pop-card { opacity: 1; transform: none; }
+    #pop-head { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center;
+      gap: 10px; padding: calc(12px + env(safe-area-inset-top)) 56px 12px;
+      background: linear-gradient(#0b0910f2, #0b091000); }
+    #pop-title { color: #f4efe6; font: 700 17px system-ui, sans-serif; text-align: center; }
+    #pop-title small { display: block; color: #c9a24b; font: 600 12px system-ui, sans-serif; margin-top: 2px; letter-spacing: .3px; }
+    #pop-close { position: absolute; z-index: 4; top: calc(10px + env(safe-area-inset-top)); right: 12px;
+      width: 44px; height: 44px; border-radius: 50%; background: #ffffff2b; color: #fff; border: 0; font-size: 21px; cursor: pointer; }
+    #pop-close:active { background: #ffffff38; }
+    /* Zona de zoom/arrastre (PanZoom se engancha al holder que se crea dentro) */
+    #pop-view { position: absolute; inset: 0; overflow: hidden; touch-action: none; }
+    #pop-view .pz-holder { position: absolute; inset: 0; touch-action: none; }
+    #pop-view .pz-stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+    #pop-view .pz-stage img { display: block; width: 100%; height: 100%; }
+    #pop-hint { position: absolute; left: 0; right: 0; bottom: calc(14px + env(safe-area-inset-bottom));
+      z-index: 2; text-align: center; color: #e6dfd0; font: 12px system-ui, sans-serif; opacity: .7;
+      pointer-events: none; transition: opacity .4s; }
+    #pop-hint.hide { opacity: 0; }
+
+    /* Toast (cajón sin contenido) */
+    #toast { position: fixed; left: 50%; bottom: calc(64px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(10px);
+      z-index: 45; background: #171320f2; color: #f4efe6; border: 1px solid #ffffff22; border-radius: 10px;
+      padding: 10px 15px; font: 13px system-ui, sans-serif; opacity: 0; visibility: hidden; transition: opacity .25s, transform .25s, visibility .25s; }
+    #toast.on { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
-  <div id="ar"></div>
+  <div id="stage"><div id="cab"></div></div>
 
   <div id="topbar">
     <div id="titulo">…</div>
     <div id="subtitulo"></div>
   </div>
 
-  <!-- Aviso provisional: esta pieza aún no tiene su realidad aumentada -->
-  <div id="proxima">
-    <div class="sello">RA</div>
-    <h2>Esta pieza estará disponible muy pronto</h2>
-    <p>Su análisis en realidad aumentada está en preparación. Volvé a escanear
-       este mismo código más adelante para verlo.</p>
-    <a href="../">Ver las demás piezas</a>
+  <div id="tip">Toca un cajón para descubrir su contenido</div>
+
+  <!-- Pop-up del contenido del cajón -->
+  <div id="pop" aria-hidden="true">
+    <div id="pop-card">
+      <div id="pop-head"><div id="pop-title"></div></div>
+      <button id="pop-close" aria-label="Cerrar">✕</button>
+      <div id="pop-view"></div>
+      <div id="pop-hint">Pellizca o desliza para ver el detalle</div>
+    </div>
   </div>
+
+  <div id="toast"></div>
 
   <div id="loading">
     <div class="centro">
@@ -43,14 +100,14 @@
       <div class="expo">Un claustro abierto al mundo a través del arte</div>
       <div class="sede">Monasterio de Carmelitas Descalzas de Santa Teresa · Ayacucho</div>
       <div class="barra"><i></i></div>
-      <div class="estado">Preparando la realidad aumentada…</div>
+      <div class="estado">Cargando la cajonería…</div>
     </div>
     <div class="equipo">
       <span class="rol">Investigaci&oacute;n cient&iacute;fica</span><br>
       Andr&eacute;s De Leo<br>
       Diana Castillo Cerf<br>
       Jimena Caridad Tello Hijar<br>
-      <span class="rol rol2">Realidad aumentada</span><br>
+      <span class="rol rol2">RA - Lumina</span><br>
       Carlos Raith Bravo Valdivia<br>
       Giancarlo Kaqui Valenzuela
     </div>
@@ -69,7 +126,7 @@
   </div>
   <div id="error"></div>
 
-  <script src="config.js?v=1"></script>
-  <script src="../shared/proxima-pieza.js?v=2"></script>
+  <script src="config.js?v=2"></script>
+  <script type="module" src="cajoneria.js?v=1"></script>
 </body>
 </html>
