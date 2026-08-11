@@ -9,14 +9,16 @@
  */
 window.MUSEO_CONFIG = {
   id: "barriles",
-  titulo: "Barril de vino",
-  subtitulo: "Apunta a los barriles · toca el botón para ver la animación",
+  titulo: "Barril de Vino",
+  // 2 líneas (el subtítulo usa white-space:pre-line, el \n se ve como salto):
+  subtitulo: "Madera de roble y cerezo · Siglo XIX\nSe encontró la inscripción “Mariscal Cáceres” en una de las tapas",
 
   targetSrc: "assets/targets.mind?v=1",   // marcador = foto de los barriles reales
   targetPreview: "assets/tgt-barril.jpg",
 
   fotoSrc: "assets/ARBARRIL.png?v=1",      // infografía que aparece al detectar
   videoSrc: "assets/barriles.mp4?v=1",     // animación (fondo verde -> chroma key)
+  cacSrc:  "assets/caceres.jpg?v=1",       // inscripción "Mariscal Cáceres" (pop-up con zoom)
 
   // Planos anclados al marcador (unidades de marcador). Ajustar con align.html.
   foto:  { w: 1.30, h: 1.30, x: 0, y: 0, z: 0.02 },

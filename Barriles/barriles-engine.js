@@ -10,6 +10,7 @@
  */
 import * as THREE from "three";
 import { MindARThree } from "mindar-image-three";
+import { PanZoom } from "../shared/panzoom.js?v=1";
 
 const CFG = window.MUSEO_CONFIG;
 const $ = (id) => document.getElementById(id);
@@ -83,16 +84,40 @@ async function start() {
   const vMesh = new THREE.Mesh(new THREE.PlaneGeometry(V.w, V.h), vMat);
   vMesh.position.set(V.x, V.y, V.z); vMesh.renderOrder = 2; vMesh.visible = false; anchor.group.add(vMesh);
 
-  // --- Estado / botón ---
+  // --- Estado / botones ---
   let visible = false, videoMode = false;
-  const btn = $("anim-btn");
-  function setBtn() { if (btn) btn.textContent = videoMode ? "⤺ Ver información" : "▶ Ver animación"; }
+  const btns = $("btns"), btn = $("anim-btn");
+  function setBtn() { if (btn) btn.textContent = videoMode ? "⤺ Ocultar la animación" : "▶ Toca para ver la animación de los barriles"; }
   function startVideo() { videoMode = true; try { video.currentTime = 0; } catch (_) {} video.play().catch(() => {}); setBtn(); }
   function stopVideo() { videoMode = false; video.pause(); setBtn(); }
 
-  anchor.onTargetFound = () => { visible = true; $("scan").style.display = "none"; if (btn) btn.classList.add("on"); };
-  anchor.onTargetLost = () => { visible = false; $("scan").style.display = "flex"; if (btn) btn.classList.remove("on"); if (videoMode) stopVideo(); };
+  anchor.onTargetFound = () => { visible = true; $("scan").style.display = "none"; if (btns) btns.classList.add("on"); };
+  anchor.onTargetLost = () => { visible = false; $("scan").style.display = "flex"; if (btns) btns.classList.remove("on"); if (videoMode) stopVideo(); };
   if (btn) btn.addEventListener("click", (e) => { e.stopPropagation(); if (!visible) return; if (videoMode) stopVideo(); else startVideo(); });
+
+  // --- Pop-up de la inscripción "Mariscal Cáceres" (zoom por pellizco) ---
+  const cacBtn = $("cac-btn"), cacPop = $("cac-pop");
+  function openCac() {
+    const view = $("cac-view"); view.innerHTML = "";
+    const holder = document.createElement("div"); holder.className = "pz-holder";
+    const stage = document.createElement("div"); stage.className = "pz-stage";
+    const img = document.createElement("img"); img.alt = "Inscripción Mariscal Cáceres";
+    stage.appendChild(img); holder.appendChild(stage); view.appendChild(holder);
+    const hint = $("cac-hint"); hint.classList.remove("hide");
+    holder.addEventListener("pointerdown", () => hint.classList.add("hide"), { once: true });
+    img.onload = () => {
+      stage.style.width = img.naturalWidth + "px"; stage.style.height = img.naturalHeight + "px";
+      PanZoom(holder, stage, img.naturalWidth, img.naturalHeight, { pad: 0.94 }).fitBox(null);
+    };
+    img.src = CFG.cacSrc;
+    cacPop.classList.add("on"); cacPop.setAttribute("aria-hidden", "false");
+  }
+  let cacT = 0;
+  function closeCac() { cacPop.classList.remove("on"); cacPop.setAttribute("aria-hidden", "true"); clearTimeout(cacT); cacT = setTimeout(() => { $("cac-view").innerHTML = ""; }, 380); }
+  if (cacBtn) cacBtn.addEventListener("click", (e) => { e.stopPropagation(); openCac(); });
+  $("cac-close").addEventListener("click", closeCac);
+  cacPop.addEventListener("pointerdown", (e) => { if (e.target === cacPop) closeCac(); });
+  window.addEventListener("keydown", (e) => { if (e.key === "Escape" && cacPop.classList.contains("on")) closeCac(); });
 
   try { await mindar.start(); }
   catch (e) { return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")"); }
