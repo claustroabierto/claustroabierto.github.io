@@ -131,17 +131,6 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
    viewport), que es por qué "no se veían". A 520px solo caen en apaisado. */
 @media (max-height:520px){ #loading .equipo{display:none;} }
 
-/* Crédito de la idea original (equipo Lumina, Disrupton UTEC): no es del
-   equipo que hizo la pieza, así que va aparte y más discreto — pegado al piso
-   de la portada, fuera del flujo flex para no sumarse al presupuesto de alto
-   de #loading .equipo (ver arriba). Se oculta en el mismo punto que aquel. */
-#loading .equipo-pie{position:absolute;left:0;right:0;
-  bottom:calc(8px + env(safe-area-inset-bottom));
-  font-size:10.5px;line-height:1.5;opacity:.5;text-align:center;padding:0 16px;}
-#loading .equipo-pie .rol{color:var(--gold);opacity:.85;font-weight:700;
-  text-transform:uppercase;letter-spacing:1.1px;font-size:9px;}
-@media (max-height:520px){ #loading .equipo-pie{display:none;} }
-
 /* En el escaneo va anclada al pie: centrada competiría con el marco de
    encuadre, que es lo que el visitante tiene que mirar. Se va sola al detectar
    la obra porque #scan entero pasa a display:none. */
