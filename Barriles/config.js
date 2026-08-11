@@ -1,12 +1,11 @@
-/*  CONFIG DE PIEZA — Barril de vino
- *  Contenido FIJO sobre la cámara en vivo (sin MindAR: el rastreo se colgaba al
- *  pedir la cámara en varios celulares). Al abrir aparece la infografía ARBARRIL
- *  sobre los barriles; un botón activa la EXPERIENCIA EXTRA: el video de los
- *  barriles reventando vino con FONDO VERDE eliminado por chroma key (shader).
+/*  CONFIG DE PIEZA — Barril de vino (image target)
+ *  Al apuntar la cámara a los barriles reales (marcador = TargetBarril), aparece la
+ *  infografía ARBARRIL anclada, encajada con el barril. Un botón activa la
+ *  EXPERIENCIA EXTRA: el video de los barriles reventando vino con FONDO VERDE
+ *  eliminado por chroma key en tiempo real (shader), en frente del barril.
  *
- *  El tamaño se autoescala a la pantalla (shared/no-target-ar.js). Ajuste fino con
- *  ?calib=1 en la URL. (targetSrc/targetPreview quedan sin uso; se conservan por si
- *  se vuelve al rastreo de imagen.)
+ *  Geometría en unidades de marcador (el target es 1x1; z+ = hacia el visitante).
+ *  Ajuste fino de posición/tamaño: align.html.
  */
 window.MUSEO_CONFIG = {
   id: "barriles",
@@ -19,10 +18,18 @@ window.MUSEO_CONFIG = {
   fotoSrc: "assets/ARBARRIL.png?v=1",      // infografía que aparece al detectar
   videoSrc: "assets/barriles.mp4?v=1",     // animación (fondo verde -> chroma key)
 
-  // Planos anclados al marcador (unidades de marcador; z+ = hacia el visitante).
-  foto:  { w: 1.25, h: 1.25, x: 0, y: 0, z: 0.02 },
+  // Planos anclados al marcador (unidades de marcador). Ajustar con align.html.
+  foto:  { w: 1.30, h: 1.30, x: 0, y: 0, z: 0.02 },
   video: { w: 1.30, h: 1.30, x: 0, y: 0, z: 0.18 },   // "en frente del barril"
 
-  // Chroma key: color de fondo (RGB 0..255) + umbrales. Verde medido = 93,188,97.
-  chroma: { color: [93, 188, 97], sim: 0.15, edge: 0.12, spill: 0.9 }
+  // Chroma key del video. color = fondo verde (RGB 0..255, medido = 93,188,97).
+  //  similarity : qué tan cerca del verde se recorta (más alto = recorta más).
+  //  smoothness : suavidad del borde.
+  //  spill      : DESPILL — cuánto verde se quita del borde del objeto.
+  //  blackClip  : CLEAN BLACK / black clip — recorta a 0 el alfa bajo (mata verde residual).
+  //  whiteClip  : CLEAN WHITE — solidifica el objeto (alfa alto -> 1).
+  chroma: {
+    color: [93, 188, 97],
+    similarity: 0.40, smoothness: 0.10, spill: 1.1, blackClip: 0.22, whiteClip: 0.16
+  }
 };

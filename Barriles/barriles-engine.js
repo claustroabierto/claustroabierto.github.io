@@ -1,14 +1,15 @@
-/*  MOTOR RA — Barril de vino. Contenido FIJO sobre la cámara en vivo (sin MindAR:
- *  el rastreo de imagen se colgaba al pedir la cámara en varios celulares). Usa el
- *  mismo enfoque que Florero/salvilla (shared/no-target-ar.js): la cámara se toma
- *  directo y el contenido se autoescala para llenar la pantalla.
+/*  MOTOR RA — Barril de vino. MindAR (image target sobre los barriles) + three.js.
+ *  Al DETECTAR el marcador aparece la infografía ARBARRIL anclada (encaja con el
+ *  barril). Un botón activa la EXPERIENCIA EXTRA: el video de los barriles
+ *  reventando vino con FONDO VERDE eliminado por CHROMA KEY en un shader
+ *  (despill + clean black/white), mostrado en frente del barril.
  *
- *  Al abrir aparece la infografía ARBARRIL sobre los barriles. Un botón activa la
- *  EXPERIENCIA EXTRA: el video de los barriles reventando vino con FONDO VERDE
- *  eliminado por CHROMA KEY en un shader (three.js VideoTexture).
+ *  CLAVE anti-cuelgue: el <video> NO se carga hasta DESPUÉS de arrancar la cámara.
+ *  Precargarlo antes competía con la cámara de MindAR por el decodificador de video
+ *  del celular y `mindar.start()` se colgaba (bucle de "cargando").
  */
 import * as THREE from "three";
-import { initFixedAR, fitContentToScreen, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js?v=6";
+import { MindARThree } from "mindar-image-three";
 
 const CFG = window.MUSEO_CONFIG;
 const $ = (id) => document.getElementById(id);
@@ -19,78 +20,93 @@ async function start() {
   $("titulo").textContent = CFG.titulo || "";
   $("subtitulo").textContent = CFG.subtitulo || "";
 
-  let renderer, scene, camera, content;
+  let mindar;
   try {
-    ({ renderer, scene, camera, content } = await initFixedAR({ container: $("ar") }));
-  } catch (e) { return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")"); }
+    mindar = new MindARThree({ container: $("ar"), imageTargetSrc: CFG.targetSrc, uiScanning: "no", uiLoading: "no", filterMinCF: 0.0001, filterBeta: 0.001 });
+  } catch (e) { return fatal("No se pudo iniciar MindAR: " + e.message); }
+  const { renderer, scene, camera } = mindar;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  const anchor = mindar.addAnchor(0);
+  const loader = new THREE.TextureLoader();
 
-  const manager = new THREE.LoadingManager();
-  const loader = new THREE.TextureLoader(manager);
-
-  // --- Infografía ARBARRIL ---
+  // --- Infografía ARBARRIL (aparece al detectar, anclada al barril) ---
+  const P = CFG.foto || { w: 1.25, h: 1.25, x: 0, y: 0, z: 0.02 };
   const photoTex = loader.load(CFG.fotoSrc); photoTex.colorSpace = THREE.SRGBColorSpace;
   const photoMat = new THREE.MeshBasicMaterial({ map: photoTex, transparent: true, opacity: 0, depthTest: false, depthWrite: false });
-  const photoMesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), photoMat);
-  photoMesh.renderOrder = 1; content.add(photoMesh);
+  const photoMesh = new THREE.Mesh(new THREE.PlaneGeometry(P.w, P.h), photoMat);
+  photoMesh.position.set(P.x, P.y, P.z); photoMesh.renderOrder = 1; anchor.group.add(photoMesh);
 
-  // --- Video con chroma key (experiencia extra) ---
+  // --- Video con chroma key (carga DIFERIDA: recién tras arrancar la cámara) ---
   const video = document.createElement("video");
-  video.src = CFG.videoSrc; video.loop = true; video.playsInline = true; video.setAttribute("playsinline", "");
-  video.preload = "auto"; video.crossOrigin = "anonymous";
+  video.loop = true; video.playsInline = true; video.setAttribute("playsinline", ""); video.crossOrigin = "anonymous";
+  video.preload = "none";   // NO cargar todavía
   video.style.cssText = "position:fixed;width:1px;height:1px;left:-10px;top:-10px;opacity:0;pointer-events:none;";
   document.body.appendChild(video);
   const vTex = new THREE.VideoTexture(video); vTex.colorSpace = THREE.SRGBColorSpace;
 
-  const K = CFG.chroma || { color: [93, 188, 97], sim: 0.15, edge: 0.12, spill: 0.9 };
+  const K = CFG.chroma || {};
+  const col = K.color || [93, 188, 97];
   const vMat = new THREE.ShaderMaterial({
     transparent: true, depthTest: false, depthWrite: false,
     uniforms: {
       map: { value: vTex },
-      keyColor: { value: new THREE.Color(K.color[0] / 255, K.color[1] / 255, K.color[2] / 255) },
-      sim: { value: K.sim }, edge: { value: K.edge }, spill: { value: K.spill }, op: { value: 0 }
+      keyColor: { value: new THREE.Color(col[0] / 255, col[1] / 255, col[2] / 255) },
+      similarity: { value: K.similarity != null ? K.similarity : 0.40 },
+      smoothness: { value: K.smoothness != null ? K.smoothness : 0.10 },
+      spill: { value: K.spill != null ? K.spill : 1.1 },
+      blackClip: { value: K.blackClip != null ? K.blackClip : 0.22 },
+      whiteClip: { value: K.whiteClip != null ? K.whiteClip : 0.16 },
+      op: { value: 0 }
     },
     vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }",
     fragmentShader: [
-      "uniform sampler2D map; uniform vec3 keyColor; uniform float sim,edge,spill,op; varying vec2 vUv;",
+      "uniform sampler2D map; uniform vec3 keyColor;",
+      "uniform float similarity, smoothness, spill, blackClip, whiteClip, op; varying vec2 vUv;",
       "void main(){",
-      "  vec4 c = texture2D(map, vUv);",
-      "  float g = c.g - max(c.r, c.b);",              // cuánto domina el verde
-      "  float m = smoothstep(sim, sim + edge, g);",   // 1 = fondo verde, 0 = objeto
-      "  float a = (1.0 - m) * op;",                    // op = fade in/out
-      "  float rb = max(c.r, c.b); c.g = mix(c.g, min(c.g, rb), m * spill);",  // despill
-      "  if (a < 0.02) discard;",
-      "  gl_FragColor = vec4(c.rgb, a);",
+      "  vec3 c = texture2D(map, vUv).rgb;",
+      "  float greenness = c.g - max(c.r, c.b);",              // cuánto domina el verde
+      "  float keyGreen  = keyColor.g - max(keyColor.r, keyColor.b);",
+      "  float d = clamp(greenness / max(keyGreen, 0.001), 0.0, 2.0);",   // 1 = verde puro
+      "  float keyed = smoothstep(similarity, similarity + smoothness, d);",
+      "  float a = 1.0 - keyed;",
+      "  a = clamp((a - blackClip) / max(1.0 - whiteClip - blackClip, 0.001), 0.0, 1.0);",  // clean black / clean white
+      "  c.g -= max(greenness, 0.0) * spill;",                 // despill (quita el verde del borde)
+      "  c = clamp(c, 0.0, 1.0);",
+      "  a *= op;",
+      "  if (a < 0.01) discard;",
+      "  gl_FragColor = vec4(c, a);",
       "}"
     ].join("\n")
   });
-  const vMesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), vMat);
-  vMesh.position.z = 0.01; vMesh.renderOrder = 2; content.add(vMesh);
+  const V = CFG.video || { w: 1.30, h: 1.30, x: 0, y: 0, z: 0.18 };
+  const vMesh = new THREE.Mesh(new THREE.PlaneGeometry(V.w, V.h), vMat);
+  vMesh.position.set(V.x, V.y, V.z); vMesh.renderOrder = 2; vMesh.visible = false; anchor.group.add(vMesh);
 
-  // Autoescala a la pantalla + panel de calibración (?calib=1).
-  const fitter = fitContentToScreen(content, camera);
-  mountCalibPanel(fitter);
-
-  // --- Botón: alterna info <-> animación ---
-  let videoMode = false;
+  // --- Estado / botón ---
+  let visible = false, videoMode = false;
   const btn = $("anim-btn");
   function setBtn() { if (btn) btn.textContent = videoMode ? "⤺ Ver información" : "▶ Ver animación"; }
-  if (btn) btn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    videoMode = !videoMode;
-    if (videoMode) { try { video.currentTime = 0; } catch (_) {} video.play().catch(() => {}); }
-    else video.pause();
-    setBtn();
-  });
+  function startVideo() { videoMode = true; try { video.currentTime = 0; } catch (_) {} video.play().catch(() => {}); setBtn(); }
+  function stopVideo() { videoMode = false; video.pause(); setBtn(); }
 
-  await waitAssets(manager);
+  anchor.onTargetFound = () => { visible = true; $("scan").style.display = "none"; if (btn) btn.classList.add("on"); };
+  anchor.onTargetLost = () => { visible = false; $("scan").style.display = "flex"; if (btn) btn.classList.remove("on"); if (videoMode) stopVideo(); };
+  if (btn) btn.addEventListener("click", (e) => { e.stopPropagation(); if (!visible) return; if (videoMode) stopVideo(); else startVideo(); });
+
+  try { await mindar.start(); }
+  catch (e) { return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")"); }
+
+  // Cámara ya arrancada -> AHORA sí precargar el video (sin competir con MindAR).
+  video.preload = "auto"; video.src = CFG.videoSrc; video.load();
+
+  const placa = $("loading").querySelector(".creditos"); if (placa) $("scan").appendChild(placa.cloneNode(true));
   $("loading").style.display = "none";
-  $("scan").style.display = "none";
-  if (btn) btn.classList.add("on");   // sin detección: el botón está siempre disponible
 
   renderer.setAnimationLoop(() => {
-    const wantPhoto = videoMode ? 0 : 1;
+    const wantPhoto = (visible && !videoMode) ? 1 : 0;
     photoMat.opacity += (wantPhoto - photoMat.opacity) * 0.15;
-    const wantVid = videoMode ? 1 : 0;
+    const wantVid = (visible && videoMode) ? 1 : 0;
     vMat.uniforms.op.value += (wantVid - vMat.uniforms.op.value) * 0.2;
     vMesh.visible = vMat.uniforms.op.value > 0.01;
     renderer.render(scene, camera);
