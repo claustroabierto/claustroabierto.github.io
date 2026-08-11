@@ -27,7 +27,14 @@ window.MUSEO_CONFIG = {
   mantonReg:   { x: -0.036, y: -0.024, size: 0.959, rot: 0.0419 },   // solo UV
   microReg:    { x: -0.028, y: 0.024, size: 1, rot: -0.0209 },      // microscopía (ajustada a mano)
   uvManton:    { src: "assets/uv-manton.webp",    aspect: 1.389 },
-  microManton: { src: "assets/micro-manton.webp?v=3", aspect: 1.389 },
+  // Los 4 círculos venían casi en las esquinas: en el celular quedaban lejísimos
+  // del medallón (el de arriba a la derecha caía ya sobre la pared). En el propio
+  // webp se acercaron al centro al 75% de su distancia al medallón — más cerca ya
+  // le pisan el anillo. Es el MISMO recorte de cada círculo, solo trasladado
+  // (traslación entera, webp lossless): centros 1600x1152 (296,296)/(1305,295)/
+  // (300,751)/(1291,749) → (419,354)/(1176,354)/(422,696)/(1165,694). El título
+  // "MICROSCOPÍA / 10x de aumento" se quedó donde estaba.
+  microManton: { src: "assets/micro-manton.webp?v=4", aspect: 1.389 },
 
   // RECTÁNGULO DE LA TELA dentro del marcador. Ningún bicho puede salir de aquí
   // (el motor recorta posición y amplitud de revoloteo contra esta caja).
