@@ -3,22 +3,49 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <title>RA · Ventana de mármol — Museo Ayacucho</title>
+  <title>RA · Barril de vino — Museo Ayacucho</title>
   <link rel="stylesheet" href="../shared/styles.css?v=18" />
   <style>
-    /* Aviso de "todavía no está lista". Se muestra en vez del análisis. */
-    #proxima { position: fixed; inset: 0; z-index: 6; display: none;
-      flex-direction: column; align-items: center; justify-content: center;
-      gap: 14px; text-align: center; padding: 24px;
-      background: radial-gradient(120% 70% at 50% 45%, #0b0910cc, #0b0910f2); }
-    #proxima.on { display: flex; }
-    #proxima .sello { width: 54px; height: 54px; border-radius: 50%;
-      border: 1px solid #c9a24b55; display: flex; align-items: center;
-      justify-content: center; color: var(--gold); font-size: 15px; font-weight: 700; }
-    #proxima h2 { font-size: 18px; font-weight: 700; margin: 0; max-width: 300px; }
-    #proxima p { font-size: 13px; line-height: 1.5; opacity: .75; max-width: 300px; margin: 0; }
-    #proxima a { color: var(--gold); font-size: 13px; margin-top: 6px; }
+    /* Dos botones (manuales, sin depender de detectar nada) */
+    #btns { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom));
+      z-index: 32; display: none; flex-direction: column; gap: 9px; width: min(92vw, 360px); }
+    #btns.on { display: flex; }
+    #btns button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0;
+      border-radius: 12px; padding: 12px 16px; font: 700 14px system-ui, sans-serif; line-height: 1.25;
+      text-align: center; box-shadow: 0 3px 14px #0008; cursor: pointer; }
+    #btns button:active { filter: brightness(.92); }
+    #anim-btn { background: #c9a24b; color: #1a1206; }
+    #cac-btn { background: #211b2e; color: #f4efe6; border: 1px solid #c9a24b99; }
+
+    /* Pop-up de la inscripción (zoom por pellizco) */
+    #cac-pop { position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center;
+      background: #000000e6; opacity: 0; visibility: hidden; transition: opacity .28s ease, visibility .28s; }
+    #cac-pop.on { opacity: 1; visibility: visible; }
+    #cac-card { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column;
+      opacity: 0; transform: translateY(26px) scale(.965); transition: transform .36s cubic-bezier(.2,.8,.2,1), opacity .3s ease; }
+    #cac-pop.on #cac-card { opacity: 1; transform: none; }
+    #cac-head { position: relative; z-index: 2; padding: calc(12px + env(safe-area-inset-top)) 56px 12px; text-align: center;
+      background: linear-gradient(#0b0910f2, #0b091000); }
+    #cac-head b { color: #f4efe6; font: 700 16px system-ui, sans-serif; }
+    #cac-head small { display: block; color: #c9a24b; font: 600 12px system-ui, sans-serif; margin-top: 2px; }
+    #cac-close { position: absolute; z-index: 4; top: calc(10px + env(safe-area-inset-top)); right: 12px;
+      width: 44px; height: 44px; border-radius: 50%; background: #ffffff2b; color: #fff; border: 0; font-size: 21px; cursor: pointer; }
+    #cac-close:active { background: #ffffff40; }
+    #cac-view { position: absolute; inset: 0; overflow: hidden; touch-action: none; }
+    #cac-view .pz-holder { position: absolute; inset: 0; touch-action: none; }
+    #cac-view .pz-stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+    #cac-view .pz-stage img { display: block; width: 100%; height: 100%; }
+    #cac-hint { position: absolute; left: 0; right: 0; bottom: calc(14px + env(safe-area-inset-bottom)); z-index: 2;
+      text-align: center; color: #e6dfd0; font: 12px system-ui, sans-serif; opacity: .72; pointer-events: none; transition: opacity .4s; }
+    #cac-hint.hide { opacity: 0; }
   </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+    }
+  }
+  </script>
 </head>
 <body>
   <div id="ar"></div>
@@ -28,13 +55,19 @@
     <div id="subtitulo"></div>
   </div>
 
-  <!-- Aviso provisional: esta pieza aún no tiene su realidad aumentada -->
-  <div id="proxima">
-    <div class="sello">RA</div>
-    <h2>Esta pieza estará disponible muy pronto</h2>
-    <p>Su análisis en realidad aumentada está en preparación. Volvé a escanear
-       este mismo código más adelante para verlo.</p>
-    <a href="../">Ver las demás piezas</a>
+  <div id="btns">
+    <button id="cac-btn">🔍 Toca para acercarte a la inscripción de Cáceres</button>
+    <button id="anim-btn">▶ Toca para ver la animación de los barriles</button>
+  </div>
+
+  <!-- Pop-up de la inscripción "Mariscal Cáceres" (zoom por pellizco) -->
+  <div id="cac-pop" aria-hidden="true">
+    <div id="cac-card">
+      <div id="cac-head"><b>Inscripción en la tapa</b><small>“Mariscal Cáceres”</small></div>
+      <button id="cac-close" aria-label="Cerrar">✕</button>
+      <div id="cac-view"></div>
+      <div id="cac-hint">Pellizca o desliza para leer el detalle</div>
+    </div>
   </div>
 
   <div id="loading">
@@ -69,7 +102,7 @@
   </div>
   <div id="error"></div>
 
-  <script src="config.js?v=1"></script>
-  <script src="../shared/proxima-pieza.js?v=2"></script>
+  <script src="config.js?v=5"></script>
+  <script type="module" src="barriles-engine.js?v=5"></script>
 </body>
 </html>
