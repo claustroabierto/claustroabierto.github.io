@@ -18,11 +18,11 @@ function build() {
   // --- Un botón por cajón ---
   (CFG.cajones || []).forEach((c, i) => {
     const b = document.createElement("button");
-    b.className = "cajon" + (c.soon ? " soon" : "");
+    b.className = "cajon";
     b.style.top = ((c.cy - bandH / 2) * 100).toFixed(2) + "%";
     b.style.height = (bandH * 100).toFixed(2) + "%";
     b.innerHTML = `<span class="chip"><span class="dot"></span>${c.titulo || "Cajón " + (i + 1)}</span>`;
-    b.addEventListener("click", () => c.soon ? toast("Este cajón aún no tiene contenido") : openPop(c));
+    b.addEventListener("click", () => openPop(c));
     cab.appendChild(b);
   });
 
@@ -73,13 +73,6 @@ function closePop() {
   pop().classList.remove("on");
   pop().setAttribute("aria-hidden", "true");
   closeT = setTimeout(() => { $("pop-view").innerHTML = ""; }, 380);   // limpia tras la animación
-}
-
-/* ---------- Toast ---------- */
-let toastT = 0;
-function toast(msg) {
-  const t = $("toast"); t.textContent = msg; t.classList.add("on");
-  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 1900);
 }
 
 /* ---------- Cierre del pop-up ---------- */

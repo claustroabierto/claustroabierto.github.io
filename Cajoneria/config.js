@@ -14,7 +14,7 @@ window.MUSEO_CONFIG = {
   titulo: "Cajonería",
   subtitulo: "Toca un cajón para ver lo que guarda",
 
-  fondo: "assets/fondo.jpg?v=1",
+  fondo: "assets/fondo.png?v=2",   // cajonera recortada (PNG transparente) sobre fondo vacío
   aspect: 2200 / 1650,        // 4:3
 
   xCenter: 0.492,             // centro horizontal del rótulo de los cajones
@@ -25,7 +25,7 @@ window.MUSEO_CONFIG = {
     { titulo: "Metales",           src: "assets/metales.jpg?v=1",  cy: 0.328 },
     { titulo: "Metales II",        src: "assets/metales2.jpg?v=1", cy: 0.443 },
     { titulo: "Monedas y exvotos", src: "assets/monedas.jpg?v=1",  cy: 0.547 },
-    { titulo: "Textil",            src: "assets/textil.jpg?v=1",   cy: 0.667 },
-    { titulo: "Cajón 6",           cy: 0.780, soon: true }   // sin foto entregada aún
+    { titulo: "Textil",            src: "assets/textil.jpg?v=1",   cy: 0.667 }
+    // El 6º cajón (cy ~0.78) queda SIN botón a propósito: no tiene contenido.
   ]
 };

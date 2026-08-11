@@ -29,8 +29,6 @@
       box-shadow: 0 2px 10px #0007; backdrop-filter: blur(2px); }
     .chip .dot { width: 7px; height: 7px; border-radius: 50%; background: #c9a24b;
       box-shadow: 0 0 0 0 #c9a24bcc; animation: pulse 2s ease-out infinite; }
-    .cajon.soon .chip { border-color: #ffffff33; color: #cfc8bd; opacity: .82; }
-    .cajon.soon .chip .dot { background: #8a8378; animation: none; box-shadow: none; }
     @keyframes pulse { 0% { box-shadow: 0 0 0 0 #c9a24baa; } 70% { box-shadow: 0 0 0 9px #c9a24b00; } 100% { box-shadow: 0 0 0 0 #c9a24b00; } }
     @media (prefers-reduced-motion: reduce) { .chip .dot { animation: none; } }
 
@@ -65,11 +63,6 @@
       pointer-events: none; transition: opacity .4s; }
     #pop-hint.hide { opacity: 0; }
 
-    /* Toast (cajón sin contenido) */
-    #toast { position: fixed; left: 50%; bottom: calc(64px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(10px);
-      z-index: 45; background: #171320f2; color: #f4efe6; border: 1px solid #ffffff22; border-radius: 10px;
-      padding: 10px 15px; font: 13px system-ui, sans-serif; opacity: 0; visibility: hidden; transition: opacity .25s, transform .25s, visibility .25s; }
-    #toast.on { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
@@ -91,8 +84,6 @@
       <div id="pop-hint">Pellizca o desliza para ver el detalle</div>
     </div>
   </div>
-
-  <div id="toast"></div>
 
   <div id="loading">
     <div class="centro">
@@ -126,7 +117,7 @@
   </div>
   <div id="error"></div>
 
-  <script src="config.js?v=2"></script>
-  <script type="module" src="cajoneria.js?v=1"></script>
+  <script src="config.js?v=3"></script>
+  <script type="module" src="cajoneria.js?v=2"></script>
 </body>
 </html>
