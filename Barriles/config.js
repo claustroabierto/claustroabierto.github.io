@@ -1,11 +1,14 @@
-/*  CONFIG DE PIEZA — Barril de vino (image target)
- *  Al apuntar la cámara a los barriles reales (marcador = TargetBarril), aparece la
- *  infografía ARBARRIL anclada, encajada con el barril. Un botón activa la
- *  EXPERIENCIA EXTRA: el video de los barriles reventando vino con FONDO VERDE
- *  eliminado por chroma key en tiempo real (shader), en frente del barril.
+/*  CONFIG DE PIEZA — Barril de vino (SIN marcador / manual)
  *
- *  Geometría en unidades de marcador (el target es 1x1; z+ = hacia el visitante).
- *  Ajuste fino de posición/tamaño: align.html.
+ *  Los barriles reales no rastrean bien como imagen (madera oscura, poco
+ *  detalle, brillan), así que se saca el tracking: el contenido flota FIJO
+ *  sobre la cámara en vivo (shared/no-target-ar.js) y las dos experiencias se
+ *  activan MANUALMENTE con botones, sin depender de detectar nada.
+ *
+ *  Por defecto se ve la infografía ARBARRIL sobre la cámara. Dos botones:
+ *   · "acercarte a la inscripción de Cáceres" -> pop-up con zoom (caceres.jpg).
+ *   · "ver la animación de los barriles"       -> video con FONDO VERDE quitado
+ *     por chroma key (shader), en el mismo lugar que la infografía.
  */
 window.MUSEO_CONFIG = {
   id: "barriles",
@@ -13,22 +16,17 @@ window.MUSEO_CONFIG = {
   // 2 líneas (el subtítulo usa white-space:pre-line, el \n se ve como salto):
   subtitulo: "Madera de roble y cerezo · Siglo XIX\nSe encontró la inscripción “Mariscal Cáceres” en una de las tapas",
 
-  targetSrc: "assets/targets.mind?v=1",   // marcador = foto de los barriles reales
-  targetPreview: "assets/tgt-barril.jpg",
+  fotoSrc: "assets/ARBARRIL.png?v=1",   // infografía (contenido por defecto)
+  videoSrc: "assets/barriles.mp4?v=1",  // animación (fondo verde -> chroma key)
+  cacSrc:  "assets/caceres.jpg?v=1",    // inscripción "Mariscal Cáceres" (pop-up con zoom)
 
-  fotoSrc: "assets/ARBARRIL.png?v=1",      // infografía que aparece al detectar
-  videoSrc: "assets/barriles.mp4?v=1",     // animación (fondo verde -> chroma key)
-  cacSrc:  "assets/caceres.jpg?v=1",       // inscripción "Mariscal Cáceres" (pop-up con zoom)
-
-  // Planos anclados al marcador (unidades de marcador). Ajustar con align.html.
-  foto:  { w: 1.30, h: 1.30, x: 0, y: 0, z: 0.02 },
-  video: { w: 1.30, h: 1.30, x: 0, y: 0, z: 0.18 },   // "en frente del barril"
+  fill: 0.98,   // cuánto de la pantalla ocupa el contenido (1 = todo el ancho)
 
   // Chroma key del video. color = fondo verde (RGB 0..255, medido = 93,188,97).
   //  similarity : qué tan cerca del verde se recorta (más alto = recorta más).
   //  smoothness : suavidad del borde.
   //  spill      : DESPILL — cuánto verde se quita del borde del objeto.
-  //  blackClip  : CLEAN BLACK / black clip — recorta a 0 el alfa bajo (mata verde residual).
+  //  blackClip  : CLEAN BLACK / black clip — recorta a 0 el alfa bajo.
   //  whiteClip  : CLEAN WHITE — solidifica el objeto (alfa alto -> 1).
   chroma: {
     color: [93, 188, 97],

@@ -6,7 +6,7 @@
   <title>RA · Barril de vino — Museo Ayacucho</title>
   <link rel="stylesheet" href="../shared/styles.css?v=14" />
   <style>
-    /* Dos botones (aparecen al detectar el barril) */
+    /* Dos botones (manuales, sin depender de detectar nada) */
     #btns { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom));
       z-index: 32; display: none; flex-direction: column; gap: 9px; width: min(92vw, 360px); }
     #btns.on { display: flex; }
@@ -42,9 +42,7 @@
   <script type="importmap">
   {
     "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
-      "mindar-image-three": "https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
     }
   }
   </script>
@@ -55,11 +53,6 @@
   <div id="topbar">
     <div id="titulo">…</div>
     <div id="subtitulo"></div>
-  </div>
-
-  <div id="scan">
-    <div class="frame"></div>
-    <p>Apunta la cámara a los <b>barriles de vino</b>.</p>
   </div>
 
   <div id="btns">
@@ -103,7 +96,7 @@
   </div>
   <div id="error"></div>
 
-  <script src="config.js?v=4"></script>
-  <script type="module" src="barriles-engine.js?v=4"></script>
+  <script src="config.js?v=5"></script>
+  <script type="module" src="barriles-engine.js?v=5"></script>
 </body>
 </html>
