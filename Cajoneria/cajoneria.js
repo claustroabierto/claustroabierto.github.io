@@ -1,7 +1,8 @@
-/*  MOTOR — Cajonería (experiencia interactiva 2D, sin cámara).
- *  Dibuja el fondo (la cajonera) encajado en pantalla y coloca un botón sobre
- *  cada cajón. Al tocar un cajón se abre un pop-up con animación suave que
- *  muestra la foto del contenido de ese cajón, con zoom por pellizco (PanZoom).
+/*  MOTOR — Cajonería (AR sin marcador).
+ *  De fondo va la CÁMARA en vivo; encima flota la cajonera (PNG recortado) con
+ *  un botón sobre cada cajón. Al tocar un cajón se abre un pop-up con animación
+ *  suave que muestra la foto del contenido, con zoom por pellizco (PanZoom).
+ *  Si no hay permiso de cámara, cae a un fondo oscuro (la pieza igual funciona).
  */
 import { PanZoom } from "../shared/panzoom.js?v=1";
 
@@ -18,22 +19,40 @@ function build() {
   // --- Un botón por cajón ---
   (CFG.cajones || []).forEach((c, i) => {
     const b = document.createElement("button");
-    b.className = "cajon" + (c.soon ? " soon" : "");
+    b.className = "cajon";
     b.style.top = ((c.cy - bandH / 2) * 100).toFixed(2) + "%";
     b.style.height = (bandH * 100).toFixed(2) + "%";
     b.innerHTML = `<span class="chip"><span class="dot"></span>${c.titulo || "Cajón " + (i + 1)}</span>`;
-    b.addEventListener("click", () => c.soon ? toast("Este cajón aún no tiene contenido") : openPop(c));
+    b.addEventListener("click", () => openPop(c));
     cab.appendChild(b);
   });
 
-  // --- Fondo: mostrar recién cuando la imagen esté lista (evita parpadeo) ---
+  startCamera();   // AR: cámara de fondo (no bloquea; si falla queda el fondo oscuro)
+
+  // --- Cajonera: mostrar recién cuando la imagen esté lista (evita parpadeo) ---
   const bg = new Image();
-  bg.onload = () => {
-    cab.style.backgroundImage = `url("${CFG.fondo}")`;
-    $("loading").style.display = "none";
-  };
-  bg.onerror = () => { cab.style.backgroundImage = `url("${CFG.fondo}")`; $("loading").style.display = "none"; };
+  const show = () => { cab.style.backgroundImage = `url("${CFG.fondo}")`; $("loading").style.display = "none"; };
+  bg.onload = show; bg.onerror = show;
   bg.src = CFG.fondo;
+}
+
+/*  Cámara en vivo de fondo (AR sin marcador). Requiere HTTPS + permiso.
+ *  No es bloqueante: si el visitante no da permiso o no hay cámara, se queda
+ *  el fondo oscuro de respaldo y la cajonera se ve igual. */
+async function startCamera() {
+  const cam = $("cam");
+  const est = document.querySelector("#loading .estado");
+  if (!cam || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+  try {
+    if (est) est.textContent = "Esperando permiso de cámara…";
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } } });
+    cam.srcObject = stream;
+    await cam.play().catch(() => {});
+    document.body.classList.add("cam-on");
+    if (est) est.textContent = "Cargando la cajonería…";
+  } catch (e) {
+    document.body.classList.remove("cam-on");   // sin cámara -> fondo oscuro
+  }
 }
 
 /* ---------- Pop-up con zoom ---------- */
@@ -73,13 +92,6 @@ function closePop() {
   pop().classList.remove("on");
   pop().setAttribute("aria-hidden", "true");
   closeT = setTimeout(() => { $("pop-view").innerHTML = ""; }, 380);   // limpia tras la animación
-}
-
-/* ---------- Toast ---------- */
-let toastT = 0;
-function toast(msg) {
-  const t = $("toast"); t.textContent = msg; t.classList.add("on");
-  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 1900);
 }
 
 /* ---------- Cierre del pop-up ---------- */
