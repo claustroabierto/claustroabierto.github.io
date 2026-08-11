@@ -1,10 +1,12 @@
-/*  CONFIG DE PIEZA — Barril de vino (image target)
- *  Al apuntar la cámara a los barriles reales (marcador = TargetBarril), aparece la
- *  foto/infografía ARBARRIL anclada. Con un botón se activa la EXPERIENCIA EXTRA:
- *  un video de los barriles reventando vino, con FONDO VERDE eliminado por chroma
- *  key en tiempo real (shader), que aparece EN FRENTE del barril.
+/*  CONFIG DE PIEZA — Barril de vino
+ *  Contenido FIJO sobre la cámara en vivo (sin MindAR: el rastreo se colgaba al
+ *  pedir la cámara en varios celulares). Al abrir aparece la infografía ARBARRIL
+ *  sobre los barriles; un botón activa la EXPERIENCIA EXTRA: el video de los
+ *  barriles reventando vino con FONDO VERDE eliminado por chroma key (shader).
  *
- *  Geometría en unidades de marcador (el target es 1x1). Ajuste fino: align.html.
+ *  El tamaño se autoescala a la pantalla (shared/no-target-ar.js). Ajuste fino con
+ *  ?calib=1 en la URL. (targetSrc/targetPreview quedan sin uso; se conservan por si
+ *  se vuelve al rastreo de imagen.)
  */
 window.MUSEO_CONFIG = {
   id: "barriles",

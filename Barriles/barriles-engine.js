@@ -1,10 +1,14 @@
-/*  MOTOR RA — Barril de vino. MindAR (image target sobre los barriles) + three.js.
- *  Al detectar el marcador aparece la infografía ARBARRIL anclada. Un botón activa
- *  la EXPERIENCIA EXTRA: un video de los barriles reventando vino con FONDO VERDE
- *  eliminado por CHROMA KEY en un shader, mostrado en frente del barril.
+/*  MOTOR RA — Barril de vino. Contenido FIJO sobre la cámara en vivo (sin MindAR:
+ *  el rastreo de imagen se colgaba al pedir la cámara en varios celulares). Usa el
+ *  mismo enfoque que Florero/salvilla (shared/no-target-ar.js): la cámara se toma
+ *  directo y el contenido se autoescala para llenar la pantalla.
+ *
+ *  Al abrir aparece la infografía ARBARRIL sobre los barriles. Un botón activa la
+ *  EXPERIENCIA EXTRA: el video de los barriles reventando vino con FONDO VERDE
+ *  eliminado por CHROMA KEY en un shader (three.js VideoTexture).
  */
 import * as THREE from "three";
-import { MindARThree } from "mindar-image-three";
+import { initFixedAR, fitContentToScreen, mountCalibPanel, waitAssets } from "../shared/no-target-ar.js?v=6";
 
 const CFG = window.MUSEO_CONFIG;
 const $ = (id) => document.getElementById(id);
@@ -15,22 +19,19 @@ async function start() {
   $("titulo").textContent = CFG.titulo || "";
   $("subtitulo").textContent = CFG.subtitulo || "";
 
-  let mindar;
+  let renderer, scene, camera, content;
   try {
-    mindar = new MindARThree({ container: $("ar"), imageTargetSrc: CFG.targetSrc, uiScanning: "no", uiLoading: "no", filterMinCF: 0.0001, filterBeta: 0.001 });
-  } catch (e) { return fatal("No se pudo iniciar MindAR: " + e.message); }
-  const { renderer, scene, camera } = mindar;
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  const anchor = mindar.addAnchor(0);
-  const loader = new THREE.TextureLoader();
+    ({ renderer, scene, camera, content } = await initFixedAR({ container: $("ar") }));
+  } catch (e) { return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")"); }
 
-  // --- Infografía ARBARRIL (aparece al detectar) ---
-  const P = CFG.foto || { w: 1.2, h: 1.2, x: 0, y: 0, z: 0.02 };
+  const manager = new THREE.LoadingManager();
+  const loader = new THREE.TextureLoader(manager);
+
+  // --- Infografía ARBARRIL ---
   const photoTex = loader.load(CFG.fotoSrc); photoTex.colorSpace = THREE.SRGBColorSpace;
   const photoMat = new THREE.MeshBasicMaterial({ map: photoTex, transparent: true, opacity: 0, depthTest: false, depthWrite: false });
-  const photoMesh = new THREE.Mesh(new THREE.PlaneGeometry(P.w, P.h), photoMat);
-  photoMesh.position.set(P.x, P.y, P.z); photoMesh.renderOrder = 1; anchor.group.add(photoMesh);
+  const photoMesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), photoMat);
+  photoMesh.renderOrder = 1; content.add(photoMesh);
 
   // --- Video con chroma key (experiencia extra) ---
   const video = document.createElement("video");
@@ -62,32 +63,34 @@ async function start() {
       "}"
     ].join("\n")
   });
-  const V = CFG.video || { w: 1.3, h: 1.3, x: 0, y: 0, z: 0.18 };
-  const vMesh = new THREE.Mesh(new THREE.PlaneGeometry(V.w, V.h), vMat);
-  vMesh.position.set(V.x, V.y, V.z); vMesh.renderOrder = 2; vMesh.visible = false; anchor.group.add(vMesh);
+  const vMesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), vMat);
+  vMesh.position.z = 0.01; vMesh.renderOrder = 2; content.add(vMesh);
 
-  // --- Estado / botón ---
-  let visible = false, videoMode = false;
+  // Autoescala a la pantalla + panel de calibración (?calib=1).
+  const fitter = fitContentToScreen(content, camera);
+  mountCalibPanel(fitter);
+
+  // --- Botón: alterna info <-> animación ---
+  let videoMode = false;
   const btn = $("anim-btn");
   function setBtn() { if (btn) btn.textContent = videoMode ? "⤺ Ver información" : "▶ Ver animación"; }
-  function startVideo() { videoMode = true; try { video.currentTime = 0; } catch (_) {} video.play().catch(() => {}); setBtn(); }
-  function stopVideo() { videoMode = false; video.pause(); setBtn(); }
+  if (btn) btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    videoMode = !videoMode;
+    if (videoMode) { try { video.currentTime = 0; } catch (_) {} video.play().catch(() => {}); }
+    else video.pause();
+    setBtn();
+  });
 
-  anchor.onTargetFound = () => { visible = true; $("scan").style.display = "none"; if (btn) btn.classList.add("on"); };
-  anchor.onTargetLost = () => { visible = false; $("scan").style.display = "flex"; if (btn) btn.classList.remove("on"); if (videoMode) stopVideo(); };
-  if (btn) btn.addEventListener("click", (e) => { e.stopPropagation(); if (!visible) return; if (videoMode) stopVideo(); else startVideo(); });
-
-  try { await mindar.start(); }
-  catch (e) { return fatal("No se pudo acceder a la cámara. Requiere HTTPS y permiso. (" + e.message + ")"); }
-  const placa = $("loading").querySelector(".creditos"); if (placa) $("scan").appendChild(placa.cloneNode(true));
+  await waitAssets(manager);
   $("loading").style.display = "none";
+  $("scan").style.display = "none";
+  if (btn) btn.classList.add("on");   // sin detección: el botón está siempre disponible
 
   renderer.setAnimationLoop(() => {
-    // Foto visible cuando hay marcador y NO estamos en modo video.
-    const wantPhoto = (visible && !videoMode) ? 1 : 0;
+    const wantPhoto = videoMode ? 0 : 1;
     photoMat.opacity += (wantPhoto - photoMat.opacity) * 0.15;
-    // Video (chroma) en modo video.
-    const wantVid = (visible && videoMode) ? 1 : 0;
+    const wantVid = videoMode ? 1 : 0;
     vMat.uniforms.op.value += (wantVid - vMat.uniforms.op.value) * 0.2;
     vMesh.visible = vMat.uniforms.op.value > 0.01;
     renderer.render(scene, camera);
