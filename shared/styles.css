@@ -43,10 +43,11 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
    archivo, así que con esa misma especificidad ganaría el inline. Sumar la
    clase .row-util a la cuenta empareja hacia arriba y gana siempre, sin
    depender del orden de carga. */
-.row-util{margin-top:8px;justify-content:center;}
-#panel .row.row-util button{background:transparent;border:1px solid var(--gold);color:var(--gold);
-  border-radius:10px;padding:8px 14px;font-weight:700;font-size:12px;white-space:nowrap;}
-#panel .row.row-util button.on{background:var(--gold);color:#1a1206;}
+.row-util{margin-top:6px;justify-content:center;}
+#panel .row.row-util button{background:transparent;border:1px solid #c9a24b99;color:var(--gold);
+  border-radius:20px;padding:5px 12px;font-weight:600;font-size:11px;white-space:nowrap;
+  letter-spacing:.2px;}
+#panel .row.row-util button.on{background:var(--gold);color:#1a1206;border-color:var(--gold);}
 
 /* Tarjeta de pigmento */
 #card{position:fixed;left:16px;right:16px;bottom:110px;z-index:8;

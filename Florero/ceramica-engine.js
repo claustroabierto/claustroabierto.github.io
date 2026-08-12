@@ -116,7 +116,7 @@ async function start() {
   if (hideBtn) hideBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     content.visible = !content.visible;
-    hideBtn.textContent = content.visible ? "Ocultar y ver la pieza real" : "Mostrar el análisis";
+    hideBtn.textContent = content.visible ? "👁 Ver pieza real" : "👁 Ver superpuesto";
     hideBtn.classList.toggle("on", !content.visible);
   });
 

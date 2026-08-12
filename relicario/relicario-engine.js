@@ -94,16 +94,16 @@ async function start() {
   });
   const rb = $("btn-repeat"); if (rb) rb.addEventListener("click", (e) => { e.stopPropagation(); if (visible) startT = clock.getElapsedTime(); });
 
-  // Ocultar el análisis: para que el usuario pueda ver la cámara en vivo, sin
-  // el sobrepuesto encima, y comparar/alinear contra la pieza real. No toca el
-  // estado de la coreografía (`visible`/`startT`): al volver a mostrar, sigue
-  // donde iba.
+  // Ocultar SOLO la foto del relicario (capa "original"): el rayos X y las
+  // microscopías con sus animaciones siguen encima, para que el usuario pueda
+  // calzarlos a mano contra la pieza real (que se ve por la cámara, ya sin
+  // la foto tapándola). No toca el estado de la coreografía.
   const hideBtn = $("btn-hide");
   if (hideBtn) hideBtn.addEventListener("click", (e) => {
     e.stopPropagation();
-    content.visible = !content.visible;
-    hideBtn.textContent = content.visible ? "Ocultar y ver la pieza real" : "Mostrar el análisis";
-    hideBtn.classList.toggle("on", !content.visible);
+    original.mesh.visible = !original.mesh.visible;
+    hideBtn.textContent = original.mesh.visible ? "👁 Ver pieza real" : "👁 Ver superpuesto";
+    hideBtn.classList.toggle("on", !original.mesh.visible);
   });
 
   // --- Zoom al tocar una microscopía ---
@@ -127,7 +127,7 @@ async function start() {
   }
   const _wp = new THREE.Vector3();
   function handleTap(cx, cy, target) {
-    if (!visible || !ready || !content.visible) return;
+    if (!visible || !ready) return;
     if (target && target.closest && target.closest("#panel, #card, #topbar, #zoom")) return;
     let best = -1, bd = Infinity;
     hits.forEach((m, i) => {
