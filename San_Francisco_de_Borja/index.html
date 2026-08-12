@@ -10,19 +10,31 @@
     model-viewer { position: fixed; inset: 0; width: 100%; height: 100%;
       --poster-color: transparent; --progress-bar-color: #c9a24b;
       background: radial-gradient(circle at 50% 38%, #1b1626, #0b0910 70%); }
-    #hint3d { position: fixed; left: 0; right: 0; bottom: calc(74px + env(safe-area-inset-bottom)); z-index: 6;
+    /* Ocultar el botón AR por defecto de model-viewer: usamos el nuestro (#ar-btn). */
+    #mv::part(default-ar-button) { display: none; }
+    /* Pista de interacción, debajo del topbar (título + 2 líneas de ficha). */
+    #hint3d { position: fixed; left: 0; right: 0; top: calc(90px + env(safe-area-inset-top)); z-index: 6;
       text-align: center; color: #e6dfd0; font: 13px system-ui, sans-serif; opacity: .82; pointer-events: none; }
+    /* Botón de bienvenida (secundario). Sube cuando aparece el botón AR. */
     #welcome-btn { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom));
-      z-index: 7; display: inline-flex; align-items: center; gap: 8px; background: #c9a24b; color: #1a1206; border: 0;
-      border-radius: 12px; padding: 12px 20px; font: 700 15px system-ui, sans-serif; box-shadow: 0 3px 14px #0008; white-space: nowrap; }
-    #welcome-btn:active { filter: brightness(.92); }
-    /* Botón "Ver en AR" (arriba a la derecha). Oculto por defecto: el motor lo
-       muestra solo si el dispositivo soporta AR (iPhone Quick Look / Android). */
-    #ar-btn { position: fixed; top: calc(12px + env(safe-area-inset-top)); right: 12px; z-index: 8; display: none;
-      align-items: center; gap: 7px; background: #c9a24b; color: #1a1206; border: 0; border-radius: 999px;
-      padding: 9px 15px; font: 700 13px system-ui, sans-serif; box-shadow: 0 3px 14px #0008; white-space: nowrap; cursor: pointer; }
-    #ar-btn:active { filter: brightness(.92); }
+      z-index: 7; display: inline-flex; align-items: center; gap: 8px; background: #211b2e; color: #f4efe6;
+      border: 1px solid #c9a24b99; border-radius: 12px; padding: 12px 20px; font: 700 15px system-ui, sans-serif;
+      box-shadow: 0 3px 14px #0008; white-space: nowrap; }
+    body.ar-ok #welcome-btn { bottom: calc(74px + env(safe-area-inset-bottom)); }
+    #welcome-btn:active { filter: brightness(1.2); }
+    /* Botón "Ver en AR" (PRIMARIO, centrado abajo). Oculto por defecto: el motor
+       lo muestra (.show) solo si el dispositivo soporta AR (iPhone Quick Look /
+       Android Scene Viewer). Late suavemente para que se note. */
+    #ar-btn { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom));
+      z-index: 8; display: none; align-items: center; gap: 8px; background: #c9a24b; color: #1a1206; border: 0;
+      border-radius: 12px; padding: 13px 24px; font: 700 15px system-ui, sans-serif; white-space: nowrap; cursor: pointer;
+      box-shadow: 0 3px 14px #0008, 0 0 0 0 #c9a24b88; animation: arpulse 2.2s ease-out infinite; }
     #ar-btn.show { display: inline-flex; }
+    #ar-btn:active { filter: brightness(.92); animation: none; }
+    @keyframes arpulse { 0% { box-shadow: 0 3px 14px #0008, 0 0 0 0 #c9a24b99; }
+      70% { box-shadow: 0 3px 14px #0008, 0 0 0 15px #c9a24b00; }
+      100% { box-shadow: 0 3px 14px #0008, 0 0 0 0 #c9a24b00; } }
+    @media (prefers-reduced-motion: reduce) { #ar-btn { animation: none; } }
     /* Pop-up del video de bienvenida */
     #video-pop { position: fixed; inset: 0; z-index: 40; display: none; align-items: center; justify-content: center;
       background: #000000e8; padding: 16px; }
@@ -38,14 +50,13 @@
 <body>
   <model-viewer id="mv"
     src="assets/borja.glb?v=2"
-    ios-src="assets/borja.usdz?v=1"
+    ios-src="assets/borja.usdz?v=2"
     ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto"
     alt="Escultura policromada de San Francisco de Borja"
     camera-controls interaction-prompt="auto" interaction-prompt-threshold="1500"
     field-of-view="30deg" min-field-of-view="14deg" max-field-of-view="42deg"
     shadow-intensity="0.85" shadow-softness="1" exposure="1">
     <div id="hint3d">Arrastra para girar (solo el frente) · pellizca para acercar</div>
-    <button slot="ar-button" id="ar-btn">📷 Ver en tu espacio (AR)</button>
   </model-viewer>
 
   <div id="topbar">
@@ -53,6 +64,7 @@
     <div id="subtitulo"></div>
   </div>
 
+  <button id="ar-btn">📷 Ver en tu espacio (AR)</button>
   <button id="welcome-btn">🎥 Escuchar bienvenida</button>
 
   <!-- Pop-up del video de bienvenida -->
@@ -90,6 +102,6 @@
   <div id="error"></div>
 
   <script src="config.js?v=2"></script>
-  <script src="borja-engine.js?v=5"></script>
+  <script src="borja-engine.js?v=6"></script>
 </body>
 </html>

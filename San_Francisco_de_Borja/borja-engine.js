@@ -27,7 +27,14 @@
   // Botón "Ver en AR": mostrarlo SOLO si el dispositivo soporta AR
   // (iPhone Quick Look vía USDZ / Android Scene Viewer o WebXR vía GLB).
   var arBtn = $("ar-btn");
-  function updateAR() { if (arBtn && mv) arBtn.classList.toggle("show", !!mv.canActivateAR); }
+  function updateAR() {
+    var ok = !!(mv && mv.canActivateAR);
+    if (arBtn) arBtn.classList.toggle("show", ok);
+    document.body.classList.toggle("ar-ok", ok);   // sube el botón de bienvenida
+  }
+  if (arBtn && mv) arBtn.addEventListener("click", function () {
+    try { mv.activateAR(); } catch (e) {}           // abre Quick Look (iOS) / Scene Viewer (Android)
+  });
   if (mv) {
     mv.addEventListener("load", updateAR);
     mv.addEventListener("ar-status", updateAR);
