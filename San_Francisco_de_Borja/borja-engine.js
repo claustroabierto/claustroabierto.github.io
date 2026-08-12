@@ -1,7 +1,8 @@
 /*  MOTOR — San Francisco de Borja (3D). SIN cámara ni target: el modelo 3D
  *  (<model-viewer>) se muestra directo al abrir. El giro se limita al frente (el
  *  reverso del mesh no está terminado) y un vaivén suave da vida hasta que el
- *  usuario toca. El botón "Escuchar bienvenida" abre un POP-UP con el video.
+ *  usuario toca. El botón "Escuchar bienvenida" abre la bienvenida en AR
+ *  (video del santo con el fondo eliminado, sobre la cámara) -> borja-welcome-ar.js
  */
 (function () {
   var CFG = window.MUSEO_CONFIG || {};
@@ -54,23 +55,7 @@
   swayRAF = requestAnimationFrame(loop);
   function stopSway() { sway = false; cancelAnimationFrame(swayRAF); }
   if (mv) mv.addEventListener("pointerdown", stopSway);
-
-  // --- Pop-up de video de bienvenida ---
-  var pop = $("video-pop"), vid = $("bienvenida-video");
-  var openBtn = $("welcome-btn"), closeBtn = $("video-close");
-  function openVideo() {
-    if (!pop || !vid) return;
-    stopSway();
-    pop.classList.add("on");
-    try { vid.currentTime = 0; } catch (_) {}
-    vid.play().catch(function () {});   // el toque del botón habilita el audio
-  }
-  function closeVideo() {
-    if (!pop || !vid) return;
-    vid.pause();
-    pop.classList.remove("on");
-  }
-  if (openBtn) openBtn.addEventListener("click", openVideo);
-  if (closeBtn) closeBtn.addEventListener("click", function (e) { e.stopPropagation(); closeVideo(); });
-  if (pop) pop.addEventListener("click", function (e) { if (e.target === pop) closeVideo(); });  // tocar fuera cierra
+  // La bienvenida (video del santo en AR) la maneja borja-welcome-ar.js; le
+  // dejamos cómo cortar el vaivén al abrirse.
+  window.__borjaStopSway = stopSway;
 })();

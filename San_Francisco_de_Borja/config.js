@@ -12,7 +12,9 @@ window.MUSEO_CONFIG = {
   subtitulo: "Escultura policromada · modelo 3D (fotogrametría)",
 
   modelo: "assets/borja.glb?v=2",             // modelo 3D texturizado (unlit)
-  video: "assets/bienvenida.mp4?v=1",         // video de bienvenida (pop-up)
+  // Bienvenida en AR: video "stacked" (color arriba + máscara abajo) del santo
+  // con el fondo gris ya eliminado offline. Se compone sobre la cámara en vivo.
+  videoAR: "assets/bienvenida-ar.mp4?v=1",
 
   // Giro limitado al frente (la parte de atrás del mesh no está terminada).
   orbit: {
