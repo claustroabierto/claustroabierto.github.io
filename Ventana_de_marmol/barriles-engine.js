@@ -38,7 +38,7 @@ async function start() {
 
   // --- Video con chroma key (mismo plano 1x1; carga DIFERIDA tras la cámara) ---
   const video = document.createElement("video");
-  video.loop = true; video.playsInline = true; video.setAttribute("playsinline", ""); video.muted = true; video.crossOrigin = "anonymous";
+  video.loop = true; video.playsInline = true; video.setAttribute("playsinline", ""); video.muted = false; video.crossOrigin = "anonymous";
   video.preload = "none";   // NO cargar todavía (evita competir con la cámara al inicio)
   video.style.cssText = "position:fixed;width:1px;height:1px;left:-10px;top:-10px;opacity:0;pointer-events:none;";
   document.body.appendChild(video);
@@ -88,7 +88,7 @@ async function start() {
   // --- Botones (manuales, siempre disponibles) ---
   let videoMode = false;
   const btns = $("btns"), btn = $("anim-btn");
-  function setBtn() { if (btn) btn.textContent = videoMode ? "⤺ Ocultar la animación" : "▶ Toca para ver la animación de los barriles"; }
+  function setBtn() { if (btn) btn.textContent = videoMode ? "Ocultar la animación" : "Toca para ver la animación de los barriles"; }
   function startVideo() { videoMode = true; try { video.currentTime = 0; } catch (_) {} video.play().catch(() => {}); setBtn(); }
   function stopVideo() { videoMode = false; video.pause(); setBtn(); }
   if (btn) btn.addEventListener("click", (e) => { e.stopPropagation(); videoMode ? stopVideo() : startVideo(); });

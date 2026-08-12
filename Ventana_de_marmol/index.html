@@ -15,7 +15,7 @@
       text-align: center; box-shadow: 0 3px 14px #0008; cursor: pointer; }
     #btns button:active { filter: brightness(.92); }
     #anim-btn { background: #c9a24b; color: #1a1206; }
-    #cac-btn { background: #211b2e; color: #f4efe6; border: 1px solid #c9a24b99; }
+    #cac-btn { background: #c9a24b; color: #1a1206; }
 
     /* Pop-up de la inscripción (zoom por pellizco) */
     #cac-pop { position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center;
@@ -26,8 +26,8 @@
     #cac-pop.on #cac-card { opacity: 1; transform: none; }
     #cac-head { position: relative; z-index: 2; padding: calc(12px + env(safe-area-inset-top)) 56px 12px; text-align: center;
       background: linear-gradient(#0b0910f2, #0b091000); }
-    #cac-head b { color: #f4efe6; font: 700 16px system-ui, sans-serif; }
-    #cac-head small { display: block; color: #c9a24b; font: 600 12px system-ui, sans-serif; margin-top: 2px; }
+    #cac-head b { display: block; color: #f4efe6; font: 800 26px system-ui, sans-serif; letter-spacing: .3px; text-shadow: 0 2px 10px #000; }
+    #cac-head small { display: block; color: #c9a24b; font: 600 11px system-ui, sans-serif; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 3px; }
     #cac-close { position: absolute; z-index: 4; top: calc(10px + env(safe-area-inset-top)); right: 12px;
       width: 44px; height: 44px; border-radius: 50%; background: #ffffff2b; color: #fff; border: 0; font-size: 21px; cursor: pointer; }
     #cac-close:active { background: #ffffff40; }
@@ -56,14 +56,14 @@
   </div>
 
   <div id="btns">
-    <button id="cac-btn">🔍 Toca para acercarte a la inscripción de Cáceres</button>
-    <button id="anim-btn">▶ Toca para ver la animación de los barriles</button>
+    <button id="cac-btn">Toca para acercarte a la inscripción de Cáceres</button>
+    <button id="anim-btn">Toca para ver la animación de los barriles</button>
   </div>
 
   <!-- Pop-up de la inscripción "Mariscal Cáceres" (zoom por pellizco) -->
   <div id="cac-pop" aria-hidden="true">
     <div id="cac-card">
-      <div id="cac-head"><b>Inscripción en la tapa</b><small>“Mariscal Cáceres”</small></div>
+      <div id="cac-head"><small>Inscripción en una de las tapas</small><b>“Mariscal Cáceres”</b></div>
       <button id="cac-close" aria-label="Cerrar">✕</button>
       <div id="cac-view"></div>
       <div id="cac-hint">Pellizca o desliza para leer el detalle</div>
@@ -97,6 +97,6 @@
   <div id="error"></div>
 
   <script src="config.js?v=5"></script>
-  <script type="module" src="barriles-engine.js?v=5"></script>
+  <script type="module" src="barriles-engine.js?v=6"></script>
 </body>
 </html>
