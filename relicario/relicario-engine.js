@@ -52,6 +52,19 @@ async function start() {
   const rxL      = layer(CFG.rx, 0.002, 2);
   const micros   = (CFG.reveals || []).map((src, i) => layer(src, 0.003 + i * 0.001, 5 + i));
 
+  // Rótulos sueltos ("IMAGEN DE RAYOS X" / "MICROSCOPÍA · 10x"): ya no van
+  // horneados al pie del marco, donde el panel de botones los tapaba, sino
+  // arriba, encima de su grupo. Tamaño y centro propios (fracciones del marco),
+  // por eso no pueden usar `layer()`, que asume el marco entero. renderOrder
+  // alto: van por delante de todo lo demás.
+  const rotulos = (CFG.rotulos || []).map((r, i) => {
+    const mat = new THREE.MeshBasicMaterial({ map: tx(r.src), transparent: true, opacity: 0, depthTest: false, depthWrite: false });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(r.w * OV.width, r.h * OV.height), mat);
+    mesh.position.set(OV.offsetX + (r.x - 0.5) * OV.width, OV.offsetY + (0.5 - r.y) * OV.height, 0.03 + i * 0.001);
+    mesh.renderOrder = 30 + i; content.add(mesh);
+    return { mesh, mat };
+  });
+
   // Discos invisibles de toque en cada hotspot (coords normalizadas sobre el marco)
   // + anillo visible del color de cada muestra (mismo patrón que escapulario), para
   // que se note dónde tocar. El anillo solo se enciende cuando `ready` (las 4
@@ -165,6 +178,12 @@ async function start() {
       p.mat.opacity = o; if (o > 0.6) shown++;
     });
     ready = micros.length > 0 && shown >= micros.length;
+
+    // Cada rótulo entra con lo que nombra, igual que cuando venía horneado: el
+    // de rayos X sigue al rayos X (slider incluido), el de microscopía sigue a
+    // la primera microscopía.
+    if (rotulos[0]) rotulos[0].mat.opacity = appR * rxAlpha;
+    if (rotulos[1]) rotulos[1].mat.opacity = micros.length ? micros[0].mat.opacity : 0;
 
     // Anillos: pulsan solo cuando ya se puede tocar (las 4 microscopías completas).
     hotMeshes.forEach((m) => {

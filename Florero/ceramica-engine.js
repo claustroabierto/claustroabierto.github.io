@@ -53,6 +53,11 @@ async function start() {
   }
   const rxL = layer(layers[0], 0.001, 1);
   const frxL = layer(layers[1], 0.002, 2);
+  // Mismo asset que la capa FRX pero SIN la cara a color del florero (solo la
+  // flecha + la tabla). Ya existía para el modo con target; aquí sirve para que
+  // "Ver pieza real" esconda únicamente el florero. Se carga con el mismo
+  // manager para que el cambio sea instantáneo, sin parpadeo.
+  const txFrxConFlorero = frxL.mat.map, txFrxSinFlorero = tx("assets/frx-target.webp?v=1");
 
   // Tamaño: se calcula solo para llenar la pantalla (ver shared/no-target-ar.js).
   const fitter = fitContentToScreen(content, camera);
@@ -108,16 +113,20 @@ async function start() {
   const rb = $("btn-repeat"); if (rb) rb.addEventListener("click", (e) => { e.stopPropagation(); if (visible) startT = clock.getElapsedTime(); });
   window.addEventListener("resize", () => { if (pop.classList.contains("on") && popItem) popPZ.fitBox(popItem.bbox); });
 
-  // Ocultar el análisis: para que el usuario pueda ver la cámara en vivo, sin
-  // el sobrepuesto encima, y comparar/alinear contra la pieza real. No toca el
-  // estado de la coreografía (`visible`/`startT`): al volver a mostrar, sigue
-  // donde iba.
+  // Ocultar SOLO la foto del florero (la cara a color), como en salvilla y
+  // relicario: los rayos X y la tabla FRX se quedan encima, para poder calzarlos
+  // a mano contra la pieza real que se ve por la cámara. Antes escondía TODO el
+  // análisis, que no era lo pedido. No toca el estado de la coreografía
+  // (`visible`/`startT`): la secuencia sigue donde iba.
   const hideBtn = $("btn-hide");
+  let conFlorero = true;
   if (hideBtn) hideBtn.addEventListener("click", (e) => {
     e.stopPropagation();
-    content.visible = !content.visible;
-    hideBtn.textContent = content.visible ? "👁 Ver pieza real" : "👁 Ver superpuesto";
-    hideBtn.classList.toggle("on", !content.visible);
+    conFlorero = !conFlorero;
+    frxL.mat.map = conFlorero ? txFrxConFlorero : txFrxSinFlorero;
+    frxL.mat.needsUpdate = true;
+    hideBtn.textContent = conFlorero ? "👁 Ver pieza real" : "👁 Ver superpuesto";
+    hideBtn.classList.toggle("on", !conFlorero);
   });
 
   // Se muestra apenas terminan de bajar las imágenes (+ colchón fijo), sin

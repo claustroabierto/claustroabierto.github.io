@@ -32,11 +32,21 @@ window.MUSEO_CONFIG = {
   },
 
   original: "assets/original.webp?v=7",   // foto a color (base)
-  rx:       "assets/rx.webp?v=7",         // radiografía (opacidad por slider)
+  rx:       "assets/rx-sin-rotulo.webp?v=1", // radiografía (opacidad por slider), ya sin el rótulo al pie
+
+  // Los rótulos "IMAGEN DE RAYOS X" y "MICROSCOPÍA · 10x de aumento" venían
+  // horneados AL PIE de rx.webp / micro1.webp, justo donde el panel de botones
+  // los tapa. Se extrajeron a assets propios (bbox medido por píxel) para poder
+  // colocarlos ARRIBA, cada uno encima de su grupo. Coordenadas normalizadas
+  // sobre el marco 1754x1851: w/h = tamaño, x/y = centro.
+  rotulos: [
+    { src: "assets/rotulo-rx.webp?v=1",     w: 0.492, h: 0.042, x: 0.272, y: 0.030 },
+    { src: "assets/rotulo-micro1.webp?v=1", w: 0.344, h: 0.072, x: 0.760, y: 0.045 }
+  ],
 
   intervaloReveal: 0.9,
   reveals: [
-    "assets/micro1.webp?v=8",             // columna esmaltada + flecha (+ título "MICROSCOPÍA · 10x de aumento")
+    "assets/micro1-sin-rotulo.webp?v=1",  // columna esmaltada + flecha (el título salió a `rotulos`)
     "assets/micro2.webp?v=7",             // cristales verdes + flecha
     "assets/micro3.webp?v=7",             // concreción mineral + flecha
     "assets/micro4.webp?v=8"              // figura azul + flecha
