@@ -48,7 +48,7 @@
     if (!sway || !mv) return;
     var tt = (performance.now() - t0) / 1000;
     var a = ((CFG.orbit && CFG.orbit.swayDeg) || 35) * Math.sin(tt * 0.5);
-    mv.setAttribute("camera-orbit", a.toFixed(1) + "deg 82deg 105%");
+    mv.setAttribute("camera-orbit", a.toFixed(1) + "deg 82deg 190%");
     swayRAF = requestAnimationFrame(loop);
   }
   swayRAF = requestAnimationFrame(loop);
