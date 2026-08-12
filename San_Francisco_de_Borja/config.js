@@ -16,9 +16,9 @@ window.MUSEO_CONFIG = {
 
   // Giro limitado al frente (la parte de atrás del mesh no está terminada).
   orbit: {
-    inicial: "0deg 82deg 105%",
+    inicial: "0deg 82deg 190%",
     min: "-55deg 45deg auto",
-    max: "55deg 112deg auto",
+    max: "55deg 112deg 320%",
     swayDeg: 38                               // amplitud del vaivén suave (azimut)
   }
 };
