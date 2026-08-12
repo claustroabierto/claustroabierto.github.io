@@ -39,9 +39,15 @@ window.MUSEO_CONFIG = {
   // los tapa. Se extrajeron a assets propios (bbox medido por píxel) para poder
   // colocarlos ARRIBA, cada uno encima de su grupo. Coordenadas normalizadas
   // sobre el marco 1754x1851: w/h = tamaño, x/y = centro.
+  //
+  // La `y` es NEGATIVA a propósito: el contenido del marco arranca en y=0.024
+  // (medido: relicario 0.0265, microscopías 0.0243), así que dentro del marco no
+  // queda banda libre y los rótulos se montaban sobre el asa y sobre el primer
+  // círculo. Puestos por encima del borde superior, el marco crece un poco y el
+  // ajuste automático de pantalla lo compensa solo (mide la caja real).
   rotulos: [
-    { src: "assets/rotulo-rx.webp?v=1",     w: 0.492, h: 0.042, x: 0.272, y: 0.030 },
-    { src: "assets/rotulo-micro1.webp?v=1", w: 0.344, h: 0.072, x: 0.760, y: 0.045 }
+    { src: "assets/rotulo-rx.webp?v=1",     w: 0.492, h: 0.042, x: 0.272, y: -0.016 },
+    { src: "assets/rotulo-micro1.webp?v=1", w: 0.344, h: 0.072, x: 0.760, y: -0.031 }
   ],
 
   intervaloReveal: 0.9,
