@@ -24,6 +24,17 @@
   if (mv) mv.addEventListener("load", hideLoading);
   setTimeout(hideLoading, 12000);
 
+  // Botón "Ver en AR": mostrarlo SOLO si el dispositivo soporta AR
+  // (iPhone Quick Look vía USDZ / Android Scene Viewer o WebXR vía GLB).
+  var arBtn = $("ar-btn");
+  function updateAR() { if (arBtn && mv) arBtn.classList.toggle("show", !!mv.canActivateAR); }
+  if (mv) {
+    mv.addEventListener("load", updateAR);
+    mv.addEventListener("ar-status", updateAR);
+    updateAR();
+    setTimeout(updateAR, 1500);   // canActivateAR puede tardar en resolverse
+  }
+
   // Vaivén frontal (se corta al tocar el modelo).
   var sway = true, swayRAF = 0, t0 = performance.now();
   function loop() {
