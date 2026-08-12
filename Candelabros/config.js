@@ -10,9 +10,9 @@ window.MUSEO_CONFIG = {
   subtitulo: "Cristal de Uranio U - mediados del Siglo XX · Fluorescencia bajo luz ultravioleta UV",
   ficha: "Cristal de Uranio, mediados del Siglo XX · emite niveles bajos de radiación · fluoresce verde intenso brillante al recibir luz UV",
 
-  // Título de la pieza (Arial, se muestra en MAYÚSCULAS). Color = el MISMO gris
-  // sólido de "CON LUZ UV" de las comparativas (#b4b4b4), sin contorno.
-  label: { text: "Reflexión por radiación de luz UV", color: "#b4b4b4", width: 1.15 },
+  // Título de la pieza (Arial, se muestra en MAYÚSCULAS), en negro (igual que
+  // "CON/SIN LUZ UV" de las comparativas), sin contorno.
+  label: { text: "Reflexión por radiación de luz UV", color: "#000000", width: 1.15 },
 
   // El candelabro UV (recorte transparente) que sale del marcador y se enciende.
   objeto: { src: "assets/overlay.webp?v=2", aspect: 0.541, size: 0.9 },
