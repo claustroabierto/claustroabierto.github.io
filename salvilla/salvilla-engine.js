@@ -140,7 +140,7 @@ async function start() {
   let popPZ = null, popItem = null;
   if (pop && popView && popStage) {
     const set = (id, src) => { const el = $(id); if (el) el.src = src || ""; };
-    set("ip-orig", CFG.original); set("ip-rx", CFG.rx); set("ip-frx", (CFG.reveals || [])[0]);
+    set("ip-orig", CFG.original); set("ip-rx", CFG.rxZoom || CFG.rx); set("ip-frx", (CFG.reveals || [])[0]);
     popPZ = PanZoom(popView, popStage, CW, CH, { skipSel: "#item-pop-head, #item-pop-foot", pad: 0.92 });
     $("item-pop-close").addEventListener("click", (e) => { e.stopPropagation(); closeItem(); });
     pop.addEventListener("click", (e) => { if (e.target === pop) closeItem(); });

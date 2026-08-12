@@ -163,20 +163,20 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
 /* Pop-up de detalle por elemento (Florero, salvilla): al tocar una región del
    infográfico se abre a pantalla completa, ampliada y explorable con los dedos.
    El movimiento lo hace shared/panzoom.js; esto es solo el chasis. */
-/* Fondo CLARO a propósito (pedido del museo): los rótulos de las capas
-   (IMAGEN DE RAYOS X, etc.) van en negro, y negro sobre el fondo oscuro que
-   tenía antes el pop-up se perdía. Con esto ya no hace falta una versión
-   aparte en gris para el zoom — el mismo archivo negro sirve en los dos
-   lugares. */
+/* Fondo OSCURO (el normal de la pieza) + texto CLARO en el pop-up de zoom.
+   Los rótulos de las capas (IMAGEN DE RAYOS X, etc.) van en negro en la
+   pieza, pero negro sobre este fondo oscuro se pierde — por eso las piezas
+   con rótulo dentro del zoom (salvilla) usan una versión aparte en gris
+   claro solo para acá (ver CFG.rxZoom). */
 #item-pop{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;
-  touch-action:none;-webkit-user-select:none;user-select:none;background:#f4efe6f5;}
+  touch-action:none;-webkit-user-select:none;user-select:none;background:#0b0910f5;}
 #item-pop.on{display:flex;}
 #item-pop-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
   gap:12px;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;}
-#item-pop-title{color:#1a1206;font-size:16px;font-weight:700;letter-spacing:.2px;}
+#item-pop-title{color:#f0e9db;font-size:16px;font-weight:700;letter-spacing:.2px;}
 #item-pop-close{flex:0 0 auto;width:38px;height:38px;border:0;border-radius:50%;
-  background:#0000001a;color:#1a1206;font-size:24px;line-height:1;}
-#item-pop-close:active{background:#00000033;}
+  background:#ffffff1a;color:#f0e9db;font-size:24px;line-height:1;}
+#item-pop-close:active{background:#ffffff33;}
 /* touch-action:none TIENE que ir en el elemento que recibe el gesto, no solo en
    el contenedor de arriba: la propiedad NO se hereda. Sin esto, en Chrome/Android
    el navegador se queda con el pellizco (hace zoom de toda la página) y cancela
@@ -192,9 +192,9 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
    sincronizada, para poder cruzar original↔rayos X ya ampliado sin cerrar el
    detalle. En el Florero este bloque no existe y el hint queda pegado al view. */
 #item-pop-foot{flex:0 0 auto;padding:8px 16px 0;}
-#item-pop-foot label{font-size:13px;opacity:.75;white-space:nowrap;color:#1a1206;}
+#item-pop-foot label{font-size:13px;opacity:.75;white-space:nowrap;}
 #ip-reveal{flex:1;accent-color:var(--gold);height:26px;}
-#item-pop-hint{flex:0 0 auto;text-align:center;color:#1a1206;opacity:.65;font-size:13px;
+#item-pop-hint{flex:0 0 auto;text-align:center;color:#d9d2c4;opacity:.8;font-size:13px;
   padding:10px 16px calc(12px + env(safe-area-inset-bottom));}
 
 /* Error */

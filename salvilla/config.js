@@ -28,6 +28,10 @@ window.MUSEO_CONFIG = {
   // encima con opacidad por slider (crossfade), y luego la tabla FRX.
   original: "assets/original.webp?v=3",  // salvilla a color (registrada con el disco de rayos X)
   rx:       "assets/rx-ar.png",          // rayos X (opacidad por slider) + "IMAGEN DE RAYOS X" en negro
+  // Versión del rayos X para el pop-up de zoom (fondo oscuro): el título ahí
+  // va en gris claro, no negro, porque negro sobre negro se pierde. Es la
+  // MISMA imagen, solo el rótulo cambia de color.
+  rxZoom:   "assets/rx.webp?v=3",
 
   intervaloReveal: 0.9,
   reveals: [
