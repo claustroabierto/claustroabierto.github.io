@@ -48,6 +48,12 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
   border-radius:20px;padding:5px 12px;font-weight:600;font-size:11px;white-space:nowrap;
   letter-spacing:.2px;}
 #panel .row.row-util button.on{background:var(--gold);color:#1a1206;border-color:var(--gold);}
+/* Cambio de modo (con target / sin target): es un <a> a la otra página, con
+   el mismo aspecto de píldora que el botón utilitario de al lado. */
+.modo-link{display:inline-block;background:transparent;border:1px solid #ffffff33;color:var(--ink);
+  border-radius:20px;padding:5px 12px;font-weight:600;font-size:11px;white-space:nowrap;
+  letter-spacing:.2px;text-decoration:none;opacity:.85;}
+.modo-link:active{background:#ffffff1a;}
 
 /* Tarjeta de pigmento */
 #card{position:fixed;left:16px;right:16px;bottom:110px;z-index:8;

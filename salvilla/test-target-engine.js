@@ -94,15 +94,18 @@ async function start() {
     zoom.addEventListener("click", () => zoom.classList.remove("on"));
   }
 
-  // --- Pop-up de detalle: SOLO rayos X + tabla FRX (sin "orig"). ---
+  // --- Pop-up de detalle: acá SÍ va la foto de la pieza ("orig"). Ampliado ya
+  // no se ve la pieza real detrás, y si la barrita de rayos X está en 0 no
+  // quedaría nada que mirar — así que el zoom se comporta como el modo sin
+  // target: original + rayos X con su barra. ---
   const CW = CFG.fichaW || 2361, CH = CFG.fichaH || 1643;
-  const items = (CFG.items || []).map((it) => ({ ...it, capas: (it.capas || []).filter((c) => c !== "orig") }));
+  const items = CFG.items || [];
   const pop = $("item-pop"), popView = $("item-pop-view"), popStage = $("item-pop-stage");
   const popOpen = () => pop && pop.classList.contains("on");
   let popPZ = null, popItem = null;
   if (pop && popView && popStage) {
     const set = (id, src) => { const el = $(id); if (el) el.src = src || ""; };
-    set("ip-rx", CFG.rx); set("ip-frx", (CFG.reveals || [])[0]);
+    set("ip-orig", CFG.original); set("ip-rx", CFG.rxZoom || CFG.rx); set("ip-frx", (CFG.reveals || [])[0]);
     popPZ = PanZoom(popView, popStage, CW, CH, { skipSel: "#item-pop-head, #item-pop-foot", pad: 0.92 });
     $("item-pop-close").addEventListener("click", (e) => { e.stopPropagation(); closeItem(); });
     pop.addEventListener("click", (e) => { if (e.target === pop) closeItem(); });
@@ -116,8 +119,8 @@ async function start() {
     pop.classList.add("on");
     if (topbar) topbar.style.display = "none";
     if (panel) panel.style.display = "none";
-    const capas = it.capas.length ? it.capas : ["rx"];
-    ["rx", "frx"].forEach((c) => { const el = $("ip-" + c); if (el) el.style.display = capas.includes(c) ? "" : "none"; });
+    const capas = it.capas || ["orig", "rx", "frx"];
+    ["orig", "rx", "frx"].forEach((c) => { const el = $("ip-" + c); if (el) el.style.display = capas.includes(c) ? "" : "none"; });
     if (popSliderRow) popSliderRow.style.display = capas.includes("rx") ? "" : "none";
     setRx(rxAlpha);
     popPZ.fitBox(it.bbox);

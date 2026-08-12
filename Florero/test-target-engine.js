@@ -48,9 +48,14 @@ async function start() {
     return { mesh, mat };
   }
   const rxL = layer(layers[0], 0.001, 1);
-  const frxL = layer(layers[1], 0.002, 2);
+  // En modo target NO va la cara a color del florero: la pieza real ya se ve
+  // por la cámara. `frx-target.webp` = el mismo asset sin esa cara, solo la
+  // flecha + la tabla FRX.
+  const frxL = layer("assets/frx-target.webp?v=1", 0.002, 2);
 
   const pop = $("item-pop"), popView = $("item-pop-view"), popStage = $("item-pop-stage");
+  // En el ZOOM sí va el asset completo (con la cara a color): ampliado ya no
+  // se ve la pieza real detrás, así que se presenta la foto.
   $("ip-rx").src = layers[0] || ""; $("ip-frx").src = layers[1] || "";
   const popPZ = PanZoom(popView, popStage, CW, CH, { skipSel: "#item-pop-head", pad: 0.92 });
   let popItem = null;
