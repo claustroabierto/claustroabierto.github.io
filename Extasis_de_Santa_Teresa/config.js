@@ -34,7 +34,7 @@ window.MUSEO_CONFIG = {
   // al llegar (igual que el título de microscopía).
   reversoOval:   { src: "assets/reverso-oval.webp",   aspect: 0.596, width: 0.46, x: -0.014, y: -0.003,
                    izqX: -0.892, izqY: 0.146 },
-  reversoTitulo: { src: "assets/reverso-titulo.webp", aspect: 4.007, width: 0.34, x: -0.892, y: 0.60 },
+  reversoTitulo: { src: "assets/reverso-titulo.webp?v=1", aspect: 4.007, width: 0.34, x: -0.892, y: 0.60 },
   // Leyenda de la inscripción, debajo del óvalo (mismo font/color que REVERSO:
   // Arial Bold #b4b4b4, regenerada con el mismo criterio — ver posiciones.html
   // si hace falta reajustar). Aparece junto con "REVERSO".
@@ -47,7 +47,7 @@ window.MUSEO_CONFIG = {
   // para meter "10x de aumento" (mismo ancho, más alto) — como queda anclado
   // por el centro, el bloque entero se corrió ~0.015 hacia abajo, por eso las
   // 3 tarjetas de abajo también se bajan esa misma distancia (ver microscopias).
-  microTitulo: { src: "assets/micro-titulo.webp", aspect: 4.804, width: 0.60, x: 0.85, y: 0.656 },
+  microTitulo: { src: "assets/micro-titulo.webp?v=1", aspect: 4.804, width: 0.60, x: 0.85, y: 0.656 },
   intervaloReveal: 0.8,
   // `color` = color del círculo interactivo sobre la microscopía y del punto en
   // la tarjeta (pedido del equipo: Carnación crema/naranja suave, Azurita azul

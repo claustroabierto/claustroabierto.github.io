@@ -27,7 +27,12 @@ window.MUSEO_CONFIG = {
   // Motor propio (salvilla-engine.js): la salvilla a color de base, el rayos X
   // encima con opacidad por slider (crossfade), y luego la tabla FRX.
   original: "assets/original.webp?v=3",  // salvilla a color (registrada con el disco de rayos X)
-  rx:       "assets/rx.webp?v=3",        // rayos X (opacidad por slider) + "IMAGEN DE RAYOS X"
+  rx:       "assets/rx-ar.png",          // rayos X (opacidad por slider) + "IMAGEN DE RAYOS X" en NEGRO
+  // Versión del rayos X para el pop-up de zoom (fondo oscuro del pop-up): el
+  // título ahí va en gris claro, no negro, porque negro sobre negro se pierde.
+  // Es la MISMA imagen, solo el rótulo cambia de color — por eso es un archivo
+  // aparte en vez de una sola capa reusada.
+  rxZoom:   "assets/rx.webp?v=3",
 
   intervaloReveal: 0.9,
   reveals: [
@@ -37,16 +42,22 @@ window.MUSEO_CONFIG = {
   // Marco común de las tres capas, en píxeles (para el pop-up de detalle).
   fichaW: 2361, fichaH: 1643,
 
-  // Zona tocable: al tocar la PIEZA se abre un pop-up con ella ampliada y
-  // explorable con los dedos (igual que el Florero), PERO manteniendo el
+  // Zonas tocables: al tocar cada una se abre un pop-up con esa parte ampliada
+  // y explorable con los dedos (igual que el Florero), PERO manteniendo el
   // sobrepuesto: dentro del pop-up sigue la barrita original↔rayos X.
-  // La tabla FRX NO es tocable a pedido del museo: el acercamiento es solo a la
-  // pieza. `bbox` = [x0,y0,x1,y1] normalizados sobre el marco 2361x1643, medido
-  // del contenido real de rx.webp (no a ojo).
-  // `capas` = qué se dibuja en ese detalle (por defecto las tres): aquí se deja
-  // fuera el FRX porque si no entra la flecha que apunta a una tabla que no está.
+  // `bbox` = [x0,y0,x1,y1] normalizados sobre el marco 2361x1643, medidos del
+  // contenido real de rx.webp / frx.webp (no a ojo). El bbox del FRX deja fuera
+  // la flecha a propósito: si se incluyera, el encuadre se iría a la mitad
+  // vacía del marco y la tabla quedaría chica.
+  // `capas` = qué se dibuja en ese detalle (por defecto las tres). En el rayos X
+  // sobra la flecha que apunta a la tabla; en la tabla sobra la pieza.
+  // El pop-up de la tabla usa el MISMO fondo oscuro que el de la pieza (pedido
+  // explícito del museo: no una plancha clara aparte). El propio frx.webp ya
+  // trae sus celdas con fondo opaco (gris/blanco) detrás del texto negro, así
+  // que se lee igual sobre el fondo oscuro.
   items: [
-    { label: "Imagen de rayos X", bbox: [0.030, 0.080, 0.622, 0.975], capas: ["orig", "rx"] }
+    { label: "Imagen de rayos X",           bbox: [0.030, 0.080, 0.622, 0.975], capas: ["orig", "rx"] },
+    { label: "Composición elemental (FRX)", bbox: [0.674, 0.238, 0.909, 0.665], capas: ["frx"] }
   ],
 
   // Sin microscopías tocables: el análisis solo trae rayos X + tabla FRX.

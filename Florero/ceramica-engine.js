@@ -88,7 +88,7 @@ async function start() {
   const raycaster = new THREE.Raycaster();
   const ndc = new THREE.Vector2();
   function handleTap(cx, cy, target) {
-    if (!visible || pop.classList.contains("on")) return;
+    if (!visible || !content.visible || pop.classList.contains("on")) return;
     if (target && target.closest && target.closest("#panel, #topbar, #item-pop")) return;
     ndc.x = (cx / innerWidth) * 2 - 1;
     ndc.y = -(cy / innerHeight) * 2 + 1;
@@ -107,6 +107,18 @@ async function start() {
   const clock = new THREE.Clock();
   const rb = $("btn-repeat"); if (rb) rb.addEventListener("click", (e) => { e.stopPropagation(); if (visible) startT = clock.getElapsedTime(); });
   window.addEventListener("resize", () => { if (pop.classList.contains("on") && popItem) popPZ.fitBox(popItem.bbox); });
+
+  // Ocultar el análisis: para que el usuario pueda ver la cámara en vivo, sin
+  // el sobrepuesto encima, y comparar/alinear contra la pieza real. No toca el
+  // estado de la coreografía (`visible`/`startT`): al volver a mostrar, sigue
+  // donde iba.
+  const hideBtn = $("btn-hide");
+  if (hideBtn) hideBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    content.visible = !content.visible;
+    hideBtn.textContent = content.visible ? "Ocultar y ver la pieza real" : "Mostrar el análisis";
+    hideBtn.classList.toggle("on", !content.visible);
+  });
 
   // Se muestra apenas terminan de bajar las imágenes (+ colchón fijo), sin
   // esperar a detectar nada.

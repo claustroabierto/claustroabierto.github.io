@@ -6,9 +6,9 @@
   <title>RA · Florero — Museo Ayacucho</title>
   <!-- El pop-up de detalle (#item-pop) vive en shared/styles.css: lo comparten
        esta pieza y la salvilla. -->
-  <link rel="stylesheet" href="../shared/styles.css?v=18" />
+  <link rel="stylesheet" href="../shared/styles.css?v=19" />
   <style>
-    #panel .row button{background:var(--gold);color:#1a1206;border:0;border-radius:10px;padding:10px 14px;font-weight:700;font-size:13px;}
+    #panel .row button{background:var(--gold);color:#1a1206;border:0;border-radius:10px;padding:10px 14px;font-weight:700;font-size:14px;}
   </style>
   <script type="importmap">
   {
@@ -32,6 +32,9 @@
       <button id="btn-repeat">↻ Repetir</button>
     </div>
     <div class="hint">Toca cada imagen o la tabla para verla en detalle</div>
+    <div class="row row-util">
+      <button id="btn-hide">Ocultar y ver la pieza real</button>
+    </div>
     <div id="ficha-txt"></div>
   </div>
 
@@ -77,6 +80,6 @@
   <div id="error"></div>
 
   <script src="config.js?v=10"></script>
-  <script type="module" src="ceramica-engine.js?v=16"></script>
+  <script type="module" src="ceramica-engine.js?v=17"></script>
 </body>
 </html>

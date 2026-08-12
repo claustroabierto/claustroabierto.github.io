@@ -9,17 +9,17 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
 /* Barra superior (ficha / respaldo) */
 #topbar{position:fixed;top:0;left:0;right:0;padding:12px 16px calc(12px + env(safe-area-inset-top));
   background:linear-gradient(#000c 0%, #0000 100%);z-index:5;pointer-events:none;}
-#titulo{font-size:17px;font-weight:700;letter-spacing:.2px;}
+#titulo{font-size:18px;font-weight:700;letter-spacing:.2px;}
 /* pre-line: el motor convierte los puntos medios del subtítulo en saltos de
    línea reales, así cada dato (material · época · qué muestra la RA) queda en
    su propio renglón en vez de una tira larga que se parte a mitad de dato. */
-#subtitulo{font-size:12px;opacity:.8;margin-top:2px;white-space:pre-line;}
+#subtitulo{font-size:13px;opacity:.8;margin-top:2px;white-space:pre-line;}
 
 /* Estado de escaneo */
 #scan{position:fixed;inset:0;z-index:4;display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;pointer-events:none;}
 #scan .frame{width:64vw;max-width:280px;aspect-ratio:.72;border:2px dashed #ffffff88;border-radius:14px;}
-#scan p{font-size:14px;opacity:.9;max-width:280px;}
+#scan p{font-size:15px;opacity:.9;max-width:280px;}
 
 /* Panel de controles inferior */
 #panel{position:fixed;left:0;right:0;bottom:0;z-index:6;
@@ -30,9 +30,23 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
 .row{display:flex;align-items:center;gap:12px;}
 #reveal{flex:1;accent-color:var(--gold);height:26px;}
 #btn-toggle{background:var(--gold);color:#1a1206;border:0;border-radius:10px;
-  padding:10px 14px;font-weight:700;font-size:13px;}
-.hint{font-size:11px;opacity:.7;margin:8px 2px 0;}
-#ficha-txt{font-size:11px;opacity:.65;margin-top:6px;}
+  padding:10px 14px;font-weight:700;font-size:14px;}
+.hint{font-size:12px;opacity:.7;margin:8px 2px 0;}
+#ficha-txt{font-size:12px;opacity:.65;margin-top:6px;}
+/* Botón secundario (utilitario, no una acción principal como Revelar/Repetir):
+   ocultar el análisis para comparar/alinear contra la pieza real. Mismo alto
+   que los botones dorados pero contorno en vez de relleno, para que no compita
+   visualmente con la acción principal del panel.
+   Selector reforzado (".row.row-util button") a propósito: cada pieza trae su
+   propio `#panel .row button{background:var(--gold)...}` en un <style> inline
+   con la MISMA especificidad (id+clase+etiqueta) cargado despues de este
+   archivo, así que con esa misma especificidad ganaría el inline. Sumar la
+   clase .row-util a la cuenta empareja hacia arriba y gana siempre, sin
+   depender del orden de carga. */
+.row-util{margin-top:8px;justify-content:center;}
+#panel .row.row-util button{background:transparent;border:1px solid var(--gold);color:var(--gold);
+  border-radius:10px;padding:8px 14px;font-weight:700;font-size:12px;white-space:nowrap;}
+#panel .row.row-util button.on{background:var(--gold);color:#1a1206;}
 
 /* Tarjeta de pigmento */
 #card{position:fixed;left:16px;right:16px;bottom:110px;z-index:8;
@@ -42,10 +56,10 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
 #card.on{transform:translateY(0);opacity:1;pointer-events:auto;}
 #card .head{display:flex;align-items:center;gap:12px;}
 #card-color{width:34px;height:34px;border-radius:50%;border:2px solid #fff6;flex:0 0 auto;}
-#card-titulo{font-size:18px;font-weight:700;}
-#card-pigmento{font-size:13px;opacity:.85;}
-#card-formula{font-size:13px;color:var(--gold);margin-top:2px;font-variant-numeric:tabular-nums;}
-#card-nota{font-size:13px;line-height:1.4;margin-top:10px;opacity:.9;}
+#card-titulo{font-size:19px;font-weight:700;}
+#card-pigmento{font-size:14px;opacity:.85;}
+#card-formula{font-size:14px;color:var(--gold);margin-top:2px;font-variant-numeric:tabular-nums;}
+#card-nota{font-size:14px;line-height:1.4;margin-top:10px;opacity:.9;}
 #card-close{position:absolute;top:10px;right:12px;background:none;border:0;color:#fff9;font-size:20px;}
 
 /* Microscopía dentro de la tarjeta (solo piezas con hotspot.img) */
@@ -80,9 +94,9 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
   color:var(--gold);font-size:15px;font-weight:700;letter-spacing:.5px;
   animation:sello-late 2.8s ease-in-out infinite;}
 @keyframes sello-late{0%,100%{box-shadow:0 0 0 0 #c9a24b30;}50%{box-shadow:0 0 0 12px #c9a24b00;}}
-#loading .expo{font-size:19px;line-height:1.35;font-weight:700;margin:2px 0 0;
+#loading .expo{font-size:20px;line-height:1.35;font-weight:700;margin:2px 0 0;
   letter-spacing:.2px;text-wrap:balance;}
-#loading .sede{font-size:12px;line-height:1.45;opacity:.62;}
+#loading .sede{font-size:13px;line-height:1.45;opacity:.62;}
 
 /* Barra indeterminada: no sabemos el progreso real de la descarga, así que no
    fingimos un porcentaje. */
@@ -91,7 +105,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
 #loading .barra i{display:block;width:42%;height:100%;border-radius:2px;background:var(--gold);
   animation:barra-corre 1.25s ease-in-out infinite;}
 @keyframes barra-corre{0%{transform:translateX(-105%);}100%{transform:translateX(245%);}}
-#loading .estado{font-size:11px;opacity:.5;letter-spacing:.3px;}
+#loading .estado{font-size:12px;opacity:.5;letter-spacing:.3px;}
 
 /* Créditos: los logos son oscuros y van sobre placa clara, si no desaparecen
    contra el fondo (UTEC y la Embajada son casi negros).
@@ -119,10 +133,10 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
 /* Un nombre por renglón (son 7 líneas contando los dos rótulos), así que el
    interlineado va más justo que en un párrafo normal para no empujar la placa
    de logos fuera de pantalla. */
-#loading .equipo{font-size:10.5px;line-height:1.45;opacity:.55;max-width:300px;
+#loading .equipo{font-size:11.5px;line-height:1.45;opacity:.55;max-width:300px;
   letter-spacing:.2px;}
 #loading .equipo .rol{color:var(--gold);opacity:.85;font-weight:700;
-  text-transform:uppercase;letter-spacing:1.1px;font-size:9px;}
+  text-transform:uppercase;letter-spacing:1.1px;font-size:10px;}
 #loading .equipo .rol.rol2{display:inline-block;margin-top:6px;}
 /* Solo se ocultan cuando de verdad no entran. Medido en el navegador: la
    portada completa (centro 211 + equipo 111 + logos 57 + separaciones) pide
@@ -138,7 +152,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
   bottom:calc(18px + env(safe-area-inset-bottom));}
 
 @media (max-height:560px){
-  #loading .expo{font-size:16px;}
+  #loading .expo{font-size:17px;}
   #loading .sello{display:none;}
   /* En pantalla baja (celular acostado) el marco de encuadre ya ocupa casi
      todo el alto: la placa terminaba tapando el "Apunta la cámara…", que es
@@ -154,7 +168,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
 #item-pop.on{display:flex;}
 #item-pop-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
   gap:12px;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;}
-#item-pop-title{color:#f0e9db;font-size:15px;font-weight:700;letter-spacing:.2px;}
+#item-pop-title{color:#f0e9db;font-size:16px;font-weight:700;letter-spacing:.2px;}
 #item-pop-close{flex:0 0 auto;width:38px;height:38px;border:0;border-radius:50%;
   background:#ffffff1a;color:#f0e9db;font-size:24px;line-height:1;}
 #item-pop-close:active{background:#ffffff33;}
@@ -173,9 +187,9 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hi
    sincronizada, para poder cruzar original↔rayos X ya ampliado sin cerrar el
    detalle. En el Florero este bloque no existe y el hint queda pegado al view. */
 #item-pop-foot{flex:0 0 auto;padding:8px 16px 0;}
-#item-pop-foot label{font-size:12px;opacity:.75;white-space:nowrap;}
+#item-pop-foot label{font-size:13px;opacity:.75;white-space:nowrap;}
 #ip-reveal{flex:1;accent-color:var(--gold);height:26px;}
-#item-pop-hint{flex:0 0 auto;text-align:center;color:#d9d2c4;opacity:.8;font-size:12px;
+#item-pop-hint{flex:0 0 auto;text-align:center;color:#d9d2c4;opacity:.8;font-size:13px;
   padding:10px 16px calc(12px + env(safe-area-inset-bottom));}
 
 /* Error */

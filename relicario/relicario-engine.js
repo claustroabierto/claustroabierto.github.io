@@ -94,6 +94,18 @@ async function start() {
   });
   const rb = $("btn-repeat"); if (rb) rb.addEventListener("click", (e) => { e.stopPropagation(); if (visible) startT = clock.getElapsedTime(); });
 
+  // Ocultar el análisis: para que el usuario pueda ver la cámara en vivo, sin
+  // el sobrepuesto encima, y comparar/alinear contra la pieza real. No toca el
+  // estado de la coreografía (`visible`/`startT`): al volver a mostrar, sigue
+  // donde iba.
+  const hideBtn = $("btn-hide");
+  if (hideBtn) hideBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    content.visible = !content.visible;
+    hideBtn.textContent = content.visible ? "Ocultar y ver la pieza real" : "Mostrar el análisis";
+    hideBtn.classList.toggle("on", !content.visible);
+  });
+
   // --- Zoom al tocar una microscopía ---
   function openCard(i) {
     const h = hits[i].userData.data;
@@ -115,7 +127,7 @@ async function start() {
   }
   const _wp = new THREE.Vector3();
   function handleTap(cx, cy, target) {
-    if (!visible || !ready) return;
+    if (!visible || !ready || !content.visible) return;
     if (target && target.closest && target.closest("#panel, #card, #topbar, #zoom")) return;
     let best = -1, bd = Infinity;
     hits.forEach((m, i) => {

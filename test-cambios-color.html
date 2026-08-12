@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Prueba · textos recoloreados</title>
+<style>
+  :root{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  *{box-sizing:border-box}
+  body{margin:0;background:#0d0b12;color:#f4efe6;padding:24px 16px 60px}
+  h1{font-size:18px;margin:0 0 4px}
+  p.lead{opacity:.7;font-size:13px;max-width:680px;line-height:1.5;margin:0 0 28px}
+  .pieza{max-width:900px;margin:0 auto 40px;border:1px solid #ffffff22;border-radius:14px;overflow:hidden}
+  .pieza h2{font-size:14px;margin:0;padding:10px 14px;background:#171320;border-bottom:1px solid #ffffff1a}
+  .fila{display:flex;flex-wrap:wrap;gap:1px;background:#ffffff1a}
+  .celda{flex:1 1 260px;padding:14px;display:flex;flex-direction:column;gap:8px;min-width:220px}
+  .celda.claro{background:#f4efe6}
+  .celda.oscuro{background:#0d0b12}
+  .celda img{max-width:100%;display:block;margin:auto}
+  .etq{font-size:11px;letter-spacing:.3px;text-transform:uppercase;opacity:.65}
+  .celda.claro .etq{color:#1a1206}
+  .celda.oscuro .etq{color:#f4efe6}
+  .nota{max-width:900px;margin:0 auto 30px;font-size:12px;line-height:1.6;background:#171320;border:1px solid #c9a24b55;border-radius:12px;padding:14px}
+  .nota b{color:#c9a24b}
+</style>
+</head>
+<body>
+  <h1>Prueba de color de textos — sin cámara, sin target</h1>
+  <p class="lead">Cada imagen es el asset real ya modificado, mostrado contra el
+    fondo que le corresponde: <b>claro</b> si su texto quedó en negro,
+    <b>oscuro</b> (el normal de la pieza) si su texto sigue en gris claro.
+    No incluye Inmaculada, Nazareno, Cristo de Malta ni Virgen de la Soledad
+    (esas no se tocaron).</p>
+
+  <div class="nota">
+    <b>Aviso — salvilla/rx.webp quedó SIN cambiar (sigue en gris):</b> a diferencia
+    de las demás, esa imagen trae su propio fondo negro pintado adentro del
+    archivo (no transparente). Si el título "IMAGEN DE RAYOS X" se pasara a negro,
+    quedaría invisible sobre su propio fondo negro — por eso se revirtió. Si de
+    todas formas lo quieren en negro, hay que agregarle una placa clara detrás
+    del título dentro de la imagen (cambio distinto, avísenme).
+  </div>
+
+  <div class="pieza">
+    <h2>Éxtasis de Santa Teresa</h2>
+    <div class="fila">
+      <div class="celda claro"><span class="etq">REVERSO — negro</span><img src="Extasis_de_Santa_Teresa/assets/reverso-titulo.webp?t=3"></div>
+      <div class="celda claro"><span class="etq">MICROSCOPÍA — negro</span><img src="Extasis_de_Santa_Teresa/assets/micro-titulo.webp?t=3"></div>
+      <div class="celda claro"><span class="etq">Leyenda inscripción — negro</span><img src="Extasis_de_Santa_Teresa/assets/reverso-subtitulo.webp?t=3"></div>
+    </div>
+  </div>
+
+  <div class="pieza">
+    <h2>Relicario</h2>
+    <div class="fila">
+      <div class="celda claro"><span class="etq">IMAGEN DE RAYOS X — negro</span><img src="relicario/assets/rx.webp?t=3"></div>
+    </div>
+  </div>
+
+  <div class="pieza">
+    <h2>Florero</h2>
+    <div class="fila">
+      <div class="celda claro"><span class="etq">IMAGEN DE RAYOS X — negro</span><img src="Florero/assets/rx.webp?t=3"></div>
+    </div>
+  </div>
+
+  <div class="pieza">
+    <h2>Salvilla de plata</h2>
+    <div class="fila">
+      <div class="celda oscuro"><span class="etq">IMAGEN DE RAYOS X — sigue gris (ver aviso arriba)</span><img src="salvilla/assets/rx.webp?t=3"></div>
+    </div>
+  </div>
+
+  <div class="pieza">
+    <h2>Candelabros (vidrio de uranio)</h2>
+    <div class="fila">
+      <div class="celda claro"><span class="etq">CON LUZ UV — negro</span><img src="Candelabros/assets/conuv.webp?t=3"></div>
+      <div class="celda claro"><span class="etq">SIN LUZ UV — negro</span><img src="Candelabros/assets/sinuv.webp?t=3"></div>
+    </div>
+  </div>
+
+  <div class="pieza">
+    <h2>Escapulario</h2>
+    <div class="fila">
+      <div class="celda claro"><span class="etq">MICROSCOPÍA — negro</span><img src="escapulario/assets/reveal/microtitulo.webp?t=3"></div>
+      <div class="celda claro"><span class="etq">IMAGEN DE RAYOS X — negro</span><img src="escapulario/assets/reveal/rayosx.webp?t=3"></div>
+    </div>
+  </div>
+</body>
+</html>

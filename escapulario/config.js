@@ -23,7 +23,7 @@ window.MUSEO_CONFIG = {
   // Rayos X (título + boceto) — el único que se controla con el slider
   // "Revelar". Misma geometría que el overlay.webp original.
   overlay: {
-    src: "assets/reveal/rayosx.webp?v=2",
+    src: "assets/reveal/rayosx.webp?v=3",
     width: 2.082,
     height: 2.076,
     offsetX: 0.566,   // corre el asset a la derecha -> rayos X sobre la pieza, globitos al costado
@@ -35,7 +35,7 @@ window.MUSEO_CONFIG = {
   // (con el encabezado "Fluorescencia de Rayos X"), foto2, recuadro2, foto3,
   // recuadro3.
   microReveals: [
-    "assets/reveal/microtitulo.webp?v=2",
+    "assets/reveal/microtitulo.webp?v=3",
     "assets/reveal/detalle1-foto.webp?v=2",
     "assets/reveal/detalle1-box.webp?v=2",
     "assets/reveal/detalle2-foto.webp?v=2",

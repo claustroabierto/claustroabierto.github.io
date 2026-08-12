@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>Candelabros · alinear al target nuevo</title>
+<link rel="stylesheet" href="../shared/target-editor.css"/>
+</head><body>
+<div id="ar"></div>
+<div id="scan"><div class="frame"></div><p>Apunta la cámara a los candelabros reales hasta que los reconozca</p></div>
+<div id="hint">Arrastra para <b>mover</b> · pellizca o rueda para <b>escalar</b> · toca <b>Copiar</b> cuando calce</div>
+<div id="pill">width <span class="v" id="pw">–</span><br>offsetX <span class="v" id="px">–</span><br>offsetY <span class="v" id="py">–</span></div>
+<div class="bar">
+  <div class="grp"><small>X</small><button data-k="x" data-d="-1">◀</button><button data-k="x" data-d="1">▶</button></div>
+  <div class="grp"><small>Y</small><button data-k="y" data-d="1">▲</button><button data-k="y" data-d="-1">▼</button></div>
+  <div class="grp"><small>tamaño</small><button data-k="w" data-d="-1">−</button><button data-k="w" data-d="1">+</button></div>
+  <button id="reset" class="wide">↺ Original</button>
+  <button id="copy" class="wide">⧉ Copiar</button>
+</div>
+<div id="error"></div>
+<script type="importmap">{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "mindar-image-three":"https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
+}}</script>
+<script>
+window.EDITOR_CFG = {
+  targetSrc: "assets/targets_nuevo.mind",
+  refSrc: "assets/overlay.webp?v=2",
+  refAspect: 1.8474,
+  start: { width: 1, offsetX: 0, offsetY: 0 }
+};
+</script>
+<script type="module" src="../shared/target-editor.js"></script>
+</body></html>
