@@ -229,4 +229,8 @@ async function start() {
     renderer.render(scene, camera);
   });
 }
-window.addEventListener("DOMContentLoaded", start);
+// El motor llega por import() dinámico (los dos modos viven en la misma URL) y
+// ESO resuelve DESPUÉS de DOMContentLoaded: si solo se escuchara el evento, ya
+// habría pasado y nunca arrancaría (se quedaba en la pantalla de créditos).
+if (document.readyState === "loading") window.addEventListener("DOMContentLoaded", start);
+else start();
