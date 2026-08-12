@@ -45,6 +45,21 @@ window.MUSEO_CONFIG = {
   ],
   intervaloReveal: 0.8,
 
+  // Marco común de rayosx.webp / microtitulo.webp / detalleN-foto/box.webp
+  // (los 7 son recortes del MISMO overlay.webp, 1500x1495) — para el pop-up
+  // de detalle (zoom con pellizco/arrastre, igual que salvilla/Florero).
+  fichaW: 1500, fichaH: 1495,
+  // `piece` = tocar el boceto de rayos X (fuera de los círculos de microscopía)
+  // amplía la pieza completa. `d1/d2/d3` = el mismo pop-up pero abierto desde
+  // la tarjeta de cada muestra (botón "Toca para agrandar"), mostrando su foto
+  // + tabla FRX juntas en vez de solo la fotito chica de antes.
+  items: [
+    { key: "piece", label: "Escapulario — Rayos X", bbox: [0.019, 0.139, 0.436, 0.730], capas: ["boceto"] },
+    { key: "d1",    label: "Detalle 1",             bbox: [0.440, 0.122, 0.974, 0.365], capas: ["d1"] },
+    { key: "d2",    label: "Detalle 2",             bbox: [0.446, 0.402, 0.974, 0.646], capas: ["d2"] },
+    { key: "d3",    label: "Detalle 3",             bbox: [0.446, 0.682, 0.974, 0.926], capas: ["d3"] }
+  ],
+
   // Globitos de microscopía tocables (coords normalizadas sobre el asset).
   // y subido ~0.047 (70px de 1495) junto con las fotos/recuadros de arriba,
   // para achicar el hueco vacío entre el título y la primera fila (pedido

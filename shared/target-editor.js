@@ -18,12 +18,20 @@ const START = { W, X, Y };
 const NUDGE = { x: 0.006, y: 0.006, w: 0.01 };
 
 function fatal(msg) { const el = document.getElementById("error"); el.textContent = "⚠ " + msg; el.style.display = "block"; console.error(msg); }
+// Cualquier error suelto (import roto, target.mind corrupto, etc.) también
+// se muestra en pantalla: en el celular no hay consola para verlo.
+window.addEventListener("error", (e) => fatal("Error: " + e.message));
+window.addEventListener("unhandledrejection", (e) => fatal("Error: " + (e.reason && e.reason.message || e.reason)));
 
 async function start() {
   let mindar;
   try {
     mindar = new MindARThree({ container: document.getElementById("ar"), imageTargetSrc: CFG.targetSrc, uiScanning: "no", uiLoading: "no" });
   } catch (e) { return fatal("No se pudo iniciar MindAR: " + e.message); }
+  // Aviso mientras el navegador pide permiso: si la cámara se queda en negro,
+  // esto dice si fue justo acá donde se trabó (falta aceptar el permiso).
+  const scanP = document.querySelector("#scan p");
+  if (scanP) scanP.textContent = "Pidiendo permiso de cámara…";
   const { renderer, scene, camera } = mindar;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));

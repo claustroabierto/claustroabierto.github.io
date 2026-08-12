@@ -52,8 +52,27 @@
       <button id="btn-toggle">Revelar</button>
       <button id="btn-repeat">↻ Repetir</button>
     </div>
-    <div class="hint">Desliza para revelar la imagen de Rayos X y toca la microscopía para ampliar</div>
+    <div class="hint">Desliza para revelar la imagen de Rayos X · toca el boceto o una microscopía para ampliar</div>
     <div id="ficha-txt"></div>
+  </div>
+
+  <!-- Pop-up de detalle: la pieza completa o una muestra, ampliada y
+       explorable con los dedos (pellizco/arrastre), independiente del
+       tracking una vez abierto. -->
+  <div id="item-pop">
+    <div id="item-pop-head">
+      <span id="item-pop-title"></span>
+      <button id="item-pop-close" aria-label="Cerrar">×</button>
+    </div>
+    <div id="item-pop-view">
+      <div id="item-pop-stage">
+        <img id="ip-boceto" alt="" />
+        <img id="ip-d1-foto" alt="" /><img id="ip-d1-box" alt="" />
+        <img id="ip-d2-foto" alt="" /><img id="ip-d2-box" alt="" />
+        <img id="ip-d3-foto" alt="" /><img id="ip-d3-box" alt="" />
+      </div>
+    </div>
+    <div id="item-pop-hint">Pellizca o arrastra para ver más · toca ✕ para cerrar</div>
   </div>
 
   <div id="loading">
@@ -80,11 +99,9 @@
            alt="Embajada de los Estados Unidos de América en Lima" />
     </div>
   </div>
-  <!-- Lightbox: microscopía a pantalla completa (tocar la miniatura la agranda) -->
-  <div id="zoom"><img id="zoom-img" alt="Microscopía ampliada" /></div>
   <div id="error"></div>
 
-  <script src="config.js?v=11"></script>
-  <script type="module" src="../shared/ar-engine.js?v=15"></script>
+  <script src="config.js?v=12"></script>
+  <script type="module" src="escapulario-engine.js?v=1"></script>
 </body>
 </html>
