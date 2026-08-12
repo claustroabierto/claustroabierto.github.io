@@ -1,4 +1,4 @@
-/*  CONFIG DE PIEZA — Relicario, SIN marcador · motor propio (relicario-engine.js)
+﻿/*  CONFIG DE PIEZA — Relicario, SIN marcador · motor propio (relicario-engine.js)
  *  Ya no depende de detectar ningún target (antes RA6, letras, medía débil):
  *
  *   1. Aparece el RELICARIO ORIGINAL (foto a color).
@@ -47,7 +47,7 @@ window.MUSEO_CONFIG = {
   // ajuste automático de pantalla lo compensa solo (mide la caja real).
   rotulos: [
     { src: "assets/rotulo-rx.webp?v=1",     w: 0.492, h: 0.042, x: 0.272, y: -0.016 },
-    { src: "assets/rotulo-micro1.webp?v=1", w: 0.344, h: 0.072, x: 0.760, y: -0.031 }
+    { src: "assets/rotulo-micro1.webp?v=2", w: 0.344, h: 0.072, x: 0.760, y: -0.031 }
   ],
 
   intervaloReveal: 0.9,

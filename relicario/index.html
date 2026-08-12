@@ -89,7 +89,7 @@
   <div id="zoom"><img id="zoom-img" alt="Microscopía ampliada" /></div>
   <div id="error"></div>
 
-  <script src="config.js?v=20"></script>
+  <script src="config.js?v=21"></script>
   <script>
     // Dos modos en la MISMA URL (el QR impreso no cambia): por defecto va
     // el modo sin target (contenido fijo sobre la cámara); con ?target=1
@@ -104,7 +104,7 @@
         if (hide) hide.style.display = conTarget ? "none" : "";   // sin foto de la pieza no hay nada que ocultar
         if (scan) scan.style.display = conTarget ? "flex" : "none";
       });
-      import(conTarget ? "./target-engine.js?v=4" : "./relicario-engine.js?v=19");
+      import(conTarget ? "./target-engine.js?v=5" : "./relicario-engine.js?v=19");
     })();
   </script>
 </body>

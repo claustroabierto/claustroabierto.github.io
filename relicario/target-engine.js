@@ -46,6 +46,18 @@ async function start() {
   const rxL = layer(CFG.rx, 0.002, 2);
   const micros = (CFG.reveals || []).map((src, i) => layer(src, 0.003 + i * 0.001, 5 + i));
 
+  // Rótulos ("IMAGEN DE RAYOS X" / "MICROSCOPÍA · 10x"): ya no vienen horneados
+  // en rx.webp / micro1.webp, así que hay que dibujarlos aparte también aquí, o
+  // el modo con target se queda sin ellos. Tamaño y centro propios (fracciones
+  // del marco), por eso no pueden usar `layer()`, que asume el marco entero.
+  const rotulos = (CFG.rotulos || []).map((r, i) => {
+    const mat = new THREE.MeshBasicMaterial({ map: tx(r.src), transparent: true, opacity: 0, depthTest: false, depthWrite: false });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(r.w * OV.width, r.h * OV.height), mat);
+    mesh.position.set(OV.offsetX + (r.x - 0.5) * OV.width, OV.offsetY + (0.5 - r.y) * OV.height, 0.03 + i * 0.001);
+    mesh.renderOrder = 30 + i; anchor.group.add(mesh);
+    return { mesh, mat };
+  });
+
   const hotMeshes = [];
   const hits = (CFG.hotspots || []).map((h, i) => {
     const lx = OV.offsetX + (h.x - 0.5) * OV.width;
@@ -123,6 +135,11 @@ async function start() {
       p.mat.opacity = o; if (o > 0.6) shown++;
     });
     ready = micros.length > 0 && shown >= micros.length;
+
+    // Cada rótulo entra con lo que nombra, como cuando venía horneado.
+    if (rotulos[0]) rotulos[0].mat.opacity = appR * rxAlpha;
+    if (rotulos[1]) rotulos[1].mat.opacity = micros.length ? micros[0].mat.opacity : 0;
+
     hotMeshes.forEach((m) => {
       const pulse = 1 + Math.sin(t * 3) * 0.12;
       m.scale.setScalar(pulse);
