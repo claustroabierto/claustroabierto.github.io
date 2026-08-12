@@ -24,17 +24,13 @@
     #welcome-btn:active { filter: brightness(.92); }
     /* Botón "Ver en AR" (PRIMARIO, centrado abajo). Oculto por defecto: el motor
        lo muestra (.show) solo si el dispositivo soporta AR (iPhone Quick Look /
-       Android Scene Viewer). Late suavemente para que se note. */
+       Android Scene Viewer). */
     #ar-btn { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom));
       z-index: 8; display: none; align-items: center; gap: 8px; background: #c9a24b; color: #1a1206; border: 0;
       border-radius: 12px; padding: 13px 24px; font: 700 15px system-ui, sans-serif; white-space: nowrap; cursor: pointer;
-      box-shadow: 0 3px 14px #0008, 0 0 0 0 #c9a24b88; animation: arpulse 2.2s ease-out infinite; }
+      box-shadow: 0 3px 14px #0008; }
     #ar-btn.show { display: inline-flex; }
-    #ar-btn:active { filter: brightness(.92); animation: none; }
-    @keyframes arpulse { 0% { box-shadow: 0 3px 14px #0008, 0 0 0 0 #c9a24b99; }
-      70% { box-shadow: 0 3px 14px #0008, 0 0 0 15px #c9a24b00; }
-      100% { box-shadow: 0 3px 14px #0008, 0 0 0 0 #c9a24b00; } }
-    @media (prefers-reduced-motion: reduce) { #ar-btn { animation: none; } }
+    #ar-btn:active { filter: brightness(.92); }
     /* Bienvenida en AR: el santo (fondo eliminado) sobre la cámara en vivo */
     #welcome-ar { position: fixed; inset: 0; z-index: 45; display: none; background: #000; }
     #welcome-ar.on { display: block; }
