@@ -15,13 +15,13 @@
     /* Pista de interacción, debajo del topbar (título + 2 líneas de ficha). */
     #hint3d { position: fixed; left: 0; right: 0; top: calc(90px + env(safe-area-inset-top)); z-index: 6;
       text-align: center; color: #e6dfd0; font: 13px system-ui, sans-serif; opacity: .82; pointer-events: none; }
-    /* Botón de bienvenida (secundario). Sube cuando aparece el botón AR. */
+    /* Botón de bienvenida. Mismo color ámbar que el de AR. Sube cuando aparece el AR. */
     #welcome-btn { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom));
-      z-index: 7; display: inline-flex; align-items: center; gap: 8px; background: #211b2e; color: #f4efe6;
-      border: 1px solid #c9a24b99; border-radius: 12px; padding: 12px 20px; font: 700 15px system-ui, sans-serif;
+      z-index: 7; display: inline-flex; align-items: center; gap: 8px; background: #c9a24b; color: #1a1206;
+      border: 0; border-radius: 12px; padding: 13px 24px; font: 700 15px system-ui, sans-serif;
       box-shadow: 0 3px 14px #0008; white-space: nowrap; }
     body.ar-ok #welcome-btn { bottom: calc(74px + env(safe-area-inset-bottom)); }
-    #welcome-btn:active { filter: brightness(1.2); }
+    #welcome-btn:active { filter: brightness(.92); }
     /* Botón "Ver en AR" (PRIMARIO, centrado abajo). Oculto por defecto: el motor
        lo muestra (.show) solo si el dispositivo soporta AR (iPhone Quick Look /
        Android Scene Viewer). Late suavemente para que se note. */
@@ -50,7 +50,7 @@
 <body>
   <model-viewer id="mv"
     src="assets/borja.glb?v=2"
-    ios-src="assets/borja.usdz?v=2"
+    ios-src="assets/borja.usdz?v=3"
     ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto"
     alt="Escultura policromada de San Francisco de Borja"
     camera-controls interaction-prompt="auto" interaction-prompt-threshold="1500"
